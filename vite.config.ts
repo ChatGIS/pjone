@@ -2,7 +2,7 @@
  * @Author: Dreamice dreamice13@foxmail.com
  * @Date: 2024-04-03 23:07:33
  * @LastEditors: Dreamice dreamice13@foxmail.com
- * @LastEditTime: 2024-04-10 11:57:26
+ * @LastEditTime: 2024-04-10 15:48:04
  * @FilePath: \pjone\vite.config.ts
  * @Description: 
  */
@@ -15,6 +15,7 @@ import eslint from 'vite-plugin-eslint'
 import { resolve } from 'path'
 
 const pjoneServer = 'http://127.0.0.1:1304/'
+const modaServer = 'http://127.0.0.1:3007/'
 export default defineConfig({
   base: '/pjone/',
   server: {
@@ -22,9 +23,14 @@ export default defineConfig({
       '/pjone-server': {
         target: pjoneServer,
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/pjone-server/, '')
+        // rewrite: (path) => path.replace(/^\/pjone-server/, '')
+      },
+      '/api': {
+        target: modaServer,
+        changeOrigin: true,
+        // rewrite: (path) => path.replace(/^\/api/, '')
       }
-    }
+    },
   },
   plugins: [
     vue(),

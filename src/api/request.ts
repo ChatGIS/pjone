@@ -2,14 +2,15 @@
  * @Author: Dreamice dreamice13@foxmail.com
  * @Date: 2024-04-03 23:07:33
  * @LastEditors: Dreamice dreamice13@foxmail.com
- * @LastEditTime: 2024-04-10 11:58:38
+ * @LastEditTime: 2024-04-10 15:46:40
  * @FilePath: \pjone\src\api\request.ts
  * @Description: 
  */
 import axios from 'axios'
 
 const instance = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL as string,
+  // baseURL: import.meta.env.VITE_BASE_URL as string,
+  baseURL: '/api',
   timeout: 5000,
 })
 // 添加请求拦截器

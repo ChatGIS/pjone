@@ -2,7 +2,7 @@
  * @Author: Dreamice dreamice13@foxmail.com
  * @Date: 2024-04-10 11:58:41
  * @LastEditors: Dreamice dreamice13@foxmail.com
- * @LastEditTime: 2024-04-10 14:10:41
+ * @LastEditTime: 2024-04-10 15:46:50
  * @FilePath: \pjone\src\api\request-spring.ts
  * @Description: 调用SpringBoot程序后台接口
  */
@@ -11,6 +11,7 @@ import axios from 'axios'
 
 const instance = axios.create({
   baseURL: '/pjone-server',
+  // baseURL: import.meta.env.VITE_SPRING_BASE_URL as string,
   timeout: 5000,
 })
 // 添加请求拦截器
