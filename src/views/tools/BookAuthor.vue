@@ -3,21 +3,21 @@ import html2canvas from 'html2canvas'
 
 // 导出图片
 function exportPic(){
-    html2canvas(document.querySelector('#eee')).then(canvas => {
-        let dataURL = canvas.toDataURL('image/png')
-        if (dataURL !== '') {
-            var a = document.createElement('a')
-            a.download = '分析报告'
-            a.href = dataURL
-            a.click()
-        }
-    }), {
-        backgroundColor: '#ffffff',
-        allowTaint: true,  //开启跨域
-        useCORS: true,
-        scrollY: 0,
-        scrollX: 0,
+  html2canvas(document.querySelector('#eee')).then(canvas => {
+    let dataURL = canvas.toDataURL('image/png')
+    if (dataURL !== '') {
+      var a = document.createElement('a')
+      a.download = '分析报告'
+      a.href = dataURL
+      a.click()
     }
+  }), {
+    backgroundColor: '#ffffff',
+    allowTaint: true,  //开启跨域
+    useCORS: true,
+    scrollY: 0,
+    scrollX: 0,
+  }
 
 }
 
