@@ -14,7 +14,7 @@
                                     <span>{{ item.name }}</span>
                                 </div>
                                 <div>
-                                    <el-tag type="success" size="small" v-for="aTag in item.tags_name.split(',')"
+                                    <el-tag type="success" size="small" v-for="aTag in item.tags_name && item.tags_name.split(',')"
                                         :key="aTag" round>{{ aTag }}</el-tag>
                                 </div>
                             </el-col>
