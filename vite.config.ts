@@ -2,7 +2,7 @@
  * @Author: Dreamice dreamice13@foxmail.com
  * @Date: 2024-04-03 23:07:33
  * @LastEditors: Dreamice dreamice13@foxmail.com
- * @LastEditTime: 2024-04-10 15:48:04
+ * @LastEditTime: 2024-04-10 17:57:15
  * @FilePath: \pjone\vite.config.ts
  * @Description: 
  */
