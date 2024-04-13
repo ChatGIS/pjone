@@ -2,7 +2,7 @@
  * @Author: Dreamice dreamice13@foxmail.com
  * @Date: 2024-04-03 23:07:33
  * @LastEditors: Dreamice dreamice13@foxmail.com
- * @LastEditTime: 2024-04-03 23:31:27
+ * @LastEditTime: 2024-04-20 21:36:33
  * @FilePath: \pjone\src\components\type\index.vue
  * @Description: 
 -->
@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { getTag } from '../../api/tag'
+import { tagApi } from '@/api'
 import { ref, defineEmits, reactive } from 'vue'
 
 // 定义存放字典值的对象
@@ -34,7 +34,7 @@ const param = {
 }
 // 获取类型
 const getType = async () => {
-  const res = await getTag(param)
+  const res = await tagApi.getTag(param)
   dicts.push(...res.tags)
 }
 getType()

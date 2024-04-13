@@ -73,6 +73,7 @@
 <script lang="ts" setup>
 import Type from '@/components/type/index.vue'
 import Saying from '@/components/saying/index.vue'
+import { websiteApi } from '@/api'
 import { getWebsite, clickWebsite } from '@/api/resource.js'
 import { reactive, ref } from 'vue'
 import getAssetsFile from '@/utils/sys-use'
@@ -110,7 +111,7 @@ const websiteData: Website[] = reactive([])
 const initGetWebsitesList = async () => {
   // let tags = tagSelected ? tagSelected : []
   pageParam.value.tags = tagValueSelected.value
-  const res = await getWebsite(pageParam.value)
+  const res = await websiteApi.getWebsite(pageParam.value)
   total.value = res.total
   websiteData.length = 0
   websiteData.push(...res.websites)
@@ -128,7 +129,7 @@ const handleCurrentChange = (val: number) => {
 const clickWeb = (id: number, url: string) => {
 
   window.open(url)
-  clickWebsite(id)
+  websiteApi.clickWebsite(id)
 }
 
 // 获取点击的标签值

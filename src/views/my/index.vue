@@ -2,14 +2,14 @@
  * @Author: Dreamice dreamice13@foxmail.com
  * @Date: 2024-04-03 23:07:33
  * @LastEditors: Dreamice dreamice13@foxmail.com
- * @LastEditTime: 2024-04-10 12:41:07
+ * @LastEditTime: 2024-04-20 21:26:24
  * @FilePath: \pjone\src\views\my\index.vue
  * @Description: 
 -->
 <script setup>
 import * as echarts from 'echarts'
 import { onMounted } from 'vue'
-import { getRecordsNum } from '@/api/life'
+import { lifeColorApi } from '@/api'
 
 
 onMounted(() => {
@@ -18,7 +18,7 @@ onMounted(() => {
   var option
 
   const initRecommendWebsites = async () => {
-    const res = await getRecordsNum()
+    const res = await lifeColorApi.getRecordsNum()
     console.log(res)
     option = {
       visualMap: {

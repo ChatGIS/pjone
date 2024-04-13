@@ -1,6 +1,6 @@
 
 <script setup lang='ts'>
-import { getSaying } from '@/api/saying'
+import { sayingApi } from '@/api'
 import { ref } from 'vue'
 
 const showSaying = ref('')
@@ -13,7 +13,7 @@ const sayingInterval = ref()
  * @return {*}
  */
 const initSaying = async () => {
-  const result = await getSaying()
+  const result = await sayingApi.getSaying()
   sayingInfo.value = result.saying[0]
   showSaying.value = result.saying[0].name
 }

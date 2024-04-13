@@ -2,7 +2,7 @@
  * @Author: Dreamice dreamice13@foxmail.com
  * @Date: 2024-04-03 23:07:33
  * @LastEditors: Dreamice dreamice13@foxmail.com
- * @LastEditTime: 2024-04-03 23:35:55
+ * @LastEditTime: 2024-04-20 21:33:52
  * @FilePath: \pjone\src\views\login.vue
  * @Description: 
 -->
@@ -10,7 +10,7 @@
 import { reactive } from 'vue'
 import 'element-plus/es/components/message/style/css'
 import { ElMessage } from 'element-plus'
-import { login } from '../api/login'
+import { systemApi } from '@/api'
 import router from '../router'
 import { useMainStore } from '../store'
 
@@ -23,7 +23,7 @@ const form = reactive({
 const store = useMainStore()
 // 登录函数
 const onSubmit = async () => {       
-  await login(form).then((res) => {
+  await systemApi.login(form).then((res) => {
     store.isLogin = true
     ElMessage({
       message: `欢迎回来，${res.username}`,

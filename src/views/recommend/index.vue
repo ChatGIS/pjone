@@ -59,6 +59,7 @@
 
 <script lang="ts" setup>
 import { recommendWebsites, clickWebsite } from '@/api/resource.js'
+import { websiteApi } from '@/api'
 import { reactive } from 'vue'
 import Saying from '@/components/saying/index.vue'
 
@@ -81,7 +82,7 @@ const queryParam = reactive({
 })
 // 查询网站
 const initRecommendWebsites = async () => {
-  const res = await recommendWebsites(queryParam)
+  const res = await websiteApi.recommendWebsites(queryParam)
   websiteData.push(...res.websites)
   console.log(res)
     
@@ -91,7 +92,7 @@ initRecommendWebsites()
 // 点击网站
 const clickWeb = (id: number, url: string) => {
   window.open(url)
-  clickWebsite(id)
+  websiteApi.clickWebsite(id)
 }
 </script>
 
