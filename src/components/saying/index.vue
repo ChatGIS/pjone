@@ -1,3 +1,11 @@
+<!--
+ * @Author: Dreamice dreamice13@foxmail.com
+ * @Date: 2024-04-03 23:07:33
+ * @LastEditors: Dreamice dreamice13@foxmail.com
+ * @LastEditTime: 2024-04-20 23:48:19
+ * @FilePath: \pjone\src\components\saying\index.vue
+ * @Description: 
+-->
 
 <script setup lang='ts'>
 import { sayingApi } from '@/api'
@@ -13,9 +21,9 @@ const sayingInterval = ref()
  * @return {*}
  */
 const initSaying = async () => {
-  const result = await sayingApi.getSaying()
-  sayingInfo.value = result.saying[0]
-  showSaying.value = result.saying[0].name
+  const result = await sayingApi.getRandomSaying()
+  sayingInfo.value = result
+  showSaying.value = result.name
 }
 initSaying()
 
