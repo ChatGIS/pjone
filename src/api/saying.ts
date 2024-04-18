@@ -15,3 +15,8 @@ export const getRandomSaying = () => {
     url: base + '/getRandomSaying',
   })
 }
+export const getCountEveryDay = () => {
+  return request({
+    url: base + '/getCountEveryDay',
+  })
+}
