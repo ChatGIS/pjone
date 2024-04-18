@@ -2,7 +2,7 @@
  * @Author: Dreamice dreamice13@foxmail.com
  * @Date: 2022-11-10 19:03:25
  * @LastEditors: Dreamice dreamice13@foxmail.com
- * @LastEditTime: 2024-04-03 23:34:28
+ * @LastEditTime: 2024-04-23 14:19:50
  * @FilePath: \pjone\src\views\container.vue
  * @Description: 
 -->
@@ -60,6 +60,7 @@ section {
     height: var(--header-height);
 }
 #bn-main {
+    width: 100%;
     position: absolute;
     top: 60px;
     height: calc(100% - var(--header-height) - var(--footer-height));
