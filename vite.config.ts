@@ -2,7 +2,7 @@
  * @Author: Dreamice dreamice13@foxmail.com
  * @Date: 2024-04-03 23:07:33
  * @LastEditors: Dreamice dreamice13@foxmail.com
- * @LastEditTime: 2024-04-10 17:57:15
+ * @LastEditTime: 2024-04-20 23:46:46
  * @FilePath: \pjone\vite.config.ts
  * @Description: 
  */
@@ -14,7 +14,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import eslint from 'vite-plugin-eslint'
 import { resolve } from 'path'
 
-const pjoneServer = 'http://127.0.0.1:1304/'
+const pjoneServer = 'http://127.0.0.1:13041/'
 const modaServer = 'http://127.0.0.1:3007/'
 export default defineConfig({
   base: '/pjone/',
