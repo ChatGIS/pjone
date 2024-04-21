@@ -2,21 +2,28 @@
  * @Author: Dreamice dreamice13@foxmail.com
  * @Date: 2024-04-03 23:07:33
  * @LastEditors: Dreamice dreamice13@foxmail.com
- * @LastEditTime: 2024-04-23 14:46:31
+ * @LastEditTime: 2024-05-21 10:03:48
  * @FilePath: \pjone\src\views\my\index.vue
  * @Description: 
 -->
 <script setup>
 import * as echarts from 'echarts'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { lifeColorApi, sayingApi } from '@/api'
 
-
+const tableData = ref([])
 onMounted(() => {
+  initLifeColorList()
+
   initSaying()
-  initLifeColor() 
+  initLifeColor()
 }
 )
+const initLifeColorList = () => {
+  lifeColorApi.getLifeColorList().then(res => {
+    tableData.value = res
+  })
+}
 const initLifeColor = async () => {
   var chartDom = document.getElementById('container-l-c-y')
   var myChart = echarts.init(chartDom)
@@ -26,7 +33,7 @@ const initLifeColor = async () => {
   option = {
     tooltip: {  // 鼠标悬浮提示
       position: 'top',
-      formatter: function(params) {
+      formatter: function (params) {
         var html = ''
         html += `<span style="color: ${colorMain}">${params.value[0]}：${params.value[1]}</span><br />`
         return html
@@ -50,7 +57,7 @@ const initLifeColor = async () => {
     }
   }
 
-  option && myChart.setOption(option) 
+  option && myChart.setOption(option)
 }
 const initSaying = async () => {
   var chartDom = document.getElementById('container-saying')
@@ -62,7 +69,7 @@ const initSaying = async () => {
   option = {
     tooltip: {  // 鼠标悬浮提示
       position: 'top',
-      formatter: function(params) {
+      formatter: function (params) {
         var html = ''
         html += `<span style="color: ${colorMain}">${params.value[0]}：${params.value[1]}</span><br />`
         return html
@@ -73,7 +80,7 @@ const initSaying = async () => {
       min: 0,
       max: 5,
       inRange: {  // 方块颜色
-        color: ['White', colorMain]  
+        color: ['White', colorMain]
       }
     },
     calendar: {
@@ -86,21 +93,38 @@ const initSaying = async () => {
     }
   }
 
-  option && myChart.setOption(option) 
+  option && myChart.setOption(option)
 }
 </script>
 
 <template>
-    <div class="calendar-box">
+  <el-row>
+    <el-col :span="16">
+      <div class="calendar-box">
         <div id="container-l-c-y" class="calendar-container"></div>
         <div id="container-saying" class="calendar-container"></div>
-    </div>
+      </div>
+    </el-col>
+    <el-col :span="8">
+      <div id="table-container">
+        <el-table ref="singleTableRef" :data="tableData" highlight-current-row style="width: 100%"
+          @current-change="handleCurrentChange">
+          <el-table-column type="index" width="50" />
+          <el-table-column property="doDate" label="日期"/>
+          <el-table-column property="type" label="类型"/>
+          <el-table-column property="minute" label="时长" />
+          <el-table-column property="num" label="次数"  width="60"/>
+        </el-table>
+      </div>
+    </el-col>
+  </el-row>
 </template>
 
 <style scoped>
 .calendar-box {
   width: 100%;
 }
+
 .calendar-container {
   width: 100%;
   height: 200px;

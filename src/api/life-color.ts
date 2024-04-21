@@ -10,6 +10,11 @@ import request from './request-spring'
 
 
 const base = '/lifeColor'
+export const getLifeColorList = () => {
+  return request({
+    url: base + '/getLifeColorList',
+  })
+}
 export const getRecordsNum = () => {
   return request({
     url: base + '/getRecordsNum',
