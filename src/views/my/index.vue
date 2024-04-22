@@ -2,16 +2,50 @@
  * @Author: Dreamice dreamice13@foxmail.com
  * @Date: 2024-04-03 23:07:33
  * @LastEditors: Dreamice dreamice13@foxmail.com
- * @LastEditTime: 2024-05-21 10:03:48
+ * @LastEditTime: 2024-05-21 11:47:57
  * @FilePath: \pjone\src\views\my\index.vue
  * @Description: 
 -->
 <script setup>
 import * as echarts from 'echarts'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, reactive } from 'vue'
 import { lifeColorApi, sayingApi } from '@/api'
+import 'element-plus/es/components/message/style/css'
+import { ElMessage } from 'element-plus'
 
 const tableData = ref([])
+const formLC = reactive({
+  doDate: '',
+  type: '',
+  minute: 5,
+  num: 1
+})
+const optionsLCType = [
+  {
+    value: 'R',
+    label: 'R',
+  },
+  {
+    value: 'G',
+    label: 'G',
+  },
+  {
+    value: 'MY',
+    label: 'MY',
+  },
+  {
+    value: 'MN',
+    label: 'MN',
+  },
+  {
+    value: 'YH',
+    label: 'YH',
+  },
+  {
+    value: 'YS',
+    label: 'YS',
+  }
+]
 onMounted(() => {
   initLifeColorList()
 
@@ -95,6 +129,18 @@ const initSaying = async () => {
 
   option && myChart.setOption(option)
 }
+const addLC = () => {
+  if(!formLC || !formLC.type) {
+    ElMessage.warning('日期、类型为必填项')
+  } else {
+    lifeColorApi.addLifeColor(formLC).then(num => {
+      if(num == 1) {
+        initLifeColorList()
+        initLifeColor()
+      }
+    })
+  }
+}
 </script>
 
 <template>
@@ -107,13 +153,22 @@ const initSaying = async () => {
     </el-col>
     <el-col :span="8">
       <div id="table-container">
+        <div>
+          <el-date-picker v-model="formLC.doDate" type="date" placeholder="日期选择" style="width: 150px;" value-format="YYYY-MM-DD"/>
+          <el-select v-model="formLC.type" placeholder="类型" style="width: 150px;">
+            <el-option v-for="item in optionsLCType" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+          <el-input-number v-model="formLC.minute" :min="5" :step="5" style="width:100px"/>
+          <el-input-number v-model="formLC.num" :min="1" :step="1" style="width:100px"/>
+          <el-button plain @click="addLC">添加</el-button>
+        </div>
         <el-table ref="singleTableRef" :data="tableData" highlight-current-row style="width: 100%"
           @current-change="handleCurrentChange">
           <el-table-column type="index" width="50" />
-          <el-table-column property="doDate" label="日期"/>
-          <el-table-column property="type" label="类型"/>
+          <el-table-column property="doDate" label="日期" />
+          <el-table-column property="type" label="类型" />
           <el-table-column property="minute" label="时长" />
-          <el-table-column property="num" label="次数"  width="60"/>
+          <el-table-column property="num" label="次数" width="60" />
         </el-table>
       </div>
     </el-col>
