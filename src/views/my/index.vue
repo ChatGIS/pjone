@@ -2,7 +2,7 @@
  * @Author: Dreamice dreamice13@foxmail.com
  * @Date: 2024-04-03 23:07:33
  * @LastEditors: Dreamice dreamice13@foxmail.com
- * @LastEditTime: 2024-05-21 11:47:57
+ * @LastEditTime: 2024-05-22 11:30:54
  * @FilePath: \pjone\src\views\my\index.vue
  * @Description: 
 -->
@@ -19,6 +19,12 @@ const formLC = reactive({
   type: '',
   minute: 5,
   num: 1
+})
+const form = ref({
+  name: '',
+  author: '',
+  book: '',
+  article: ''
 })
 const optionsLCType = [
   {
@@ -60,6 +66,7 @@ const initLifeColorList = () => {
 }
 const initLifeColor = async () => {
   var chartDom = document.getElementById('container-l-c-y')
+  chartDom.removeAttribute('_echarts_instance_')
   var myChart = echarts.init(chartDom)
   const colorMain = 'rgb(254, 204, 17)'
   var option
@@ -95,6 +102,7 @@ const initLifeColor = async () => {
 }
 const initSaying = async () => {
   var chartDom = document.getElementById('container-saying')
+  chartDom.removeAttribute('_echarts_instance_')
   var myChart = echarts.init(chartDom)
   const colorMain = 'Blue'
   var option
@@ -130,49 +138,96 @@ const initSaying = async () => {
   option && myChart.setOption(option)
 }
 const addLC = () => {
-  if(!formLC || !formLC.type) {
+  if (!formLC || !formLC.type) {
     ElMessage.warning('日期、类型为必填项')
   } else {
     lifeColorApi.addLifeColor(formLC).then(num => {
-      if(num == 1) {
+      if (num == 1) {
         initLifeColorList()
         initLifeColor()
       }
     })
   }
 }
+const addSaying = () => {
+  sayingApi.addSaying(form.value).then(num => {
+    if (num == 1) {
+      initSaying()
+      ElMessage.success('添加语录成功')
+    }
+  })
+}
+const clearSaying = () => {
+  form.value.article = ''
+  form.value.author = ''
+  form.value.book = ''
+  form.value.name = ''
+}
 </script>
 
 <template>
-  <el-row>
-    <el-col :span="16">
-      <div class="calendar-box">
-        <div id="container-l-c-y" class="calendar-container"></div>
-        <div id="container-saying" class="calendar-container"></div>
-      </div>
-    </el-col>
-    <el-col :span="8">
-      <div id="table-container">
-        <div>
-          <el-date-picker v-model="formLC.doDate" type="date" placeholder="日期选择" style="width: 150px;" value-format="YYYY-MM-DD"/>
-          <el-select v-model="formLC.type" placeholder="类型" style="width: 150px;">
-            <el-option v-for="item in optionsLCType" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-          <el-input-number v-model="formLC.minute" :min="5" :step="5" style="width:100px"/>
-          <el-input-number v-model="formLC.num" :min="1" :step="1" style="width:100px"/>
-          <el-button plain @click="addLC">添加</el-button>
+  <div>
+    <el-row>
+      <el-col :span="16">
+        <div class="calendar-box">
+          <div id="container-l-c-y" class="calendar-container"></div>
         </div>
-        <el-table ref="singleTableRef" :data="tableData" highlight-current-row style="width: 100%"
-          @current-change="handleCurrentChange">
-          <el-table-column type="index" width="50" />
-          <el-table-column property="doDate" label="日期" />
-          <el-table-column property="type" label="类型" />
-          <el-table-column property="minute" label="时长" />
-          <el-table-column property="num" label="次数" width="60" />
-        </el-table>
-      </div>
-    </el-col>
-  </el-row>
+      </el-col>
+      <el-col :span="8">
+        <div id="table-container">
+          <div>
+            <el-date-picker v-model="formLC.doDate" type="date" placeholder="日期选择" style="width: 150px;"
+              value-format="YYYY-MM-DD" />
+            <el-select v-model="formLC.type" placeholder="类型" style="width: 150px;">
+              <el-option v-for="item in optionsLCType" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+            <el-input-number v-model="formLC.minute" :min="5" :step="5" style="width:100px" />
+            <el-input-number v-model="formLC.num" :min="1" :step="1" style="width:100px" />
+            <el-button plain @click="addLC">添加</el-button>
+          </div>
+          <el-table ref="singleTableRef" :data="tableData" highlight-current-row style="width: 100%"
+            @current-change="handleCurrentChange">
+            <el-table-column type="index" width="50" />
+            <el-table-column property="doDate" label="日期" />
+            <el-table-column property="type" label="类型" />
+            <el-table-column property="minute" label="时长" />
+            <el-table-column property="num" label="次数" width="60" />
+          </el-table>
+        </div>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="16">
+        <div class="calendar-box">
+          <div id="container-saying" class="calendar-container"></div>
+        </div>
+      </el-col>
+      <el-col :span="8">
+        <div id="table-container">
+          <el-card>
+            <el-form ref=formRef :model=form label-width="70px" :rules="rules">
+              <el-form-item label="语录" prop="name">
+                <el-input v-model="form.name" type="textarea"></el-input>
+              </el-form-item>
+              <el-form-item label="作者" prop="author">
+                <el-input v-model="form.author"></el-input>
+              </el-form-item>
+              <el-form-item label="书名" prop="book">
+                <el-input v-model="form.book"></el-input>
+              </el-form-item>
+              <el-form-item label="文章名" prop="article">
+                <el-input v-model="form.article" />
+              </el-form-item>
+            </el-form>
+            <span class="dialog-footer">
+              <el-button @click="clearSaying">清空</el-button>
+              <el-button type="primary" @click="addSaying">确认</el-button>
+            </span>
+          </el-card>
+        </div>
+      </el-col>
+    </el-row>
+  </div>
 </template>
 
 <style scoped>
@@ -183,5 +238,12 @@ const addLC = () => {
 .calendar-container {
   width: 100%;
   height: 200px;
+}
+.el-row {
+  padding: 10px 20px;
+  border: 1px solid #00000030;
+  border-radius: 10px;
+  box-shadow: 8px 5px #1883c408;
+  margin: 10px 0px;
 }
 </style>

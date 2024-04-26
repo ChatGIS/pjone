@@ -10,6 +10,13 @@ import request from './request-spring.js'
 
 const base = '/saying'
 
+export const addSaying = (data: any) => {
+  return request({
+    url: base + '/addSaying',
+    method: 'post',
+    data
+  })
+}
 export const getRandomSaying = () => {
   return request({
     url: base + '/getRandomSaying',
