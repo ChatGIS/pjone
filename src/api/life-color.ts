@@ -15,6 +15,11 @@ export const getLifeColorList = () => {
     url: base + '/getLifeColorList',
   })
 }
+export const getMinuteLastYear = () => {
+  return request({
+    url: base + '/getMinuteLastYear',
+  })
+}
 export const addLifeColor = (data: any) => {
   return request({
     url: base + '/addLifeColor',

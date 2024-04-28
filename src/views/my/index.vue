@@ -2,7 +2,7 @@
  * @Author: Dreamice dreamice13@foxmail.com
  * @Date: 2024-04-03 23:07:33
  * @LastEditors: Dreamice dreamice13@foxmail.com
- * @LastEditTime: 2024-05-22 11:30:54
+ * @LastEditTime: 2024-05-22 18:24:54
  * @FilePath: \pjone\src\views\my\index.vue
  * @Description: 
 -->
@@ -54,7 +54,7 @@ const optionsLCType = [
 ]
 onMounted(() => {
   initLifeColorList()
-
+  initColorBarLastYear()
   initSaying()
   initLifeColor()
 }
@@ -137,6 +137,64 @@ const initSaying = async () => {
 
   option && myChart.setOption(option)
 }
+const initColorBarLastYear = async () => {
+  let valueR = 0
+  let valueG = 0
+  let valueY = 0
+  await lifeColorApi.getMinuteLastYear().then(data => {
+    for(let i = 0; i < data.length; i++) {
+      if(data[i].type == 'R') {
+        valueR = data[i].total_minute
+      } else if(data[i].type == 'G') {
+        valueG = data[i].total_minute
+      } else {
+        valueY += data[i].total_minute
+      }
+    }
+  })
+  const dataX = ['R', 'G', 'Y']
+  const dataY = [{
+    value: valueR,
+    itemStyle: {
+      color: 'red'
+    }
+  },{
+    value: valueG,
+    itemStyle: {
+      color: 'green'
+    }
+  },{
+    value: valueY,
+    itemStyle: {
+      color: '#b78d12'
+    }
+  }]
+  var chartDom = document.getElementById('container-color-bar')
+  var myChart = echarts.init(chartDom)
+  var option
+
+  option = {
+    xAxis: {
+      type: 'category',
+      data: dataX
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [
+      {
+        data: dataY,
+        type: 'bar',
+        label: {
+          show: true,
+          position: 'top'
+        }
+      }
+    ]
+  }
+
+  option && myChart.setOption(option)
+}
 const addLC = () => {
   if (!formLC || !formLC.type) {
     ElMessage.warning('日期、类型为必填项')
@@ -172,6 +230,7 @@ const clearSaying = () => {
         <div class="calendar-box">
           <div id="container-l-c-y" class="calendar-container"></div>
         </div>
+        <div id="container-color-bar"></div>
       </el-col>
       <el-col :span="8">
         <div id="table-container">
@@ -234,10 +293,13 @@ const clearSaying = () => {
 .calendar-box {
   width: 100%;
 }
-
 .calendar-container {
   width: 100%;
   height: 200px;
+}
+#container-color-bar {
+  width: 300px;
+  height: 300px;
 }
 .el-row {
   padding: 10px 20px;
