@@ -1,8 +1,8 @@
 /*
- * @Author: Dreamice dreamice13@foxmail.com
+ * @Author: ChatGIS ChatGIS@outlook.com
  * @Date: 2024-04-03 23:07:33
- * @LastEditors: Dreamice dreamice13@foxmail.com
- * @LastEditTime: 2024-04-20 23:46:46
+ * @LastEditors: ChatGIS ChatGIS@outlook.com
+ * @LastEditTime: 2024-07-02 18:02:40
  * @FilePath: \pjone\vite.config.ts
  * @Description: 
  */

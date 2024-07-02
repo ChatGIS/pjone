@@ -1,11 +1,3 @@
-<!--
- * @Author: Dreamice dreamice13@foxmail.com
- * @Date: 2024-04-03 23:07:33
- * @LastEditors: Dreamice dreamice13@foxmail.com
- * @LastEditTime: 2024-05-22 18:24:54
- * @FilePath: \pjone\src\views\my\index.vue
- * @Description: 
--->
 <script setup>
 import * as echarts from 'echarts'
 import { onMounted, ref, reactive } from 'vue'
@@ -56,7 +48,7 @@ onMounted(() => {
   initLifeColorList()
   initColorBarLastYear()
   initSaying()
-  initLifeColor()
+  initCalendarData()
 }
 )
 const initLifeColorList = () => {
@@ -64,13 +56,22 @@ const initLifeColorList = () => {
     tableData.value = res
   })
 }
-const initLifeColor = async () => {
+/**
+ * @description: 
+ * @return {*}
+ */
+const initCalendarData = async (type) => {
+  let colorMain = '#fecc11'
+  if(type == 'G') {
+    colorMain = 'green'
+  } else if (type == 'R') {
+    colorMain = 'red'
+  }
   var chartDom = document.getElementById('container-l-c-y')
   chartDom.removeAttribute('_echarts_instance_')
   var myChart = echarts.init(chartDom)
-  const colorMain = 'rgb(254, 204, 17)'
   var option
-  const res = await lifeColorApi.getRecordsNum()
+  const res = await lifeColorApi.getRecordsNum(type)
   option = {
     tooltip: {  // 鼠标悬浮提示
       position: 'top',
@@ -166,10 +167,11 @@ const initColorBarLastYear = async () => {
   },{
     value: valueY,
     itemStyle: {
-      color: '#b78d12'
+      color: '#fecc11'
     }
   }]
   var chartDom = document.getElementById('container-color-bar')
+  chartDom.removeAttribute('_echarts_instance_')
   var myChart = echarts.init(chartDom)
   var option
 
@@ -194,6 +196,10 @@ const initColorBarLastYear = async () => {
   }
 
   option && myChart.setOption(option)
+
+  myChart.on('click', (params) => {
+    initCalendarData(params.name)
+  })
 }
 const addLC = () => {
   if (!formLC || !formLC.type) {
@@ -202,7 +208,8 @@ const addLC = () => {
     lifeColorApi.addLifeColor(formLC).then(num => {
       if (num == 1) {
         initLifeColorList()
-        initLifeColor()
+        initCalendarData()
+        initColorBarLastYear()
       }
     })
   }
