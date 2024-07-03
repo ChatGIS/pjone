@@ -28,20 +28,16 @@ const optionsLCType = [
     label: 'G',
   },
   {
-    value: 'MY',
-    label: 'MY',
+    value: 'YY',
+    label: 'YY',
   },
   {
-    value: 'MN',
-    label: 'MN',
+    value: 'YN',
+    label: 'YN',
   },
   {
     value: 'YH',
     label: 'YH',
-  },
-  {
-    value: 'YS',
-    label: 'YS',
   }
 ]
 onMounted(() => {
@@ -84,7 +80,7 @@ const initCalendarData = async (type) => {
     visualMap: {
       show: false,
       min: 0,
-      max: 3,
+      max: 60,
       inRange: {  // 方块颜色
         color: ['White', colorMain]
       }
