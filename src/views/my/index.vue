@@ -86,7 +86,15 @@ const initCalendarData = async (type) => {
       }
     },
     calendar: {
-      range: '2024'
+      range: [(new Date().getFullYear() - 1) + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate(), 
+        new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate()],
+      dayLabel: {
+        firstDay: 1,
+        nameMap: 'ZH'
+      },
+      monthLabel: {
+        nameMap: 'ZH'
+      }
     },
     series: {
       type: 'heatmap',
