@@ -1,13 +1,89 @@
+<template>
+  <div>
+    <el-row>
+      <el-col :span="24">
+        <el-button :icon="Edit" circle  @click="lifeDrawer = true"/>
+        <div class="calendar-box">
+          <div id="container-l-c-y" class="calendar-container"></div>
+        </div>
+        <div id="container-color-bar"></div>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="24">
+        <el-button :icon="Edit" circle  @click="sayingDrawer = true"/>
+        <div class="calendar-box">
+          <div id="container-saying" class="calendar-container"></div>
+        </div>
+      </el-col>
+    </el-row>
+    <el-Drawer v-model="lifeDrawer" title="LifeColorEdit" :direction="direction" :before-close="handleClose">
+      <div id="table-container">
+        <div>
+          <el-date-picker v-model="formLC.doDate" type="date" placeholder="日期选择" style="width: 150px;" :default-time="defaultTime"
+            value-format="YYYY-MM-DD" />
+          <el-select v-model="formLC.type" placeholder="类型" style="width: 150px;">
+            <el-option v-for="item in optionsLCType" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+          <div>
+            <el-input-number v-model="formLC.minute" :min="5" :step="5"/>
+            <el-input-number v-model="formLC.num" :min="1" :step="1"/>
+          </div>
+          <el-button plain @click="addLC">添加</el-button>
+        </div>
+        <el-table ref="singleTableRef" :data="tableData" highlight-current-row style="width: 100%"
+          @current-change="handleCurrentChange">
+          <el-table-column type="index" width="50" />
+          <el-table-column property="doDate" label="日期" />
+          <el-table-column property="type" label="类型" />
+          <el-table-column property="minute" label="时长" />
+          <el-table-column property="num" label="次数" width="60" />
+        </el-table>
+      </div>
+    </el-Drawer>
+    <el-Drawer v-model="sayingDrawer" title="语录管理" :direction="direction" :before-close="handleClose">
+      <div id="table-container">
+          <el-card>
+            <el-form ref=formRef :model=form label-width="70px" :rules="rules">
+              <el-form-item label="语录" prop="name">
+                <el-input v-model="form.name" type="textarea"></el-input>
+              </el-form-item>
+              <el-form-item label="作者" prop="author">
+                <el-input v-model="form.author"></el-input>
+              </el-form-item>
+              <el-form-item label="书名" prop="book">
+                <el-input v-model="form.book"></el-input>
+              </el-form-item>
+              <el-form-item label="文章名" prop="article">
+                <el-input v-model="form.article" />
+              </el-form-item>
+            </el-form>
+            <span class="dialog-footer">
+              <el-button @click="clearSaying">清空</el-button>
+              <el-button type="primary" @click="addSaying">确认</el-button>
+            </span>
+          </el-card>
+        </div>
+    </el-Drawer>
+  </div>
+</template>
 <script setup>
 import * as echarts from 'echarts'
 import { onMounted, ref, reactive } from 'vue'
 import { lifeColorApi, sayingApi } from '@/api'
 import 'element-plus/es/components/message/style/css'
 import { ElMessage } from 'element-plus'
+import { Edit } from '@element-plus/icons-vue'
 
+const defaultTime = ref<[Date, Date]>([
+  new Date(2000, 1, 1, 0, 0, 0),
+  new Date(2000, 2, 1, 23, 59, 59),
+])
+const lifeDrawer = ref(false)
+const sayingDrawer = ref(false)
 const tableData = ref([])
 const formLC = reactive({
-  doDate: '',
+  doDate: new Date,
   type: '',
   minute: 5,
   num: 1
@@ -19,6 +95,14 @@ const form = ref({
   article: ''
 })
 const optionsLCType = [
+  {
+    value: 'B',
+    label: 'B',
+  },
+  {
+    value: 'D',
+    label: 'D',
+  },
   {
     value: 'R',
     label: 'R',
@@ -44,7 +128,7 @@ onMounted(() => {
   initLifeColorList()
   initColorBarLastYear()
   initSaying()
-  initCalendarData()
+  initCalendarData('G')
 }
 )
 const initLifeColorList = () => {
@@ -58,7 +142,11 @@ const initLifeColorList = () => {
  */
 const initCalendarData = async (type) => {
   let colorMain = '#fecc11'
-  if(type == 'G') {
+  if (type == 'B') {
+    colorMain = 'blue'
+  } else if (type == 'D') {
+    colorMain = '#161823'
+  }else if (type == 'G') {
     colorMain = 'green'
   } else if (type == 'R') {
     colorMain = 'red'
@@ -86,7 +174,7 @@ const initCalendarData = async (type) => {
       }
     },
     calendar: {
-      range: [(new Date().getFullYear() - 1) + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate(), 
+      range: [(new Date().getFullYear() - 1) + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate(),
         new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate()],
       dayLabel: {
         firstDay: 1,
@@ -143,32 +231,48 @@ const initSaying = async () => {
   option && myChart.setOption(option)
 }
 const initColorBarLastYear = async () => {
+  let valueB = 0
+  let valueD = 0
   let valueR = 0
   let valueG = 0
   let valueY = 0
   await lifeColorApi.getMinuteLastYear().then(data => {
-    for(let i = 0; i < data.length; i++) {
-      if(data[i].type == 'R') {
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].type == 'B') {
+        valueB = data[i].total_minute
+      } else if (data[i].type == 'D') {
+        valueD = data[i].total_minute
+      } else if (data[i].type == 'R') {
         valueR = data[i].total_minute
-      } else if(data[i].type == 'G') {
+      } else if (data[i].type == 'G') {
         valueG = data[i].total_minute
       } else {
         valueY += data[i].total_minute
       }
     }
   })
-  const dataX = ['R', 'G', 'Y']
+  const dataX = ['B', 'D', 'R', 'G', 'Y']
   const dataY = [{
+    value: valueB,
+    itemStyle: {
+      color: 'blue'
+    }
+  },{
+    value: valueD,
+    itemStyle: {
+      color: '#161823'
+    }
+  },{
     value: valueR,
     itemStyle: {
       color: 'red'
     }
-  },{
+  }, {
     value: valueG,
     itemStyle: {
       color: 'green'
     }
-  },{
+  }, {
     value: valueY,
     itemStyle: {
       color: '#fecc11'
@@ -233,85 +337,21 @@ const clearSaying = () => {
   form.value.name = ''
 }
 </script>
-
-<template>
-  <div>
-    <el-row>
-      <el-col :span="16">
-        <div class="calendar-box">
-          <div id="container-l-c-y" class="calendar-container"></div>
-        </div>
-        <div id="container-color-bar"></div>
-      </el-col>
-      <el-col :span="8">
-        <div id="table-container">
-          <div>
-            <el-date-picker v-model="formLC.doDate" type="date" placeholder="日期选择" style="width: 150px;"
-              value-format="YYYY-MM-DD" />
-            <el-select v-model="formLC.type" placeholder="类型" style="width: 150px;">
-              <el-option v-for="item in optionsLCType" :key="item.value" :label="item.label" :value="item.value" />
-            </el-select>
-            <el-input-number v-model="formLC.minute" :min="5" :step="5" style="width:100px" />
-            <el-input-number v-model="formLC.num" :min="1" :step="1" style="width:100px" />
-            <el-button plain @click="addLC">添加</el-button>
-          </div>
-          <el-table ref="singleTableRef" :data="tableData" highlight-current-row style="width: 100%"
-            @current-change="handleCurrentChange">
-            <el-table-column type="index" width="50" />
-            <el-table-column property="doDate" label="日期" />
-            <el-table-column property="type" label="类型" />
-            <el-table-column property="minute" label="时长" />
-            <el-table-column property="num" label="次数" width="60" />
-          </el-table>
-        </div>
-      </el-col>
-    </el-row>
-    <el-row>
-      <el-col :span="16">
-        <div class="calendar-box">
-          <div id="container-saying" class="calendar-container"></div>
-        </div>
-      </el-col>
-      <el-col :span="8">
-        <div id="table-container">
-          <el-card>
-            <el-form ref=formRef :model=form label-width="70px" :rules="rules">
-              <el-form-item label="语录" prop="name">
-                <el-input v-model="form.name" type="textarea"></el-input>
-              </el-form-item>
-              <el-form-item label="作者" prop="author">
-                <el-input v-model="form.author"></el-input>
-              </el-form-item>
-              <el-form-item label="书名" prop="book">
-                <el-input v-model="form.book"></el-input>
-              </el-form-item>
-              <el-form-item label="文章名" prop="article">
-                <el-input v-model="form.article" />
-              </el-form-item>
-            </el-form>
-            <span class="dialog-footer">
-              <el-button @click="clearSaying">清空</el-button>
-              <el-button type="primary" @click="addSaying">确认</el-button>
-            </span>
-          </el-card>
-        </div>
-      </el-col>
-    </el-row>
-  </div>
-</template>
-
 <style scoped>
 .calendar-box {
   width: 100%;
 }
+
 .calendar-container {
   width: 100%;
   height: 200px;
 }
+
 #container-color-bar {
   width: 300px;
   height: 300px;
 }
+
 .el-row {
   padding: 10px 20px;
   border: 1px solid #00000030;
