@@ -4,32 +4,32 @@
       <el-col :span="24">
         <el-button @click="lifeDrawer = true" text>TIME WHERE</el-button>
         <div class="calendar-box">
-          <div id="container-l-c-y" class="calendar-container"></div>
+          <div id="container-calendar-time" class="container-calendar"></div>
         </div>
-        <div id="container-color-bar"></div>
+        <div id="container-bar-time"></div>
       </el-col>
     </el-row>
     <el-row>
       <el-col :span="24">
         <el-button @click="sayingDrawer = true" text>WHO SAY</el-button>
         <div class="calendar-box">
-          <div id="container-saying" class="calendar-container"></div>
+          <div id="container-saying" class="container-calendar"></div>
         </div>
       </el-col>
     </el-row>
     <el-Drawer v-model="lifeDrawer" title="LifeColorEdit" :direction="direction" :before-close="handleClose">
       <div id="table-container">
         <div>
-          <el-date-picker v-model="formLC.doDate" type="date" placeholder="日期选择" style="width: 150px;" :default-time="defaultTime"
-            value-format="YYYY-MM-DD" />
-          <el-select v-model="formLC.type" placeholder="类型" style="width: 150px;">
-            <el-option v-for="item in optionsLCType" :key="item.value" :label="item.label" :value="item.value" />
+          <el-date-picker v-model="formTime.doDate" type="date" placeholder="日期选择" style="width: 150px;"
+            :default-time="defaultTime" value-format="YYYY-MM-DD" />
+          <el-select v-model="formTime.type" placeholder="类型" style="width: 150px;">
+            <el-option v-for="item in optionsTime" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
           <div>
-            <el-input-number v-model="formLC.minute" :min="5" :step="5"/>
-            <el-input-number v-model="formLC.num" :min="1" :step="1"/>
+            <el-input-number v-model="formTime.minute" :min="5" :step="5" />
+            <el-input-number v-model="formTime.num" :min="1" :step="1" />
           </div>
-          <el-button plain @click="addLC">添加</el-button>
+          <el-button plain @click="addLifeTime">添加</el-button>
         </div>
         <el-table ref="singleTableRef" :data="tableData" highlight-current-row style="width: 100%"
           @current-change="handleCurrentChange">
@@ -43,27 +43,27 @@
     </el-Drawer>
     <el-Drawer v-model="sayingDrawer" title="语录管理" :direction="direction" :before-close="handleClose">
       <div id="table-container">
-          <el-card>
-            <el-form ref=formRef :model=form label-width="70px" :rules="rules">
-              <el-form-item label="语录" prop="name">
-                <el-input v-model="form.name" type="textarea"></el-input>
-              </el-form-item>
-              <el-form-item label="作者" prop="author">
-                <el-input v-model="form.author"></el-input>
-              </el-form-item>
-              <el-form-item label="书名" prop="book">
-                <el-input v-model="form.book"></el-input>
-              </el-form-item>
-              <el-form-item label="文章名" prop="article">
-                <el-input v-model="form.article" />
-              </el-form-item>
-            </el-form>
-            <span class="dialog-footer">
-              <el-button @click="clearSaying">清空</el-button>
-              <el-button type="primary" @click="addSaying">确认</el-button>
-            </span>
-          </el-card>
-        </div>
+        <el-card>
+          <el-form ref=formRef :model=formSaying label-width="70px" :rules="rules">
+            <el-form-item label="语录" prop="name">
+              <el-input v-model="formSaying.name" type="textarea"></el-input>
+            </el-form-item>
+            <el-form-item label="作者" prop="author">
+              <el-input v-model="formSaying.author"></el-input>
+            </el-form-item>
+            <el-form-item label="书名" prop="book">
+              <el-input v-model="formSaying.book"></el-input>
+            </el-form-item>
+            <el-form-item label="文章名" prop="article">
+              <el-input v-model="formSaying.article" />
+            </el-form-item>
+          </el-form>
+          <span class="dialog-footer">
+            <el-button @click="clearSaying">清空</el-button>
+            <el-button type="primary" @click="addSaying">确认</el-button>
+          </span>
+        </el-card>
+      </div>
     </el-Drawer>
   </div>
 </template>
@@ -73,28 +73,27 @@ import { onMounted, ref, reactive } from 'vue'
 import { lifeColorApi, sayingApi } from '@/api'
 import 'element-plus/es/components/message/style/css'
 import { ElMessage } from 'element-plus'
-import { Edit } from '@element-plus/icons-vue'
 
-const defaultTime = ref<[Date, Date]>([
+const defaultTime = ref < [Date, Date] > ([
   new Date(2000, 1, 1, 0, 0, 0),
   new Date(2000, 2, 1, 23, 59, 59),
 ])
 const lifeDrawer = ref(false)
 const sayingDrawer = ref(false)
 const tableData = ref([])
-const formLC = reactive({
+const formTime = reactive({
   doDate: new Date,
   type: '',
   minute: 5,
   num: 1
 })
-const form = ref({
+const formSaying = ref({
   name: '',
   author: '',
   book: '',
   article: ''
 })
-const optionsLCType = [
+const optionsTime = [
   {
     value: 'B',
     label: 'B',
@@ -125,33 +124,37 @@ const optionsLCType = [
   }
 ]
 onMounted(() => {
-  initLifeColorList()
-  initColorBarLastYear()
-  initSaying()
-  initCalendarData('G')
+  initTimeList()
+  initTimeCalendar('G')
+  initTimeBar()
+  initSayingCalendar()
 }
 )
-const initLifeColorList = () => {
+/**
+ * @description: 初始化时间列表
+ * @return {*}
+ */
+const initTimeList = () => {
   lifeColorApi.getLifeColorList().then(res => {
     tableData.value = res
   })
 }
 /**
- * @description: 
+ * @description: 初始化时间日历图
  * @return {*}
  */
-const initCalendarData = async (type) => {
+const initTimeCalendar = async (type) => {
   let colorMain = '#fecc11'
   if (type == 'B') {
     colorMain = 'blue'
   } else if (type == 'D') {
     colorMain = '#161823'
-  }else if (type == 'G') {
+  } else if (type == 'G') {
     colorMain = 'green'
   } else if (type == 'R') {
     colorMain = 'red'
   }
-  var chartDom = document.getElementById('container-l-c-y')
+  var chartDom = document.getElementById('container-calendar-time')
   chartDom.removeAttribute('_echarts_instance_')
   var myChart = echarts.init(chartDom)
   var option
@@ -193,15 +196,19 @@ const initCalendarData = async (type) => {
 
   option && myChart.setOption(option)
   // 处理点击事件  
-  myChart.on('click', function (params) {  
-    console.log('点击了', params)  
-    if (params.componentType === 'calendar') {  
-      console.log('点击了空白区域')  
+  myChart.on('click', function (params) {
+    console.log('点击了', params)
+    if (params.componentType === 'calendar') {
+      console.log('点击了空白区域')
       // 在这里添加你想要执行的逻辑  
-    }  
+    }
   })
 }
-const initSaying = async () => {
+/**
+ * @description: 初始化语录日历图
+ * @return {*}
+ */
+const initSayingCalendar = async () => {
   var chartDom = document.getElementById('container-saying')
   chartDom.removeAttribute('_echarts_instance_')
   var myChart = echarts.init(chartDom)
@@ -238,7 +245,11 @@ const initSaying = async () => {
 
   option && myChart.setOption(option)
 }
-const initColorBarLastYear = async () => {
+/**
+ * @description: 初始化时间柱状图
+ * @return {*}
+ */
+const initTimeBar = async () => {
   let valueB = 0
   let valueD = 0
   let valueR = 0
@@ -265,12 +276,12 @@ const initColorBarLastYear = async () => {
     itemStyle: {
       color: 'blue'
     }
-  },{
+  }, {
     value: valueD,
     itemStyle: {
       color: '#161823'
     }
-  },{
+  }, {
     value: valueR,
     itemStyle: {
       color: 'red'
@@ -286,7 +297,7 @@ const initColorBarLastYear = async () => {
       color: '#fecc11'
     }
   }]
-  var chartDom = document.getElementById('container-color-bar')
+  var chartDom = document.getElementById('container-bar-time')
   chartDom.removeAttribute('_echarts_instance_')
   var myChart = echarts.init(chartDom)
   var option
@@ -314,35 +325,47 @@ const initColorBarLastYear = async () => {
   option && myChart.setOption(option)
 
   myChart.on('click', (params) => {
-    initCalendarData(params.name)
+    initTimeCalendar(params.name)
   })
 }
-const addLC = () => {
-  if (!formLC || !formLC.type) {
+/**
+ * @description: 添加时间
+ * @return {*}
+ */
+const addLifeTime = () => {
+  if (!formTime || !formTime.type) {
     ElMessage.warning('日期、类型为必填项')
   } else {
-    lifeColorApi.addLifeColor(formLC).then(num => {
+    lifeColorApi.addLifeColor(formTime).then(num => {
       if (num == 1) {
-        initLifeColorList()
-        initCalendarData()
-        initColorBarLastYear()
+        initTimeList()
+        initTimeCalendar()
+        initTimeBar()
       }
     })
   }
 }
+/**
+ * @description: 添加语录
+ * @return {*}
+ */
 const addSaying = () => {
-  sayingApi.addSaying(form.value).then(num => {
+  sayingApi.addSaying(formSaying.value).then(num => {
     if (num == 1) {
-      initSaying()
+      initSayingCalendar()
       ElMessage.success('添加语录成功')
     }
   })
 }
+/**
+ * @description: 清空语录表单
+ * @return {*}
+ */
 const clearSaying = () => {
-  form.value.article = ''
-  form.value.author = ''
-  form.value.book = ''
-  form.value.name = ''
+  formSaying.value.article = ''
+  formSaying.value.author = ''
+  formSaying.value.book = ''
+  formSaying.value.name = ''
 }
 </script>
 <style scoped>
@@ -350,12 +373,12 @@ const clearSaying = () => {
   width: 100%;
 }
 
-.calendar-container {
+.container-calendar {
   width: 100%;
   height: 200px;
 }
 
-#container-color-bar {
+#container-bar-time {
   width: 300px;
   height: 300px;
 }
