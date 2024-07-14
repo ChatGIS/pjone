@@ -34,7 +34,7 @@
         <el-table ref="singleTableRef" :data="tableData" highlight-current-row style="width: 100%"
           @current-change="handleCurrentChange">
           <el-table-column type="index" width="50" />
-          <el-table-column property="doDate" label="日期" />
+          <el-table-column property="doDate" label="日期" width="100"/>
           <el-table-column property="type" label="类型" />
           <el-table-column property="minute" label="时长" />
           <el-table-column property="num" label="次数" width="60" />
