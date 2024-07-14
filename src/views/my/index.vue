@@ -2,7 +2,7 @@
   <div>
     <el-row>
       <el-col :span="24">
-        <el-button :icon="Edit" circle  @click="lifeDrawer = true"/>
+        <el-button @click="lifeDrawer = true" text>TIME WHERE</el-button>
         <div class="calendar-box">
           <div id="container-l-c-y" class="calendar-container"></div>
         </div>
@@ -11,7 +11,7 @@
     </el-row>
     <el-row>
       <el-col :span="24">
-        <el-button :icon="Edit" circle  @click="sayingDrawer = true"/>
+        <el-button @click="sayingDrawer = true" text>WHO SAY</el-button>
         <div class="calendar-box">
           <div id="container-saying" class="calendar-container"></div>
         </div>
@@ -192,6 +192,14 @@ const initCalendarData = async (type) => {
   }
 
   option && myChart.setOption(option)
+  // 处理点击事件  
+  myChart.on('click', function (params) {  
+    console.log('点击了', params)  
+    if (params.componentType === 'calendar') {  
+      console.log('点击了空白区域')  
+      // 在这里添加你想要执行的逻辑  
+    }  
+  })
 }
 const initSaying = async () => {
   var chartDom = document.getElementById('container-saying')
