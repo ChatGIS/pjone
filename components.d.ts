@@ -30,6 +30,8 @@ declare module 'vue' {
     ElTable: typeof import('element-plus/es')['ElTable']
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElTag: typeof import('element-plus/es')['ElTag']
+    ElTimePicker: typeof import('element-plus/es')['ElTimePicker']
+    ElTimeSelect: typeof import('element-plus/es')['ElTimeSelect']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     Logo: typeof import('./src/components/logo/index.vue')['default']
     Menu: typeof import('./src/components/menu/index.vue')['default']

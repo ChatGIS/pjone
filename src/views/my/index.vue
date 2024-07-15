@@ -29,14 +29,18 @@
             <el-input-number v-model="formTime.minute" :min="5" :step="5" />
             <el-input-number v-model="formTime.num" :min="1" :step="1" />
           </div>
+          <div>
+            <el-time-picker v-if="formTime.type == 'S'" v-model="formTime.timePoint" value-format="HH:MM:ss" placeholder="时间点" />
+          </div>
           <el-button plain @click="addLifeTime">添加</el-button>
         </div>
         <el-table ref="singleTableRef" :data="tableData" highlight-current-row style="width: 100%"
           @current-change="handleCurrentChange">
-          <el-table-column type="index" width="50" />
+          <el-table-column type="index" width="40" />
           <el-table-column property="doDate" label="日期" width="100"/>
-          <el-table-column property="type" label="类型" />
+          <el-table-column property="type" label="类型"  width="60"/>
           <el-table-column property="minute" label="时长" />
+          <el-table-column property="timePoint" label="时间点" />
           <el-table-column property="num" label="次数" width="60" />
         </el-table>
       </div>
@@ -85,7 +89,8 @@ const formTime = reactive({
   doDate: new Date,
   type: '',
   minute: 5,
-  num: 1
+  num: 1,
+  timePoint: null
 })
 const formSaying = ref({
   name: '',
@@ -94,6 +99,10 @@ const formSaying = ref({
   article: ''
 })
 const optionsTime = [
+  {
+    value: 'S',
+    label: 'S',
+  },
   {
     value: 'B',
     label: 'B',
