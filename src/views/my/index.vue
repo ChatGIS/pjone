@@ -285,7 +285,7 @@ const initTimeBar = async () => {
         valueR = data[i].total_minute
       } else if (data[i].type == 'G') {
         valueG = data[i].total_minute
-      } else {
+      } else if (data[i].type.startsWith('Y')){
         valueY += data[i].total_minute
       }
     }
