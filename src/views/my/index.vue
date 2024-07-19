@@ -13,6 +13,9 @@
           <el-col :span="8">
             <div id="container-pie-sleep"></div>
           </el-col>
+          <el-col :span="8">
+            <div id="container-pie-sleep-long"></div>
+          </el-col>
         </el-row>
       </el-col>
     </el-row>
@@ -144,7 +147,8 @@ onMounted(() => {
   initTimeList()
   initTimeCalendar('G')
   initTimeBar()
-  initSleepPie()
+  initSleepPointPie()
+  initSleepLongPie()
   initSayingCalendar()
 }
 )
@@ -349,10 +353,10 @@ const initTimeBar = async () => {
   })
 }
 /**
- * @description: 初始化饼图
+ * @description: 初始化睡眠时间点饼图
  * @return {*}
  */
-const initSleepPie = async () => {
+const initSleepPointPie = async () => {
   let dataRes
   await lifeColorApi.getSleepGroupLastYear().then(data => {
     dataRes = data
@@ -377,6 +381,70 @@ const initSleepPie = async () => {
     }
   })
   var chartDom = document.getElementById('container-pie-sleep')
+  chartDom.removeAttribute('_echarts_instance_')
+  var myChart = echarts.init(chartDom)
+  var option
+
+  option = {
+    tooltip: {
+      trigger: 'item'
+    },
+    series: [
+      {
+        name: 'Sleep',
+        type: 'pie',
+        radius: '50%',
+        data: dataRes,
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        },
+        label: {
+          overflow: 'none',
+        }
+        
+      }
+    ]
+  }
+
+  option && myChart.setOption(option)
+
+  myChart.on('click', () => {
+    initTimeCalendar('S')
+  })
+}
+/**
+ * @description: 初始化睡眠时长饼图
+ * @return {*}
+ */
+const initSleepLongPie = async () => {
+  let dataRes
+  await lifeColorApi.getSleepLongGroupLastYear().then(data => {
+    dataRes = data
+    for(let i = 0; i < data.length; i++) {
+      let pieceColor = ''
+      if(data[i].name == '>8h') {
+        pieceColor = '#006400'
+      } else if (data[i].name == '7.5-8h') {
+        pieceColor = '#9ACD32'
+      } else if (data[i].name == '7-7.5h') {
+        pieceColor = '#FFFF00'
+      } else if (data[i].name == '6.5-7h') {
+        pieceColor = '#FFA500'
+      } else if (data[i].name == '6-6.5h') {
+        pieceColor = '#FF0000'
+      } else {
+        pieceColor = '#8B0000'
+      }
+      data[i].itemStyle = {
+        color: pieceColor
+      }
+    }
+  })
+  var chartDom = document.getElementById('container-pie-sleep-long')
   chartDom.removeAttribute('_echarts_instance_')
   var myChart = echarts.init(chartDom)
   var option
@@ -471,7 +539,10 @@ const clearSaying = () => {
   width: 300px;
   height: 300px;
 }
-
+#container-pie-sleep-long {
+  width: 300px;
+  height: 300px;
+}
 .el-row {
   padding: 10px 20px;
   border: 1px solid #00000030;

@@ -37,3 +37,8 @@ export const getSleepGroupLastYear = () => {
     url: base + '/getSleepGroupLastYear',
   })
 }
+export const getSleepLongGroupLastYear = () => {
+  return request({
+    url: base + '/getSleepLongGroupLastYear',
+  })
+}
