@@ -11,7 +11,7 @@
             <div id="container-bar-time"></div>
           </el-col>
           <el-col :span="8">
-            <div id="container-pie-sleep"></div>
+            <div id="container-pie-sleep-point"></div>
           </el-col>
           <el-col :span="8">
             <div id="container-pie-sleep-long"></div>
@@ -358,7 +358,7 @@ const initTimeBar = async () => {
  */
 const initSleepPointPie = async () => {
   let dataRes
-  await lifeColorApi.getSleepGroupLastYear().then(data => {
+  await lifeColorApi.getSleepPointGroupLastYear().then(data => {
     dataRes = data
     for(let i = 0; i < data.length; i++) {
       let pieceColor = ''
@@ -380,7 +380,7 @@ const initSleepPointPie = async () => {
       }
     }
   })
-  var chartDom = document.getElementById('container-pie-sleep')
+  var chartDom = document.getElementById('container-pie-sleep-point')
   chartDom.removeAttribute('_echarts_instance_')
   var myChart = echarts.init(chartDom)
   var option
@@ -535,7 +535,7 @@ const clearSaying = () => {
   height: 300px;
 }
 
-#container-pie-sleep {
+#container-pie-sleep-point {
   width: 300px;
   height: 300px;
 }
