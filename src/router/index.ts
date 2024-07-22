@@ -2,7 +2,7 @@
  * @Author: Dreamice dreamice13@foxmail.com
  * @Date: 2022-10-29 22:07:17
  * @LastEditors: ChatGIS ChatGIS@outlook.com
- * @LastEditTime: 2024-07-20 22:40:24
+ * @LastEditTime: 2024-07-21 22:50:52
  * @FilePath: \pjone\src\router\index.ts
  * @Description: 
  */
@@ -33,12 +33,6 @@ const routes = [{
     { path: '/life-color', component: LifeColor },
     { path: '/saying', component: Saying},
   ]
-}, {
-  path: '/book-author',
-  component: () => import('../views/tools/BookAuthor.vue')
-}, {
-  path: '/saying-show',
-  component: () => import('../views/tools/SayingShow.vue')
 }]
 // 创建路由
 const router = createRouter({
