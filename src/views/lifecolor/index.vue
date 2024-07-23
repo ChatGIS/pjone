@@ -241,7 +241,7 @@ const initTimeBar = async () => {
     }
   }]
   var chartDom = document.getElementById('container-bar-time')
-  // chartDom.removeAttribute('_echarts_instance_')
+  chartDom.removeAttribute('_echarts_instance_')
   var myChart = echarts.init(chartDom)
   var option
 
