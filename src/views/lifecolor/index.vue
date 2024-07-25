@@ -24,7 +24,7 @@
         <div>
           <el-date-picker v-model="formTime.doDate" type="date" placeholder="日期选择" style="width: 150px;"
             :default-time="defaultTime" value-format="YYYY-MM-DD" />
-          <el-select v-model="formTime.type" placeholder="类型" style="width: 150px;">
+          <el-select v-model="formTime.type" placeholder="类型" style="width: 150px;" @change="handleChangeType">
             <el-option v-for="item in optionsTime" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
           <div>
@@ -32,6 +32,8 @@
             <el-input-number v-model="formTime.num" :min="1" :step="1" />
           </div>
           <div>
+            <el-input-number v-if="formTime.type == 'S'" v-model="sHour" :min="0" :mix="24" :step="1" />
+            <el-input-number v-if="formTime.type == 'S'" v-model="sMinute" :min="0" :max="60" :step="5" />
             <el-time-picker v-if="formTime.type == 'S'" v-model="formTime.timePoint" value-format="HH:mm:ss"
               placeholder="时间点" />
           </div>
@@ -56,6 +58,7 @@ import { onMounted, ref, reactive } from 'vue'
 import { lifeColorApi } from '@/api'
 import 'element-plus/es/components/message/style/css'
 import { ElMessage } from 'element-plus'
+import { computed } from 'vue'
 
 const defaultTime = ref < [Date, Date] > ([
   new Date(2000, 1, 1, 0, 0, 0),
@@ -63,6 +66,8 @@ const defaultTime = ref < [Date, Date] > ([
 ])
 const lifeDrawer = ref(false)
 const tableData = ref([])
+const sHour = ref(7)
+const sMinute = ref()
 const formTime = reactive({
   doDate: new Date,
   type: '',
@@ -112,6 +117,14 @@ onMounted(() => {
   initSleepLongPie()
 }
 )
+formTime.minute = computed(() => {
+  return sHour.value * 60 + sMinute.value
+})
+const handleChangeType = (val) => {
+  if (val != 'S') {
+    formTime.timePoint = null
+  }
+}
 /**
  * @description: 初始化时间列表
  * @return {*}
