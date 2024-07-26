@@ -22,22 +22,31 @@
     <el-Drawer v-model="lifeDrawer" title="LifeColorEdit" :direction="direction" :before-close="handleClose">
       <div id="table-container">
         <div>
-          <el-date-picker v-model="formTime.doDate" type="date" placeholder="日期选择" style="width: 150px;"
-            :default-time="defaultTime" value-format="YYYY-MM-DD" />
-          <el-select v-model="formTime.type" placeholder="类型" style="width: 150px;" @change="handleChangeType">
-            <el-option v-for="item in optionsTime" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-          <div>
-            <el-input-number v-model="formTime.minute" :min="5" :step="5" />
-            <el-input-number v-model="formTime.num" :min="1" :step="1" />
-          </div>
-          <div>
-            <el-input-number v-if="formTime.type == 'S'" v-model="sHour" :min="0" :mix="24" :step="1" />
-            <el-input-number v-if="formTime.type == 'S'" v-model="sMinute" :min="0" :max="60" :step="5" />
-            <el-time-picker v-if="formTime.type == 'S'" v-model="formTime.timePoint" value-format="HH:mm:ss"
-              placeholder="时间点" />
-          </div>
-          <el-button plain @click="addLifeTime">添加</el-button>
+          <el-form :model="form" label-width="auto" style="max-width: 600px">
+            <el-form-item label="日期">
+              <el-date-picker v-model="formColor.doDate" type="date" placeholder="日期选择" :default-time="defaultTime"
+                value-format="YYYY-MM-DD" />
+            </el-form-item>
+            <el-form-item label="类型">
+              <el-select v-model="formColor.type" placeholder="类型" @change="handleChangeType">
+                <el-option v-for="item in optionsTime" :key="item.value" :label="item.label" :value="item.value" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="时长">
+              <el-input-number v-model="formColor.minute" :min="5" :step="5" />
+              <el-input-number v-model="formColor.num" :min="1" :step="1" />
+            </el-form-item>
+            <el-form-item label="S时长" v-if="formColor.type == 'S'">
+              <el-input-number v-model="sHour" :min="0" :mix="24" :step="1" />
+              <el-input-number v-model="sMinute" :min="0" :max="60" :step="5" />
+            </el-form-item>
+            <el-form-item label="时间点" v-if="formColor.type == 'S'">
+              <el-time-picker v-model="formColor.timePoint" value-format="HH:mm:ss" placeholder="时间点" />
+            </el-form-item>
+            <el-form-item>
+              <el-button plain @click="addLifeTime">添加</el-button>
+            </el-form-item>
+          </el-form>
         </div>
         <el-table ref="singleTableRef" :data="tableData" highlight-current-row style="width: 100%"
           @current-change="handleCurrentChange">
@@ -68,7 +77,7 @@ const lifeDrawer = ref(false)
 const tableData = ref([])
 const sHour = ref(7)
 const sMinute = ref()
-const formTime = reactive({
+const formColor = reactive({
   doDate: new Date,
   type: '',
   minute: 5,
@@ -117,12 +126,12 @@ onMounted(() => {
   initSleepLongPie()
 }
 )
-formTime.minute = computed(() => {
+formColor.minute = computed(() => {
   return sHour.value * 60 + sMinute.value
 })
 const handleChangeType = (val) => {
   if (val != 'S') {
-    formTime.timePoint = null
+    formColor.timePoint = null
   }
 }
 /**
@@ -417,10 +426,10 @@ const initSleepLongPie = async () => {
  * @return {*}
  */
 const addLifeTime = () => {
-  if (!formTime || !formTime.type) {
+  if (!formColor || !formColor.type) {
     ElMessage.warning('日期、类型为必填项')
   } else {
-    lifeColorApi.addLifeColor(formTime).then(num => {
+    lifeColorApi.addLifeColor(formColor).then(num => {
       if (num == 1) {
         initTimeList()
         initTimeCalendar()
