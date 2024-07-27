@@ -34,7 +34,6 @@
             </el-form-item>
             <el-form-item label="时长">
               <el-input-number v-model="formColor.minute" :min="5" :step="5" />
-              <el-input-number v-model="formColor.num" :min="1" :step="1" />
             </el-form-item>
             <el-form-item label="S时长" v-if="formColor.type == 'S'">
               <el-input-number v-model="sHour" :min="0" :mix="24" :step="1" />
@@ -55,7 +54,6 @@
           <el-table-column property="type" label="类型" width="60" />
           <el-table-column property="minute" label="时长" />
           <el-table-column property="timePoint" label="时间点" />
-          <el-table-column property="num" label="次数" width="60" />
         </el-table>
       </div>
     </el-Drawer>
@@ -81,7 +79,6 @@ const formColor = reactive({
   doDate: new Date,
   type: '',
   minute: 5,
-  num: 1,
   timePoint: null
 })
 const optionsTime = [
