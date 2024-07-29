@@ -32,10 +32,10 @@
                 <el-option v-for="item in optionsTime" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
             </el-form-item>
-            <el-form-item label="时长">
-              <el-input-number v-model="formColor.minute" :min="5" :step="5" />
+            <el-form-item label="分钟数">
+              <el-input v-model="formColor.minute" disabled/>
             </el-form-item>
-            <el-form-item label="S时长" v-if="formColor.type == 'S'">
+            <el-form-item label="分钟数计算">
               <el-input-number v-model="sHour" :min="0" :mix="24" :step="1" />
               <el-input-number v-model="sMinute" :min="0" :max="60" :step="5" />
             </el-form-item>
@@ -127,7 +127,10 @@ formColor.minute = computed(() => {
   return sHour.value * 60 + sMinute.value
 })
 const handleChangeType = (val) => {
-  if (val != 'S') {
+  if (val == 'S') {
+    sHour.value = 7
+  } else {
+    sHour.value = 0
     formColor.timePoint = null
   }
 }
