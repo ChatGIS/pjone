@@ -9,15 +9,52 @@
       </el-col>
     </el-row>
     <el-row>
+      <el-form :inline="true" :model="formQuery" class="demo-form-inline">
+        <el-form-item label="Saying">
+          <el-input v-model="formQuery.name" clearable />
+        </el-form-item>
+        <el-form-item label="Author">
+          <el-input v-model="formQuery.author" clearable />
+        </el-form-item>
+        <el-form-item label="Book">
+          <el-input v-model="formQuery.book" clearable />
+        </el-form-item>
+        <el-form-item label="Article">
+          <el-input v-model="formQuery.article" clearable />
+        </el-form-item>
+        <el-form-item>
+          <el-button @click="clearQuery">Clear</el-button>
+          <el-button @click="initSayingTable">Query</el-button>
+        </el-form-item>
+      </el-form>
+      <el-table :data="tableDataSaying" style="width: 100%">
+        <el-table-column type="index" width="50" />
+        <el-table-column prop="name" label="Saying" />
+        <el-table-column prop="author" label="Author" width="180" />
+        <el-table-column prop="book" label="Book" width="180" />
+        <el-table-column prop="article" label="Article" width="180" />
+        <el-table-column label="Operations">
+          <template #default="scope">
+            <el-button type="success" :icon="Share" circle @click="handleShare(scope.$index, scope.row)" />
+            <el-button type="primary" :icon="Edit" circle @click="handleEdit(scope.$index, scope.row)" />
+            <el-button type="danger" circle :icon="Delete" @click="handleDelete(scope.$index, scope.row)"/>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :page-sizes="[5, 8, 10, 20, 50]"
+        :disabled="disabled" :background="background" layout="total, sizes, prev, pager, next" :total="totalSaying"
+        @current-change="handleCurrentChange" @size-change="handleSizeChange" />
+    </el-row>
+    <el-row>
       <el-col :span="6">
-        <el-input v-model="textShare" :rows="10" type="textarea" placeholder="分享文字" @input="renderImage" />
+        <el-input v-model="textShare" :rows="10" type="textarea" placeholder="分享文字"/>
       </el-col>
       <el-col :span="6">
         <el-form :model="shareConfig" label-width="auto" style="max-width: 600px">
           <el-form-item label="模板" @change="renderImage">
             <el-radio-group v-model="shareConfig.template">
-              <el-radio value="video-line">视频台词</el-radio>
               <el-radio value="color-card">颜色卡片</el-radio>
+              <el-radio value="video-line">视频台词</el-radio>
               <el-radio value="pic-text">图文呈现</el-radio>
             </el-radio-group>
           </el-form-item>
@@ -107,7 +144,9 @@ import { onMounted, ref, reactive } from 'vue'
 import { sayingApi } from '@/api'
 import 'element-plus/es/components/message/style/css'
 import { ElMessage } from 'element-plus'
+import { Edit, Delete, Share } from '@element-plus/icons-vue'
 import GG from '@/assets/111.jpg'
+import { watch } from 'vue'
 
 const sayingDrawer = ref(false)
 const formSaying = ref({
@@ -116,8 +155,18 @@ const formSaying = ref({
   book: '',
   article: ''
 })
+const formQuery = reactive({
+  name: '',
+  author: '',
+  book: '',
+  article: ''
+})
+const currentPage = ref(1)
+const pageSize = ref(5)
+const totalSaying = ref(0)
+const tableDataSaying = reactive([])
 const shareConfig = reactive({
-  template: 'video-line',
+  template: 'color-card',
   fontType: 'SimSun',
   fontSize: 20,
   date2: '',
@@ -132,9 +181,14 @@ const textShare = ref('如果你不够优秀\n人脉是不值钱的\n它不是�
 const img = new Image()
 onMounted(() => {
   initSayingCalendar()
+  initSayingTable()
   renderImage()
 }
 )
+watch(textShare, () => {
+  renderImage()
+  
+})
 /**
  * @description: 初始化语录日历图
  * @return {*}
@@ -176,6 +230,36 @@ const initSayingCalendar = async () => {
 
   option && myChart.setOption(option)
 }
+const initSayingTable = () => {
+  sayingApi.getSayingPageList({
+    'current': currentPage.value,
+    'size': pageSize.value,
+    'name': formQuery.name,
+    'author': formQuery.author,
+    'book': formQuery.book,
+    'article': formQuery.article
+  }).then(res => {
+    tableDataSaying.length = 0
+    tableDataSaying.push(...res.records)
+    totalSaying.value = res.total
+  })
+}
+const clearQuery = () => {
+  formQuery.name = ''
+  formQuery.author = ''
+  formQuery.book = ''
+  formQuery.article = ''
+  initSayingTable()
+}
+const handleCurrentChange = () => {
+  initSayingTable()
+}
+const handleSizeChange = () => {
+  initSayingTable()
+}
+const handleShare = (index, row) => {
+  textShare.value = row.name
+}
 /**
  * @description: 添加语录
  * @return {*}
@@ -200,7 +284,7 @@ const clearSaying = () => {
 }
 
 const renderImage = () => {
-  if(shareConfig.template == 'video-line') {
+  if (shareConfig.template == 'video-line') {
     img.src = GG
     img.onload = () => {
       renderImageVideoLine()
@@ -294,20 +378,18 @@ const renderImagePicText = () => {
     let startY = canvasVideoLines.value.height / 2 // 起始Y坐标  
     // 遍历每个单词，决定是否换行  
     for (let n = 0; n < words.length; n++) {
-      console.log(words[n], 'pjone-08-06 11:44:33测试打印内容m')
-      
       const testLine = line + words[n] + '' // 测试添加单词后的行  
-      const metrics = ctxVideoLines.value.measureText(testLine)  
-      const testWidth = metrics.width  
+      const metrics = ctxVideoLines.value.measureText(testLine)
+      const testWidth = metrics.width
 
-      if (testWidth > maxWidth && n > 0) {  
+      if (testWidth > maxWidth && n > 0) {
         ctxVideoLines.value.fillText(line, startX, startY) // 绘制当前行  
         line = words[n] + ' ' // 重新开始新行  
         startY += lineHeight // 移动到下一行  
-      } else {  
+      } else {
         line = testLine // 更新当前行  
-      }  
-    }  
+      }
+    }
     ctxVideoLines.value.fillText(line, startX, startY + 100) // 绘制最后一行  
   }
 }
@@ -328,13 +410,13 @@ const renderImageOnlyColor = () => {
     // ctxVideoLines.value.fillStyle = 'red' // 背景颜色  
 
     // 创建线性渐变  
-    const gradient = ctxVideoLines.value.createLinearGradient(0, 0, canvasVideoLines.value.width, canvasVideoLines.value.height)  
+    const gradient = ctxVideoLines.value.createLinearGradient(0, 0, canvasVideoLines.value.width, canvasVideoLines.value.height)
     gradient.addColorStop(0, 'lightblue') // 起始颜色  
     gradient.addColorStop(1, 'orange') // 结束颜色  
 
     // 设置渐变色作为背景  
-    ctxVideoLines.value.fillStyle = gradient  
-        
+    ctxVideoLines.value.fillStyle = gradient
+
     ctxVideoLines.value.fillRect(0, 0, canvasVideoLines.value.width, canvasVideoLines.value.height) // 绘制矩形覆盖整个 canvas
     ctxVideoLines.value.fillStyle
     ctxVideoLines.value.font = `${shareConfig.fontSize}px ${shareConfig.fontType}`
@@ -352,20 +434,18 @@ const renderImageOnlyColor = () => {
     let startY = canvasVideoLines.value.height / 2 // 起始Y坐标  
     // 遍历每个单词，决定是否换行  
     for (let n = 0; n < words.length; n++) {
-      console.log(words[n], 'pjone-08-06 11:44:33测试打印内容m')
-      
       const testLine = line + words[n] + '' // 测试添加单词后的行  
-      const metrics = ctxVideoLines.value.measureText(testLine)  
-      const testWidth = metrics.width  
+      const metrics = ctxVideoLines.value.measureText(testLine)
+      const testWidth = metrics.width
 
-      if (testWidth > maxWidth && n > 0) {  
+      if (testWidth > maxWidth && n > 0) {
         ctxVideoLines.value.fillText(line, startX, startY) // 绘制当前行  
         line = words[n] + ' ' // 重新开始新行  
         startY += lineHeight // 移动到下一行  
-      } else {  
+      } else {
         line = testLine // 更新当前行  
-      }  
-    }  
+      }
+    }
     ctxVideoLines.value.fillText(line, startX, startY + 100) // 绘制最后一行  
   }
 }
