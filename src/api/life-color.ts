@@ -1,11 +1,3 @@
-/*
- * @Author: Dreamice dreamice13@foxmail.com
- * @Date: 2024-04-03 23:07:33
- * @LastEditors: ChatGIS ChatGIS@outlook.com
- * @LastEditTime: 2024-07-02 19:13:33
- * @FilePath: \pjone\src\api\life-color.ts
- * @Description: Life相关api
- */
 import request from './request-spring'
 
 

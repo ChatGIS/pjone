@@ -1,11 +1,3 @@
-/*
- * @Author: Dreamice dreamice13@foxmail.com
- * @Date: 2022-10-29 22:07:17
- * @LastEditors: ChatGIS ChatGIS@outlook.com
- * @LastEditTime: 2024-07-21 22:50:52
- * @FilePath: \pjone\src\router\index.ts
- * @Description: 
- */
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { useMainStore } from '../store'
 import Recommend from '../views/recommend/index.vue'

@@ -1,11 +1,3 @@
-/*
- * @Author: ChatGIS ChatGIS@outlook.com
- * @Date: 2024-04-03 23:07:33
- * @LastEditors: ChatGIS ChatGIS@outlook.com
- * @LastEditTime: 2024-07-02 18:02:40
- * @FilePath: \pjone\vite.config.ts
- * @Description: 
- */
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
