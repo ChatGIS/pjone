@@ -69,16 +69,8 @@
           <el-form-item label="字号">
             <el-input-number v-model="shareConfig.fontSize" :min="1" :max="100" @change="renderImage" />
           </el-form-item>
-          <el-form-item label="Activity time">
-            <el-col :span="11">
-              <el-date-picker v-model="shareConfig.date1" type="date" placeholder="Pick a date" style="width: 100%" />
-            </el-col>
-            <el-col :span="2" class="text-center">
-              <span class="text-gray-500">-</span>
-            </el-col>
-            <el-col :span="11">
-              <el-time-picker v-model="shareConfig.date2" placeholder="Pick a time" style="width: 100%" />
-            </el-col>
+          <el-form-item label="行高">
+            <el-input-number v-model="shareConfig.lineHeight" :min="1" :max="100" @change="renderImage" />
           </el-form-item>
           <el-form-item label="Instant delivery">
             <el-switch v-model="shareConfig.delivery" />
@@ -169,7 +161,7 @@ const shareConfig = reactive({
   template: 'color-card',
   fontType: 'SimSun',
   fontSize: 20,
-  date2: '',
+  lineHeight: 30,
   delivery: false,
   type: [],
   desc: '',
@@ -319,13 +311,12 @@ const renderImageVideoLine = () => {
     const lines = textShare.value.split('\n')
     const scaleFactor = canvasWidth / image.width
     const scaledHeight = image.height * scaleFactor
-    const lineHeight = 50
-    const imageLineHeight = lineHeight / scaleFactor
+    const imageLineHeight = shareConfig.lineHeight / scaleFactor
     ctxVideoLines.value = canvasVideoLines.value.getContext('2d')
     canvasVideoLines.value.width = canvasWidth
     canvasVideoLines.value.height = scaledHeight
     if (lines.length > 1) {
-      canvasVideoLines.value.height += (lines.length - 1) * lineHeight
+      canvasVideoLines.value.height += (lines.length - 1) * shareConfig.lineHeight
     }
     //   ctxVideoLines.value.clearRect(0, 0, canvasWidth, canvasVideoLines.value.height)  
     ctxVideoLines.value.drawImage(image, 0, 0, canvasWidth, (canvasWidth * image.height) / image.width)
@@ -340,10 +331,10 @@ const renderImageVideoLine = () => {
     for (let i = 0; i < lines.length; i++) {
       if (i > 0) {
         const sx = 0, sy = image.height - imageLineHeight, sw = image.width, sh = imageLineHeight
-        const dx = 0, dy = scaledHeight + (i - 1) * lineHeight, dw = canvasVideoLines.value.width, dh = lineHeight
+        const dx = 0, dy = scaledHeight + (i - 1) * shareConfig.lineHeight, dw = canvasVideoLines.value.width, dh = shareConfig.lineHeight
         ctxVideoLines.value.drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh)
       }
-      const y = scaledHeight + i * lineHeight - (lineHeight - shareConfig.fontSize) / 2
+      const y = scaledHeight + i * shareConfig.lineHeight - (shareConfig.lineHeight - shareConfig.fontSize) / 2
       ctxVideoLines.value.fillText(lines[i], canvasVideoLines.value.width / 2, y)
     }
   }
@@ -356,8 +347,7 @@ const renderImagePicText = () => {
     const lines = textShare.value.split(/\s+/)
     const scaleFactor = canvasWidth / image.width
     const scaledHeight = image.height * scaleFactor + 200
-    const lineHeight = 50
-    const imageLineHeight = lineHeight / scaleFactor
+    const imageLineHeight = shareConfig.lineHeight / scaleFactor
     ctxVideoLines.value = canvasVideoLines.value.getContext('2d')
     canvasVideoLines.value.width = canvasWidth
     canvasVideoLines.value.height = scaledHeight
@@ -385,7 +375,7 @@ const renderImagePicText = () => {
       if (testWidth > maxWidth && n > 0) {
         ctxVideoLines.value.fillText(line, startX, startY) // 绘制当前行  
         line = words[n] + ' ' // 重新开始新行  
-        startY += lineHeight // 移动到下一行  
+        startY += shareConfig.lineHeight // 移动到下一行  
       } else {
         line = testLine // 更新当前行  
       }
@@ -400,8 +390,7 @@ const renderImageOnlyColor = () => {
     const lines = textShare.value.split(/\s+/)
     const scaleFactor = canvasWidth / image.width
     const scaledHeight = image.height * scaleFactor + 200
-    const lineHeight = 50
-    const imageLineHeight = lineHeight / scaleFactor
+    const imageLineHeight = shareConfig.lineHeight / scaleFactor
     ctxVideoLines.value = canvasVideoLines.value.getContext('2d')
     canvasVideoLines.value.width = canvasWidth
     canvasVideoLines.value.height = scaledHeight
@@ -441,12 +430,12 @@ const renderImageOnlyColor = () => {
       if (testWidth > maxWidth && n > 0) {
         ctxVideoLines.value.fillText(line, startX, startY) // 绘制当前行  
         line = words[n] + ' ' // 重新开始新行  
-        startY += lineHeight // 移动到下一行  
+        startY += shareConfig.lineHeight // 移动到下一行  
       } else {
         line = testLine // 更新当前行  
       }
     }
-    ctxVideoLines.value.fillText(line, startX, startY + 100) // 绘制最后一行  
+    ctxVideoLines.value.fillText(line, startX, startY) // 绘制最后一行  
   }
 }
 
