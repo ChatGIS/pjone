@@ -117,7 +117,7 @@ const optionsTime = [
 ]
 onMounted(() => {
   initTimeList()
-  initTimeCalendar('G')
+  initTimeCalendar('S')
   initTimeBar()
   initSleepPointPie()
   initSleepLongPie()
@@ -432,8 +432,10 @@ const addLifeTime = () => {
     lifeColorApi.addLifeColor(formColor).then(num => {
       if (num == 1) {
         initTimeList()
-        initTimeCalendar()
+        initTimeCalendar('S')
         initTimeBar()
+        initSleepPointPie()
+        initSleepLongPie()
       }
     })
   }
