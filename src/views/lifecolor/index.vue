@@ -211,7 +211,6 @@ const initTimeCalendar = async (type) => {
       data: res
     }
   }
-
   option && myChart.setOption(option)
 }
 /**
@@ -290,9 +289,7 @@ const initTimeBar = async () => {
       }
     ]
   }
-
   option && myChart.setOption(option)
-
   myChart.on('click', (params) => {
     initTimeCalendar(params.name)
   })
@@ -350,7 +347,7 @@ const initYTimePie = async () => {
       {
         name: 'Y',
         type: 'pie',
-        radius: '50%',
+        radius: '40%',
         data: objPieTime,
         emphasis: {
           itemStyle: {
@@ -362,11 +359,7 @@ const initYTimePie = async () => {
         label: {
           normal : {
             formatter:  data => {
-              return `${data.name}: ${data.percent.toFixed(0)}%`
-            },
-            textStyle : {
-              fontWeight : 'normal',
-              fontSize : 15
+              return `${data.name}:${data.percent.toFixed(0)}%`
             }
           },
           overflow: 'none',
@@ -375,9 +368,7 @@ const initYTimePie = async () => {
       }
     ]
   }
-
   option && myChart.setOption(option)
-
   myChart.on('click', () => {
     initTimeCalendar('Y')
   })
@@ -423,7 +414,7 @@ const initSleepPointPie = async () => {
       {
         name: 'Sleep',
         type: 'pie',
-        radius: '50%',
+        radius: '40%',
         data: dataRes,
         emphasis: {
           itemStyle: {
@@ -433,15 +424,16 @@ const initSleepPointPie = async () => {
           }
         },
         label: {
+          formatter:  data => {
+            return `${data.name}:${data.percent.toFixed(0)}%`
+          },
           overflow: 'none',
         }
 
       }
     ]
   }
-
   option && myChart.setOption(option)
-
   myChart.on('click', () => {
     initTimeCalendar('S')
   })
@@ -487,7 +479,7 @@ const initSleepLongPie = async () => {
       {
         name: 'Sleep',
         type: 'pie',
-        radius: '50%',
+        radius: '40%',
         data: dataRes,
         emphasis: {
           itemStyle: {
@@ -497,15 +489,16 @@ const initSleepLongPie = async () => {
           }
         },
         label: {
+          formatter:  data => {
+            return `${data.name}:${data.percent.toFixed(0)}%`
+          },
           overflow: 'none',
         }
 
       }
     ]
   }
-
   option && myChart.setOption(option)
-
   myChart.on('click', () => {
     initTimeCalendar('S')
   })
