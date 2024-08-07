@@ -43,7 +43,9 @@
               <el-input-number v-model="sMinute" :min="0" :max="60" :step="5" />
             </el-form-item>
             <el-form-item label="时间点" v-if="formColor.type == 'S'">
-              <el-time-picker v-model="formColor.timePoint" value-format="HH:mm:ss" placeholder="时间点" />
+              <el-time-picker v-model="formColor.timePoint" 
+              value-format="HH:mm:ss"
+              :default-value="new Date(0, 0, 0, 23, 0, 0)"/>
             </el-form-item>
             <el-form-item>
               <el-button plain @click="addLifeTime">添加</el-button>
