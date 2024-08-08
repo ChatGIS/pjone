@@ -158,7 +158,7 @@ const initTimeCalendar = async (type) => {
   let maxValue = 60
   let colorMain = '#fecc11'
   if (type == 'B') {
-    colorMain = 'blue'
+    colorMain = '#00c29a'
   } else if (type == 'D') {
     colorMain = '#161823'
   } else if (type == 'G') {
@@ -244,7 +244,7 @@ const initTimeBar = async () => {
   const dataY = [{
     value: valueB,
     itemStyle: {
-      color: 'blue'
+      color: '#00c29a'
     }
   }, {
     value: valueD,
