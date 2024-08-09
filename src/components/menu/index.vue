@@ -4,6 +4,7 @@
     <el-menu-item index="/resource">资源</el-menu-item>
     <el-sub-menu index="2">
       <template #title>我的</template>
+      <el-menu-item index="/producer">Producer</el-menu-item>
       <el-menu-item index="/life-color">LifeColor</el-menu-item>
       <el-menu-item index="/saying">Saying</el-menu-item>
     </el-sub-menu>
