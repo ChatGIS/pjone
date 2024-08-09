@@ -2,13 +2,17 @@
     <div>
         <el-row>
             <el-col :span="24">
-                <img id="github-producer-img" src="https://ghchart.rshah.org/ChatGIS"/>
+                <el-button text>GitHub</el-button>
+                <div>
+                    <img id="github-producer-img" :src="srcVal"/>
+                </div>
             </el-col>
         </el-row>
     </div>
 </template>
 <script setup lang="ts">
-
+import {ref} from 'vue'
+const srcVal = ref('https://ghchart.rshah.org/ChatGIS?v=' + new Date().getTime())
 </script>
 <style scoped>
 .el-row {
@@ -19,6 +23,6 @@
   margin: 10px 0px;
 }
 #github-producer-img {
-    width: 100%;
+    width: 60%;
 }
 </style>
