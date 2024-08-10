@@ -58,6 +58,20 @@
               <el-radio value="pic-text">图文呈现</el-radio>
             </el-radio-group>
           </el-form-item>
+          <el-form-item label="缩略比例">
+            <el-input-number v-model="shareConfig.scale" :min="0.1" :step="0.1" :max="0.9" @change="renderImage" />
+          </el-form-item>
+          <el-form-item label="图片大小">
+            <el-col :span="4">
+              <el-switch v-model="shareConfig.proportionFixed" />
+            </el-col>
+            <el-col :span="10">
+              <el-input-number v-model="shareConfig.width" :min="1" @change="renderImage" />
+            </el-col>
+            <el-col :span="10">
+              <el-input-number v-model="shareConfig.height" :min="1" @change="renderImage" />
+            </el-col>
+          </el-form-item>
           <el-form-item label="字体">
             <el-select v-model="shareConfig.fontType" placeholder="字体选择" @change="renderImage">
               <el-option label="宋体" value="SimSun" />
@@ -67,40 +81,23 @@
             </el-select>
           </el-form-item>
           <el-form-item label="字号">
-            <el-input-number v-model="shareConfig.fontSize" :min="1" :max="100" @change="renderImage" />
+            <el-input-number v-model="shareConfig.fontSize" :min="1" :max="600" :step="5" @change="renderImage" />
           </el-form-item>
           <el-form-item label="行高">
-            <el-input-number v-model="shareConfig.lineHeight" :min="1" :max="100" @change="renderImage" />
+            <el-input-number v-model="shareConfig.lineHeight" :min="1" :max="800" :step="5" @change="renderImage" />
           </el-form-item>
-          <el-form-item label="Instant delivery">
-            <el-switch v-model="shareConfig.delivery" />
-          </el-form-item>
-          <el-form-item label="Activity type">
-            <el-checkbox-group v-model="shareConfig.type">
-              <el-checkbox value="Online activities" name="type">
-                Online activities
-              </el-checkbox>
-              <el-checkbox value="Promotion activities" name="type">
-                Promotion activities
-              </el-checkbox>
-              <el-checkbox value="Offline activities" name="type">
-                Offline activities
-              </el-checkbox>
-              <el-checkbox value="Simple brand exposure" name="type">
-                Simple brand exposure
-              </el-checkbox>
-            </el-checkbox-group>
-          </el-form-item>
-          <el-form-item label="Activity form">
-            <el-input v-model="shareConfig.desc" type="textarea" />
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="onSubmit">Create</el-button>
-            <el-button>Cancel</el-button>
+          <el-form-item label="原图">
+            <el-switch v-model="shareConfig.showSourceImg" />
+            <el-button type="primary" @click="onSubmit">下载</el-button>
           </el-form-item>
         </el-form>
       </el-col>
       <el-col :span="12">
+        <canvas ref="canvasScaled"></canvas>
+      </el-col>
+    </el-row>
+    <el-row v-show="shareConfig.showSourceImg">
+      <el-col :span="24">
         <canvas ref="canvasVideoLines"></canvas>
       </el-col>
     </el-row>
@@ -160,14 +157,18 @@ const tableDataSaying = reactive([])
 const shareConfig = reactive({
   template: 'color-card',
   fontType: 'SimSun',
-  fontSize: 20,
-  lineHeight: 30,
-  delivery: false,
-  type: [],
-  desc: '',
+  scale: 0.3,
+  proportionFixed: true,
+  width: 1080,
+  height: 1920,
+  fontSize: 100,
+  lineHeight: 120,
+  showSourceImg: false,
 })
 const canvasVideoLines = ref(null)
+const canvasScaled = ref(null)
 const ctxVideoLines = ref(null)
+const ctxScaled = ref(null)
 const canvasWidth = 512
 const textShare = ref('如果你不够优秀\n人脉是不值钱的\n它不是追求来的\n而是吸引来的\n只有等价的交换\n才能得到合理的帮助\n虽然听起来很冷\n但这是事实')
 const img = new Image()
@@ -179,7 +180,6 @@ onMounted(() => {
 )
 watch(textShare, () => {
   renderImage()
-  
 })
 /**
  * @description: 初始化语录日历图
@@ -287,7 +287,10 @@ const renderImage = () => {
       renderImagePicText()
     }
   } else {
-    renderImageOnlyColor()
+    img.src = GG
+    img.onload = () => {
+      renderImageOnlyColor()
+    }
   }
 }
 
@@ -385,15 +388,13 @@ const renderImagePicText = () => {
 }
 
 const renderImageOnlyColor = () => {
-  const image = img
   if (canvasVideoLines.value) {
-    const lines = textShare.value.split(/\s+/)
-    const scaleFactor = canvasWidth / image.width
-    const scaledHeight = image.height * scaleFactor + 200
-    const imageLineHeight = shareConfig.lineHeight / scaleFactor
     ctxVideoLines.value = canvasVideoLines.value.getContext('2d')
-    canvasVideoLines.value.width = canvasWidth
-    canvasVideoLines.value.height = scaledHeight
+    // ctxVideoLines.value.scale(0.1, 0.1)
+
+    canvasVideoLines.value.width = shareConfig.width
+    canvasVideoLines.value.height = shareConfig.height
+    
     //   ctxVideoLines.value.clearRect(0, 0, canvasWidth, canvasVideoLines.value.height)  
     // ctxVideoLines.value.drawImage(image, 0, 0, canvasWidth, (canvasWidth * image.height) / image.width)
     // ctxVideoLines.value.fillStyle = 'red' // 背景颜色  
@@ -436,6 +437,15 @@ const renderImageOnlyColor = () => {
       }
     }
     ctxVideoLines.value.fillText(line, startX, startY) // 绘制最后一行  
+
+    // 等比例放大的比例因子  
+    const scaleFactor = shareConfig.scale
+
+    canvasScaled.value.width = canvasVideoLines.value.width * scaleFactor
+    canvasScaled.value.height = canvasVideoLines.value.height * scaleFactor
+    ctxScaled.value = canvasScaled.value.getContext('2d')
+    ctxScaled.value.drawImage(canvasVideoLines.value, 0, 0, canvasVideoLines.value.width, canvasVideoLines.value.height,   
+      0, 0, canvasScaled.value.width, canvasScaled.value.height)
   }
 }
 
