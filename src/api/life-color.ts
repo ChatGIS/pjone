@@ -12,6 +12,11 @@ export const getMinuteLastYear = () => {
     url: base + '/getMinuteLastYear',
   })
 }
+export const getNumLastYear = () => {
+  return request({
+    url: base + '/getNumLastYear',
+  })
+}
 export const addLifeColor = (data: any) => {
   return request({
     url: base + '/addLifeColor',

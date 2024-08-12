@@ -16,10 +16,21 @@
         <div id="container-pie-y-time"></div>
       </el-col>
       <el-col :span="6">
+        <div id="container-pie-y-num"></div>
+      </el-col>
+      <el-col :span="6">
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="6">
         <div id="container-pie-sleep-point"></div>
       </el-col>
       <el-col :span="6">
         <div id="container-pie-sleep-long"></div>
+      </el-col>
+      <el-col :span="6">
+      </el-col>
+      <el-col :span="6">
       </el-col>
     </el-row>
     <el-Drawer v-model="lifeDrawer" title="LifeColorEdit" :direction="direction" :before-close="handleClose">
@@ -125,6 +136,7 @@ onMounted(() => {
   initTimeCalendar('S')
   initTimeBar()
   initYTimePie()
+  initYNumPie()
   initSleepPointPie()
   initSleepLongPie()
 }
@@ -376,6 +388,85 @@ const initYTimePie = async () => {
   })
 }
 /**
+ * @description: 初始化Y次数饼图
+ * @return {*}
+ */
+const initYNumPie = async () => {
+  let timeYH = 0, timeYN = 0, timeYY = 0
+  await lifeColorApi.getNumLastYear().then(data => {
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].type == 'YH') {
+        timeYH += data[i].total_num
+      } else if (data[i].type == 'YN') {
+        timeYN += data[i].total_num
+      } else if (data[i].type == 'YY') {
+        timeYY += data[i].total_num
+      }
+    }
+  })
+  let objPieTime = [
+    {
+      name: 'YH',
+      value: timeYH,
+      itemStyle: {
+        color: '#ffd640'
+      }
+    },
+    {
+      name: 'YN',
+      value: timeYN,
+      itemStyle: {
+        color: '#ff6340'
+      }
+    },
+    {
+      name: 'YY',
+      value: timeYY,
+      itemStyle: {
+        color: '#c1ff40'
+      }
+    },
+  ]
+  var chartDom = document.getElementById('container-pie-y-num')
+  chartDom.removeAttribute('_echarts_instance_')
+  var myChart = echarts.init(chartDom)
+  var option
+
+  option = {
+    tooltip: {
+      trigger: 'item'
+    },
+    series: [
+      {
+        name: 'Y',
+        type: 'pie',
+        radius: '40%',
+        data: objPieTime,
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        },
+        label: {
+          normal : {
+            formatter:  data => {
+              return `${data.name}:${data.percent.toFixed(0)}%`
+            }
+          },
+          overflow: 'none',
+        }
+
+      }
+    ]
+  }
+  option && myChart.setOption(option)
+  myChart.on('click', () => {
+    initTimeCalendar('Y')
+  })
+}
+/**
  * @description: 初始化睡眠时间点饼图
  * @return {*}
  */
@@ -550,6 +641,10 @@ const addLifeTime = () => {
   height: 300px;
 }
 #container-pie-y-time {
+  width: 300px;
+  height: 300px;
+}
+#container-pie-y-num {
   width: 300px;
   height: 300px;
 }
