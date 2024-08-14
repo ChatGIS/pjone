@@ -22,15 +22,14 @@
       </el-col>
     </el-row>
     <el-row>
+      <el-col :span="12">
+        <div id="container-line-sleep-point"></div>
+      </el-col>
       <el-col :span="6">
         <div id="container-pie-sleep-point"></div>
       </el-col>
       <el-col :span="6">
         <div id="container-pie-sleep-long"></div>
-      </el-col>
-      <el-col :span="6">
-      </el-col>
-      <el-col :span="6">
       </el-col>
     </el-row>
     <el-Drawer v-model="lifeDrawer" title="LifeColorEdit" :direction="direction" :before-close="handleClose">
@@ -80,7 +79,7 @@ import * as echarts from 'echarts'
 import { onMounted, ref, reactive } from 'vue'
 import { lifeColorApi } from '@/api'
 import 'element-plus/es/components/message/style/css'
-import { ElMessage } from 'element-plus'
+import { ElMessage, formatter } from 'element-plus'
 import { computed } from 'vue'
 
 const defaultTime = ref < [Date, Date] > ([
@@ -132,13 +131,7 @@ const optionsTime = [
   }
 ]
 onMounted(() => {
-  initTimeList()
-  initTimeCalendar('S')
-  initTimeBar()
-  initYTimePie()
-  initYNumPie()
-  initSleepPointPie()
-  initSleepLongPie()
+  handleInitAll()
 }
 )
 formColor.minute = computed(() => {
@@ -152,13 +145,26 @@ const handleChangeType = (val) => {
     formColor.timePoint = null
   }
 }
+const handleInitAll = () => {
+  initTimeList()
+  initTimeCalendar('S')
+  initTimeBar()
+  initYTimePie()
+  initYNumPie()
+  initSleepPointLine()
+  initSleepPointPie()
+  initSleepLongPie()
+}
 /**
  * @description: 初始化时间列表
  * @return {*}
  */
 const initTimeList = () => {
-  lifeColorApi.getLifeColorList().then(res => {
-    tableData.value = res
+  lifeColorApi.getLifeColorList({
+    current: 1,
+    size: 15
+  }).then(res => {  
+    tableData.value = res.records
   })
 }
 /**
@@ -178,8 +184,8 @@ const initTimeCalendar = async (type) => {
   } else if (type == 'R') {
     colorMain = 'red'
   } else if (type == 'S') {
-    colorMain = '#6495ED'
-    minValue = 300
+    colorMain = '#9336f6'
+    minValue = 240
     maxValue = 480
   }
   var chartDom = document.getElementById('container-calendar-time')
@@ -467,6 +473,134 @@ const initYNumPie = async () => {
   })
 }
 /**
+ * @description: 初始化睡眠时间点折线图
+ * @return {*}
+ */
+const initSleepPointLine = async () => {
+  const baseTime = '20:00:00'
+  const xData = [], yData = []
+  await lifeColorApi.getLifeColorList({
+    current: 1,
+    size: 15,
+    type: 'S'
+  }).then(data => {
+    const records = data.records
+    for (let i = 14; i >= 0; i--) {
+      const minute = calculateTimeDifference(records[i].timePoint, baseTime)
+      xData.push(records[i].doDate.substring(5))
+      yData.push(minute)
+    }
+  })
+  var chartDom = document.getElementById('container-line-sleep-point')
+  chartDom.removeAttribute('_echarts_instance_')
+  var myChart = echarts.init(chartDom)
+  var option
+
+  option = {
+    tooltip: {
+      trigger: 'item',
+      formatter: function (params) {  
+        return `${params.name}: ${calculateTimeStr(params.value, baseTime)}`
+      }
+    },
+    xAxis: {
+      type: 'category',
+      data: xData,
+      axisLabel: {  
+        rotate: 45  
+      } 
+    },
+    yAxis: {
+      type: 'value',
+      show: false
+    },
+    series: [
+      {
+        name: 'Sleep',
+        type: 'line',
+        radius: '40%',
+        data: yData,
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        },
+        label: {
+          formatter:  data => {
+            return `${data.name}:${data.percent.toFixed(0)}%`
+          },
+          overflow: 'none',
+        },
+        markLine: {
+          data: [  
+            { 
+              name: '最佳睡眠时间',
+              yAxis: 180              
+            }
+          ],
+          label: {
+            show: true,
+            formatter:  data => {
+              return calculateTimeStr(data.value, baseTime)
+            }
+          },
+          symbol: 'none'
+        },
+        itemStyle: {  
+          normal: {  
+            color: function(params) {
+              let color = '#000000'
+              if(params.data <= 120) color = '#006400'
+              if(params.data > 120 && params.data <= 180) color = '#9ACD32'
+              if(params.data > 180 && params.data <= 210) color = '#FFFF00'
+              if(params.data > 210 && params.data <= 240) color = '#FFA500'
+              if(params.data > 240 && params.data <= 300) color = '#FF0000'
+              if(params.data > 300) color = '#8B0000'
+              return color 
+            }  
+          }  
+        } 
+
+      }
+    ]
+  }
+  option && myChart.setOption(option)
+  myChart.on('click', () => {
+    initTimeCalendar('S')
+  })
+}
+const calculateTimeDifference = (timeStr, reference) => {
+  const [hours, minutes, seconds] = timeStr.split(':').map(Number)
+  const minites = hours * 60 + minutes + seconds / 60
+  const [rHours, rMinutes, rSeconds] = reference.split(':').map(Number)
+  const rMinites = rHours * 60 + rMinutes + rSeconds / 60
+  let diff = (minites - rMinites) % 1440
+  if(diff < 0) {
+    diff += 24 * 60
+  }
+  return diff
+}
+const calculateTimeStr = (diff, reference) => {  
+  // 将 reference 转换为分钟  
+  const [rHours, rMinutes, rSeconds] = reference.split(':').map(Number)  
+  const rMinutesTotal = rHours * 60 + rMinutes + rSeconds / 60  
+
+  // 计算新的时间的总分钟数  
+  let newTotalMinutes = (rMinutesTotal + diff) % (24 * 60)  
+  
+  // 将总分钟数转换回小时、分钟、秒  
+  const newHours = Math.floor(newTotalMinutes / 60)  
+  const newMinutes = Math.floor(newTotalMinutes % 60)  
+  const newSeconds = 0 // 默认秒数为0  
+
+  // 格式化为 hh:mm:ss  
+  const timeStr = `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}:${String(newSeconds).padStart(2, '0')}`  
+  
+  return timeStr  
+} 
+/**
  * @description: 初始化睡眠时间点饼图
  * @return {*}
  */
@@ -606,11 +740,7 @@ const addLifeTime = () => {
   } else {
     lifeColorApi.addLifeColor(formColor).then(num => {
       if (num == 1) {
-        initTimeList()
-        initTimeCalendar('S')
-        initTimeBar()
-        initSleepPointPie()
-        initSleepLongPie()
+        handleInitAll()
       }
     })
   }
@@ -630,7 +760,10 @@ const addLifeTime = () => {
   width: 300px;
   height: 300px;
 }
-
+#container-line-sleep-point {
+  width: 600px;
+  height: 300px;
+}
 #container-pie-sleep-point {
   width: 300px;
   height: 300px;

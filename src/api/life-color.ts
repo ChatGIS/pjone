@@ -2,9 +2,17 @@ import request from './request-spring'
 
 
 const base = '/lifeColor'
-export const getLifeColorList = () => {
+
+type PageParam = {
+  current: number,
+  size: number,
+  type: string,
+}
+export const getLifeColorList = (data: PageParam) => {
   return request({
     url: base + '/getLifeColorList',
+    method: 'post',
+    data
   })
 }
 export const getMinuteLastYear = () => {
