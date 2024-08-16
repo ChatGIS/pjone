@@ -32,3 +32,8 @@ export const getRecordsNum = (type: string) => {
     url: `${base}/getRecordsNum?type=${type}`,
   })
 }
+export const getSleepGroupLastYear = () => {
+  return request({
+    url: base + '/getSleepGroupLastYear',
+  })
+}

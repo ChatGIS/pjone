@@ -6,7 +6,14 @@
         <div class="calendar-box">
           <div id="container-calendar-time" class="container-calendar"></div>
         </div>
-        <div id="container-bar-time"></div>
+        <el-row>
+          <el-col :span="8">
+            <div id="container-bar-time"></div>
+          </el-col>
+          <el-col :span="8">
+            <div id="container-pie-sleep"></div>
+          </el-col>
+        </el-row>
       </el-col>
     </el-row>
     <el-row>
@@ -30,15 +37,16 @@
             <el-input-number v-model="formTime.num" :min="1" :step="1" />
           </div>
           <div>
-            <el-time-picker v-if="formTime.type == 'S'" v-model="formTime.timePoint" value-format="HH:MM:ss" placeholder="时间点" />
+            <el-time-picker v-if="formTime.type == 'S'" v-model="formTime.timePoint" value-format="HH:mm:ss"
+              placeholder="时间点" />
           </div>
           <el-button plain @click="addLifeTime">添加</el-button>
         </div>
         <el-table ref="singleTableRef" :data="tableData" highlight-current-row style="width: 100%"
           @current-change="handleCurrentChange">
           <el-table-column type="index" width="40" />
-          <el-table-column property="doDate" label="日期" width="100"/>
-          <el-table-column property="type" label="类型"  width="60"/>
+          <el-table-column property="doDate" label="日期" width="100" />
+          <el-table-column property="type" label="类型" width="60" />
           <el-table-column property="minute" label="时长" />
           <el-table-column property="timePoint" label="时间点" />
           <el-table-column property="num" label="次数" width="60" />
@@ -136,6 +144,7 @@ onMounted(() => {
   initTimeList()
   initTimeCalendar('G')
   initTimeBar()
+  initSleepPie()
   initSayingCalendar()
 }
 )
@@ -153,6 +162,8 @@ const initTimeList = () => {
  * @return {*}
  */
 const initTimeCalendar = async (type) => {
+  let minValue = 0
+  let maxValue = 60
   let colorMain = '#fecc11'
   if (type == 'B') {
     colorMain = 'blue'
@@ -162,6 +173,10 @@ const initTimeCalendar = async (type) => {
     colorMain = 'green'
   } else if (type == 'R') {
     colorMain = 'red'
+  } else if (type == 'S') {
+    colorMain = '#6495ED'
+    minValue = 300
+    maxValue = 480
   }
   var chartDom = document.getElementById('container-calendar-time')
   chartDom.removeAttribute('_echarts_instance_')
@@ -172,15 +187,19 @@ const initTimeCalendar = async (type) => {
     tooltip: {  // 鼠标悬浮提示
       position: 'top',
       formatter: function (params) {
+        let showValue = params.value[1]
+        if (type == 'S') {
+          showValue = Math.floor(params.value[1] / 60) + 'h' + params.value[1] % 60 + 'm'
+        }
         var html = ''
-        html += `<span style="color: ${colorMain}">${params.value[0]}：${params.value[1]}</span><br />`
+        html += `<span style="color: ${colorMain}">${params.value[0]}：${showValue}</span><br />`
         return html
       },
     },
     visualMap: {
       show: false,
-      min: 0,
-      max: 60,
+      min: minValue,
+      max: maxValue,
       inRange: {  // 方块颜色
         color: ['White', colorMain]
       }
@@ -204,14 +223,6 @@ const initTimeCalendar = async (type) => {
   }
 
   option && myChart.setOption(option)
-  // 处理点击事件  
-  myChart.on('click', function (params) {
-    console.log('点击了', params)
-    if (params.componentType === 'calendar') {
-      console.log('点击了空白区域')
-      // 在这里添加你想要执行的逻辑  
-    }
-  })
 }
 /**
  * @description: 初始化语录日历图
@@ -307,7 +318,7 @@ const initTimeBar = async () => {
     }
   }]
   var chartDom = document.getElementById('container-bar-time')
-  chartDom.removeAttribute('_echarts_instance_')
+  // chartDom.removeAttribute('_echarts_instance_')
   var myChart = echarts.init(chartDom)
   var option
 
@@ -335,6 +346,70 @@ const initTimeBar = async () => {
 
   myChart.on('click', (params) => {
     initTimeCalendar(params.name)
+  })
+}
+/**
+ * @description: 初始化饼图
+ * @return {*}
+ */
+const initSleepPie = async () => {
+  let dataRes
+  await lifeColorApi.getSleepGroupLastYear().then(data => {
+    dataRes = data
+    for(let i = 0; i < data.length; i++) {
+      let pieceColor = ''
+      if(data[i].name == '<10') {
+        pieceColor = '#006400'
+      } else if (data[i].name == '10-11') {
+        pieceColor = '#9ACD32'
+      } else if (data[i].name == '11-11.5') {
+        pieceColor = '#FFFF00'
+      } else if (data[i].name == '11.5-12') {
+        pieceColor = '#FFA500'
+      } else if (data[i].name == '12-1') {
+        pieceColor = '#FF0000'
+      } else {
+        pieceColor = '#8B0000'
+      }
+      data[i].itemStyle = {
+        color: pieceColor
+      }
+    }
+  })
+  var chartDom = document.getElementById('container-pie-sleep')
+  chartDom.removeAttribute('_echarts_instance_')
+  var myChart = echarts.init(chartDom)
+  var option
+
+  option = {
+    tooltip: {
+      trigger: 'item'
+    },
+    series: [
+      {
+        name: 'Sleep',
+        type: 'pie',
+        radius: '50%',
+        data: dataRes,
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        },
+        label: {
+          overflow: 'none',
+        }
+        
+      }
+    ]
+  }
+
+  option && myChart.setOption(option)
+
+  myChart.on('click', () => {
+    initTimeCalendar('S')
   })
 }
 /**
@@ -388,6 +463,11 @@ const clearSaying = () => {
 }
 
 #container-bar-time {
+  width: 300px;
+  height: 300px;
+}
+
+#container-pie-sleep {
   width: 300px;
   height: 300px;
 }
