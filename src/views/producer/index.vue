@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-row>
+        <el-row class="main-card">
             <el-col :span="24">
                 <el-button text>GitHub</el-button>
                 <div>
@@ -21,6 +21,9 @@ const srcVal = ref('https://ghchart.rshah.org/ChatGIS?v=' + new Date().getTime()
   border-radius: 10px;
   box-shadow: 8px 5px #1883c408;
   margin: 10px 0px;
+}
+.main-card {
+  background-color: #FFFFFF;
 }
 #github-producer-img {
     width: 60%;

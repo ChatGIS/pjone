@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-row>
+    <el-row class="main-card">
       <el-col :span="24">
         <el-button @click="lifeDrawer = true" text>TIME WHERE</el-button>
         <div class="calendar-box">
@@ -8,7 +8,7 @@
         </div>
       </el-col>
     </el-row>
-    <el-row>
+    <el-row class="main-card">
       <el-col :span="6">
         <div id="container-bar-time"></div>
       </el-col>
@@ -21,7 +21,7 @@
       <el-col :span="6">
       </el-col>
     </el-row>
-    <el-row>
+    <el-row class="main-card">
       <el-col :span="12">
         <div id="container-line-sleep-point"></div>
       </el-col>
@@ -296,7 +296,12 @@ const initTimeBar = async () => {
       data: dataX
     },
     yAxis: {
-      type: 'value'
+      type: 'value',
+      axisLabel: {  
+        formatter: function(value) {  
+          return value >= 1000 ? (value / 1000) + 'k' : value  
+        }  
+      }  
     },
     series: [
       {
@@ -787,5 +792,8 @@ const addLifeTime = () => {
   border-radius: 10px;
   box-shadow: 8px 5px #1883c408;
   margin: 10px 0px;
+}
+.main-card {
+  background-color: #FFFFFF;
 }
 </style>

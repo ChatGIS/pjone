@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-row>
+    <el-row class="main-card">
       <el-col :span="24">
         <el-button @click="sayingDrawer = true" text>WHO SAY</el-button>
         <div class="calendar-box">
@@ -8,7 +8,7 @@
         </div>
       </el-col>
     </el-row>
-    <el-row>
+    <el-row class="main-card">
       <el-form :inline="true" :model="formQuery" class="demo-form-inline">
         <el-form-item label="Saying">
           <el-input v-model="formQuery.name" clearable />
@@ -45,7 +45,7 @@
         :disabled="disabled" :background="background" layout="total, sizes, prev, pager, next" :total="totalSaying"
         @current-change="handleCurrentChange" @size-change="handleSizeChange" />
     </el-row>
-    <el-row>
+    <el-row class="main-card">
       <el-col :span="6">
         <el-input v-model="textShare" :rows="10" type="textarea" placeholder="分享文字"/>
       </el-col>
@@ -96,7 +96,7 @@
         <canvas ref="canvasScaled"></canvas>
       </el-col>
     </el-row>
-    <el-row v-show="shareConfig.showSourceImg">
+    <el-row class="main-card" v-show="shareConfig.showSourceImg">
       <el-col :span="24">
         <canvas ref="canvasVideoLines"></canvas>
       </el-col>
@@ -475,5 +475,8 @@ const saveImage = () => {
   border-radius: 10px;
   box-shadow: 8px 5px #1883c408;
   margin: 10px 0px;
+}
+.main-card {
+  background-color: #FFFFFF;
 }
 </style>
