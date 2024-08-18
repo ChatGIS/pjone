@@ -48,8 +48,38 @@
     <el-row class="main-card">
       <el-col :span="6">
         <el-input v-model="textShare" :rows="10" type="textarea" placeholder="分享文字"/>
+        <el-input v-model="textAuthorShare"/>
+        <el-form :model="shareConfig" label-width="auto" style="max-width: 600px">
+          <el-form-item label="作者">
+            <el-switch v-model="shareConfig.showAuthor" @change="renderImage"/>
+          </el-form-item>
+          <el-form-item label="前缀">
+            <el-input v-model="shareConfig.authorPrefix" :disabled="!shareConfig.showAuthor" @change="renderImage" />
+          </el-form-item>
+          <el-form-item label="对齐">
+            <el-radio-group v-model="shareConfig.authorTextAlign" :disabled="!shareConfig.showAuthor" @change="renderImage">
+              <el-radio value="left">右</el-radio>
+              <el-radio value="center">中</el-radio>
+              <el-radio value="right">左</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="字号">
+            <el-input-number v-model="shareConfig.authorFontSize" :min="1" :max="600" :step="5" :disabled="!shareConfig.showAuthor" @change="renderImage" />
+          </el-form-item>
+          <el-form-item label="字体">
+            <el-select v-model="shareConfig.authorFontType" placeholder="字体选择" :disabled="!shareConfig.showAuthor" @change="renderImage">
+              <el-option label="宋体" value="SimSun" />
+              <el-option label="黑体" value="SimHei" />
+              <el-option label="微软雅黑" value="Microsoft YaHei" />
+              <el-option label="楷体" value="KaiTi" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="颜色">
+            <el-color-picker v-model="shareConfig.authorTextColor" :predefine="predefineColors1" @change="renderImage"/>
+          </el-form-item>
+        </el-form>
       </el-col>
-      <el-col :span="6">
+      <el-col :span="10">
         <el-form :model="shareConfig" label-width="auto" style="max-width: 600px">
           <el-form-item label="模板" @change="renderImage">
             <el-radio-group v-model="shareConfig.template">
@@ -72,6 +102,14 @@
               <el-input-number v-model="shareConfig.height" :min="1" @change="renderImage" />
             </el-col>
           </el-form-item>
+          <el-form-item label="背景色">
+            <el-col :span="12">
+              <el-color-picker v-model="shareConfigBackgroundColor1" :predefine="predefineColors1" @change="renderImage"/>
+            </el-col>
+            <el-col :span="12">
+              <el-color-picker v-model="shareConfigBackgroundColor2" :predefine="predefineColors2" @change="renderImage"/>
+            </el-col>
+          </el-form-item>
           <el-form-item label="字体">
             <el-select v-model="shareConfig.fontType" placeholder="字体选择" @change="renderImage">
               <el-option label="宋体" value="SimSun" />
@@ -83,22 +121,31 @@
           <el-form-item label="字号">
             <el-input-number v-model="shareConfig.fontSize" :min="1" :max="600" :step="5" @change="renderImage" />
           </el-form-item>
+          <el-form-item label="字体颜色">
+            <el-color-picker v-model="shareConfig.textColor" :predefine="predefineColors1" @change="renderImage"/>
+          </el-form-item>
           <el-form-item label="行高">
             <el-input-number v-model="shareConfig.lineHeight" :min="1" :max="800" :step="5" @change="renderImage" />
           </el-form-item>
+          <el-form-item label="文本框宽度占比">
+            <el-input-number v-model="shareConfig.proportionTextContainerWidth" :min="0.1" :step="0.1" :max="1" @change="renderImage" />
+          </el-form-item>
+          <el-form-item label="文本框高度占比">
+            <el-input-number v-model="shareConfig.proportionTextContainerHeight" :min="0.1" :step="0.02" :max="1" @change="renderImage" />
+          </el-form-item>
           <el-form-item label="原图">
             <el-switch v-model="shareConfig.showSourceImg" />
-            <el-button type="primary" @click="onSubmit">下载</el-button>
+            <el-button type="primary" @click="saveImage">下载</el-button>
           </el-form-item>
         </el-form>
       </el-col>
-      <el-col :span="12">
+      <el-col :span="8">
         <canvas ref="canvasScaled"></canvas>
       </el-col>
     </el-row>
     <el-row class="main-card" v-show="shareConfig.showSourceImg">
       <el-col :span="24">
-        <canvas ref="canvasVideoLines"></canvas>
+        <canvas ref="canvasSource"></canvas>
       </el-col>
     </el-row>
     <el-Drawer v-model="sayingDrawer" title="语录管理" :direction="direction" :before-close="handleClose">
@@ -163,14 +210,58 @@ const shareConfig = reactive({
   height: 1920,
   fontSize: 100,
   lineHeight: 120,
+  textColor: '#FFFFFF',
+  proportionTextContainerWidth: 0.8,
+  proportionTextContainerHeight: 0.2,
+  showAuthor: true,
+  authorPrefix: '@',
+  authorTextAlign: 'left',
+  authorFontSize: 70,
+  authorFontType: 'SimSun',
+  authorTextColor: '#FFFFFF',
   showSourceImg: false,
 })
-const canvasVideoLines = ref(null)
+const shareConfigBackgroundColor1 = ref('#5c2223')
+const shareConfigBackgroundColor2 = ref('#5c2223')
+const predefineColors1 = ref([
+  '#ff4500',
+  '#ff8c00',
+  '#ffd700',
+  '#90ee90',
+  '#00ced1',
+  '#1e90ff',
+  '#c71585',
+  'rgba(255, 69, 0, 0.68)',
+  'rgb(255, 120, 0)',
+  'hsv(51, 100, 98)',
+  'hsva(120, 40, 94, 0.5)',
+  'hsl(181, 100%, 37%)',
+  'hsla(209, 100%, 56%, 0.73)',
+  '#c7158577',
+])
+const predefineColors2 = ref([
+  '#ff4500',
+  '#ff8c00',
+  '#ffd700',
+  '#90ee90',
+  '#00ced1',
+  '#1e90ff',
+  '#c71585',
+  'rgba(255, 69, 0, 0.68)',
+  'rgb(255, 120, 0)',
+  'hsv(51, 100, 98)',
+  'hsva(120, 40, 94, 0.5)',
+  'hsl(181, 100%, 37%)',
+  'hsla(209, 100%, 56%, 0.73)',
+  '#c7158577',
+])
+const canvasSource = ref(null)
 const canvasScaled = ref(null)
-const ctxVideoLines = ref(null)
+const ctxSource = ref(null)
 const ctxScaled = ref(null)
 const canvasWidth = 512
-const textShare = ref('如果你不够优秀\n人脉是不值钱的\n它不是追求来的\n而是吸引来的\n只有等价的交换\n才能得到合理的帮助\n虽然听起来很冷\n但这是事实')
+const textShare = ref('')
+const textAuthorShare = ref('')
 const img = new Image()
 onMounted(() => {
   initSayingCalendar()
@@ -234,6 +325,8 @@ const initSayingTable = () => {
     tableDataSaying.length = 0
     tableDataSaying.push(...res.records)
     totalSaying.value = res.total
+    textShare.value = res.records[0].name
+    textAuthorShare.value = res.records[0].author
   })
 }
 const clearQuery = () => {
@@ -251,6 +344,7 @@ const handleSizeChange = () => {
 }
 const handleShare = (index, row) => {
   textShare.value = row.name
+  textAuthorShare.value = row.author
 }
 /**
  * @description: 添加语录
@@ -289,7 +383,7 @@ const renderImage = () => {
   } else {
     img.src = GG
     img.onload = () => {
-      renderImageOnlyColor()
+      renderImageOfColor()
     }
   }
 }
@@ -310,35 +404,35 @@ const handleUpload = (file) => {
 const renderImageVideoLine = () => {
   const image = img
   // nextTick(() => {
-  if (canvasVideoLines.value) {
+  if (canvasSource.value) {
     const lines = textShare.value.split('\n')
     const scaleFactor = canvasWidth / image.width
     const scaledHeight = image.height * scaleFactor
     const imageLineHeight = shareConfig.lineHeight / scaleFactor
-    ctxVideoLines.value = canvasVideoLines.value.getContext('2d')
-    canvasVideoLines.value.width = canvasWidth
-    canvasVideoLines.value.height = scaledHeight
+    ctxSource.value = canvasSource.value.getContext('2d')
+    canvasSource.value.width = canvasWidth
+    canvasSource.value.height = scaledHeight
     if (lines.length > 1) {
-      canvasVideoLines.value.height += (lines.length - 1) * shareConfig.lineHeight
+      canvasSource.value.height += (lines.length - 1) * shareConfig.lineHeight
     }
-    //   ctxVideoLines.value.clearRect(0, 0, canvasWidth, canvasVideoLines.value.height)  
-    ctxVideoLines.value.drawImage(image, 0, 0, canvasWidth, (canvasWidth * image.height) / image.width)
-    ctxVideoLines.value.font = `${shareConfig.fontSize}px ${shareConfig.fontType}`
-    ctxVideoLines.value.fillStyle = 'white'
-    ctxVideoLines.value.textAlign = 'center'
-    ctxVideoLines.value.shadowColor = 'black'
-    ctxVideoLines.value.shadowBlur = 5
-    ctxVideoLines.value.shadowOffsetX = 2
-    // ctxVideoLines.value.fillText(textInput.value, 10, canvasVideoLines.value.height - 30)
+    //   ctxSource.value.clearRect(0, 0, canvasWidth, canvasSource.value.height)  
+    ctxSource.value.drawImage(image, 0, 0, canvasWidth, (canvasWidth * image.height) / image.width)
+    ctxSource.value.font = `${shareConfig.fontSize}px ${shareConfig.fontType}`
+    ctxSource.value.fillStyle = 'white'
+    ctxSource.value.textAlign = 'center'
+    ctxSource.value.shadowColor = 'black'
+    ctxSource.value.shadowBlur = 5
+    ctxSource.value.shadowOffsetX = 2
+    // ctxSource.value.fillText(textInput.value, 10, canvasSource.value.height - 30)
 
     for (let i = 0; i < lines.length; i++) {
       if (i > 0) {
         const sx = 0, sy = image.height - imageLineHeight, sw = image.width, sh = imageLineHeight
-        const dx = 0, dy = scaledHeight + (i - 1) * shareConfig.lineHeight, dw = canvasVideoLines.value.width, dh = shareConfig.lineHeight
-        ctxVideoLines.value.drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh)
+        const dx = 0, dy = scaledHeight + (i - 1) * shareConfig.lineHeight, dw = canvasSource.value.width, dh = shareConfig.lineHeight
+        ctxSource.value.drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh)
       }
       const y = scaledHeight + i * shareConfig.lineHeight - (shareConfig.lineHeight - shareConfig.fontSize) / 2
-      ctxVideoLines.value.fillText(lines[i], canvasVideoLines.value.width / 2, y)
+      ctxSource.value.fillText(lines[i], canvasSource.value.width / 2, y)
     }
   }
   // })
@@ -346,114 +440,125 @@ const renderImageVideoLine = () => {
 
 const renderImagePicText = () => {
   const image = img
-  if (canvasVideoLines.value) {
+  if (canvasSource.value) {
     const lines = textShare.value.split(/\s+/)
     const scaleFactor = canvasWidth / image.width
     const scaledHeight = image.height * scaleFactor + 200
     const imageLineHeight = shareConfig.lineHeight / scaleFactor
-    ctxVideoLines.value = canvasVideoLines.value.getContext('2d')
-    canvasVideoLines.value.width = canvasWidth
-    canvasVideoLines.value.height = scaledHeight
-    //   ctxVideoLines.value.clearRect(0, 0, canvasWidth, canvasVideoLines.value.height)  
-    ctxVideoLines.value.drawImage(image, 0, 0, canvasWidth, (canvasWidth * image.height) / image.width)
-    ctxVideoLines.value.font = `${shareConfig.fontSize}px ${shareConfig.fontType}`
-    ctxVideoLines.value.fillStyle = 'white'
-    ctxVideoLines.value.textAlign = 'center'
-    ctxVideoLines.value.shadowColor = 'black'
-    ctxVideoLines.value.shadowBlur = 5
-    ctxVideoLines.value.shadowOffsetX = 2
-    // ctxVideoLines.value.fillText(textShare.value, canvasVideoLines.value.width / 2, canvasVideoLines.value.height - 80)
+    ctxSource.value = canvasSource.value.getContext('2d')
+    canvasSource.value.width = canvasWidth
+    canvasSource.value.height = scaledHeight
+    //   ctxSource.value.clearRect(0, 0, canvasWidth, canvasSource.value.height)  
+    ctxSource.value.drawImage(image, 0, 0, canvasWidth, (canvasWidth * image.height) / image.width)
+    ctxSource.value.font = `${shareConfig.fontSize}px ${shareConfig.fontType}`
+    ctxSource.value.fillStyle = 'white'
+    ctxSource.value.textAlign = 'center'
+    ctxSource.value.shadowColor = 'black'
+    ctxSource.value.shadowBlur = 5
+    ctxSource.value.shadowOffsetX = 2
+    // ctxSource.value.fillText(textShare.value, canvasSource.value.width / 2, canvasSource.value.height - 80)
 
-    const maxWidth = canvasVideoLines.value.width * 0.8 // 允许的最大宽度  
+    const maxWidth = canvasSource.value.width * 0.8 // 允许的最大宽度  
     const words = textShare.value.split('') // 按空格分割单词 
     let line = '' // 当前行的文本 
-    const startX = canvasVideoLines.value.width / 2 // 起始X坐标  
-    let startY = canvasVideoLines.value.height / 2 // 起始Y坐标  
+    const startX = canvasSource.value.width / 2 // 起始X坐标  
+    let startY = canvasSource.value.height / 2 // 起始Y坐标  
     // 遍历每个单词，决定是否换行  
     for (let n = 0; n < words.length; n++) {
       const testLine = line + words[n] + '' // 测试添加单词后的行  
-      const metrics = ctxVideoLines.value.measureText(testLine)
+      const metrics = ctxSource.value.measureText(testLine)
       const testWidth = metrics.width
 
       if (testWidth > maxWidth && n > 0) {
-        ctxVideoLines.value.fillText(line, startX, startY) // 绘制当前行  
+        ctxSource.value.fillText(line, startX, startY) // 绘制当前行  
         line = words[n] + ' ' // 重新开始新行  
         startY += shareConfig.lineHeight // 移动到下一行  
       } else {
         line = testLine // 更新当前行  
       }
     }
-    ctxVideoLines.value.fillText(line, startX, startY + 100) // 绘制最后一行  
+    ctxSource.value.fillText(line, startX, startY + 100) // 绘制最后一行  
   }
 }
 
-const renderImageOnlyColor = () => {
-  if (canvasVideoLines.value) {
-    ctxVideoLines.value = canvasVideoLines.value.getContext('2d')
-    // ctxVideoLines.value.scale(0.1, 0.1)
-
-    canvasVideoLines.value.width = shareConfig.width
-    canvasVideoLines.value.height = shareConfig.height
-    
-    //   ctxVideoLines.value.clearRect(0, 0, canvasWidth, canvasVideoLines.value.height)  
-    // ctxVideoLines.value.drawImage(image, 0, 0, canvasWidth, (canvasWidth * image.height) / image.width)
-    // ctxVideoLines.value.fillStyle = 'red' // 背景颜色  
-
-    // 创建线性渐变  
-    const gradient = ctxVideoLines.value.createLinearGradient(0, 0, canvasVideoLines.value.width, canvasVideoLines.value.height)
-    gradient.addColorStop(0, 'lightblue') // 起始颜色  
-    gradient.addColorStop(1, 'orange') // 结束颜色  
-
-    // 设置渐变色作为背景  
-    ctxVideoLines.value.fillStyle = gradient
-
-    ctxVideoLines.value.fillRect(0, 0, canvasVideoLines.value.width, canvasVideoLines.value.height) // 绘制矩形覆盖整个 canvas
-    ctxVideoLines.value.fillStyle
-    ctxVideoLines.value.font = `${shareConfig.fontSize}px ${shareConfig.fontType}`
-    ctxVideoLines.value.fillStyle = 'white'
-    ctxVideoLines.value.textAlign = 'center'
-    ctxVideoLines.value.shadowColor = 'black'
-    ctxVideoLines.value.shadowBlur = 5
-    ctxVideoLines.value.shadowOffsetX = 2
-    // ctxVideoLines.value.fillText(textShare.value, canvasVideoLines.value.width / 2, canvasVideoLines.value.height - 80)
-
-    const maxWidth = canvasVideoLines.value.width * 0.8 // 允许的最大宽度  
-    const words = textShare.value.split('') // 按空格分割单词 
-    let line = '' // 当前行的文本 
-    const startX = canvasVideoLines.value.width / 2 // 起始X坐标  
-    let startY = canvasVideoLines.value.height / 2 // 起始Y坐标  
-    // 遍历每个单词，决定是否换行  
-    for (let n = 0; n < words.length; n++) {
-      const testLine = line + words[n] + '' // 测试添加单词后的行  
-      const metrics = ctxVideoLines.value.measureText(testLine)
-      const testWidth = metrics.width
-
-      if (testWidth > maxWidth && n > 0) {
-        ctxVideoLines.value.fillText(line, startX, startY) // 绘制当前行  
-        line = words[n] + ' ' // 重新开始新行  
-        startY += shareConfig.lineHeight // 移动到下一行  
-      } else {
-        line = testLine // 更新当前行  
-      }
+/**
+ * @description: 渲染颜色图片
+ * @return {*}
+ */
+const renderImageOfColor = () => {
+  if (canvasSource.value) {
+    ctxSource.value = canvasSource.value.getContext('2d')
+    canvasSource.value.width = shareConfig.width
+    canvasSource.value.height = shareConfig.height
+    // 背景色
+    if(shareConfigBackgroundColor1.value == shareConfigBackgroundColor2.value) {
+      // 纯色
+      ctxSource.value.fillStyle = shareConfigBackgroundColor1.value
+    } else {
+      // 渐变色
+      const gradient = ctxSource.value.createLinearGradient(0, 0, canvasSource.value.width, canvasSource.value.height)
+      gradient.addColorStop(0, shareConfigBackgroundColor1.value)  
+      gradient.addColorStop(1, shareConfigBackgroundColor2.value)
+      ctxSource.value.fillStyle = gradient
     }
-    ctxVideoLines.value.fillText(line, startX, startY) // 绘制最后一行  
+    ctxSource.value.fillRect(0, 0, canvasSource.value.width, canvasSource.value.height)
+    // 文字内容
+    ctxSource.value.font = `${shareConfig.fontSize}px ${shareConfig.fontType}`
+    ctxSource.value.fillStyle = shareConfig.textColor
+    ctxSource.value.textAlign = 'center'
+    ctxSource.value.shadowColor = 'black'
+    ctxSource.value.shadowBlur = 50
+    ctxSource.value.shadowOffsetX = 2
+    const maxWidth = canvasSource.value.width * shareConfig.proportionTextContainerWidth
+    const startX = canvasSource.value.width / 2 // 起始X坐标  
+    let startY = canvasSource.value.height * shareConfig.proportionTextContainerHeight // 起始Y坐标  
+    const linesHand = textShare.value.split('\n')
+    for (let i = 0; i < linesHand.length; i++) {
+      const lineHand = linesHand[i]
+      const words = lineHand.split('')
+      let currentLine = ''
+      for (let n = 0; n < words.length; n++) {
+        const testLine = currentLine + words[n]  
+        const metrics = ctxSource.value.measureText(testLine)
+        const testWidth = metrics.width
 
-    // 等比例放大的比例因子  
+        if (testWidth > maxWidth && n > 0) {
+          ctxSource.value.fillText(currentLine, startX, startY) 
+          currentLine = words[n]   
+          startY += shareConfig.lineHeight 
+        } else {
+          currentLine = testLine
+        }
+      }
+      ctxSource.value.fillText(currentLine, startX, startY)
+      startY += shareConfig.lineHeight
+    }
+    // 文字作者
+    if(shareConfig.showAuthor) {
+      ctxSource.value.font = `${shareConfig.authorFontSize}px ${shareConfig.authorFontType}`
+      ctxSource.value.fillStyle = shareConfig.authorTextColor
+      ctxSource.value.textAlign = shareConfig.authorTextAlign
+      ctxSource.value.fillText(`${shareConfig.authorPrefix}${textAuthorShare.value}`, startX, startY)
+    }
+    // 缩放
     const scaleFactor = shareConfig.scale
-
-    canvasScaled.value.width = canvasVideoLines.value.width * scaleFactor
-    canvasScaled.value.height = canvasVideoLines.value.height * scaleFactor
+    canvasScaled.value.width = canvasSource.value.width * scaleFactor
+    canvasScaled.value.height = canvasSource.value.height * scaleFactor
     ctxScaled.value = canvasScaled.value.getContext('2d')
-    ctxScaled.value.drawImage(canvasVideoLines.value, 0, 0, canvasVideoLines.value.width, canvasVideoLines.value.height,   
+    ctxScaled.value.drawImage(canvasSource.value, 0, 0, canvasSource.value.width, canvasSource.value.height,   
       0, 0, canvasScaled.value.width, canvasScaled.value.height)
   }
 }
 
+/**
+ * @description: 保存图片
+ * @return {*}
+ */
 const saveImage = () => {
-  if (canvasVideoLines.value) {
+  if (canvasSource.value) {
     const link = document.createElement('a')
-    link.download = 'screenshot.png'
-    link.href = canvasVideoLines.value.toDataURL()
+    link.download = `${textAuthorShare.value}@${textShare.value.substring(0, 5)}@${new Date().getTime()}.png`
+    link.href = canvasSource.value.toDataURL()
     link.click()
     ElMessage.success('图片已保存!')
   }
