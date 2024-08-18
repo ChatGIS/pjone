@@ -33,6 +33,7 @@
         <el-table-column prop="author" label="Author" width="180" />
         <el-table-column prop="book" label="Book" width="180" />
         <el-table-column prop="article" label="Article" width="180" />
+        <el-table-column prop="createDate" label="createDate" width="180" />
         <el-table-column label="Operations">
           <template #default="scope">
             <el-button type="success" :icon="Share" circle @click="handleShare(scope.$index, scope.row)" />
@@ -123,6 +124,9 @@
               <el-radio value="pic-text">图文呈现</el-radio>
             </el-radio-group>
           </el-form-item>
+          <el-form-item label="上边界">
+            <el-input-number v-model="shareConfig.proportionTextContainerHeight" :min="0.1" :step="0.02" :max="1" @change="renderImage" />
+          </el-form-item>
           <el-form-item label="缩略比例">
             <el-input-number v-model="shareConfig.scale" :min="0.1" :step="0.1" :max="0.9" @change="renderImage" />
           </el-form-item>
@@ -164,9 +168,6 @@
           </el-form-item>
           <el-form-item label="文本框宽度占比">
             <el-input-number v-model="shareConfig.proportionTextContainerWidth" :min="0.1" :step="0.1" :max="1" @change="renderImage" />
-          </el-form-item>
-          <el-form-item label="文本框高度占比">
-            <el-input-number v-model="shareConfig.proportionTextContainerHeight" :min="0.1" :step="0.02" :max="1" @change="renderImage" />
           </el-form-item>
           <el-form-item label="原图">
             <el-switch v-model="shareConfig.showSourceImg" />
