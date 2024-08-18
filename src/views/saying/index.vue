@@ -49,35 +49,70 @@
       <el-col :span="6">
         <el-input v-model="textShare" :rows="10" type="textarea" placeholder="分享文字"/>
         <el-input v-model="textAuthorShare"/>
-        <el-form :model="shareConfig" label-width="auto" style="max-width: 600px">
-          <el-form-item label="作者">
-            <el-switch v-model="shareConfig.showAuthor" @change="renderImage"/>
-          </el-form-item>
-          <el-form-item label="前缀">
-            <el-input v-model="shareConfig.authorPrefix" :disabled="!shareConfig.showAuthor" @change="renderImage" />
-          </el-form-item>
-          <el-form-item label="对齐">
-            <el-radio-group v-model="shareConfig.authorTextAlign" :disabled="!shareConfig.showAuthor" @change="renderImage">
-              <el-radio value="left">右</el-radio>
-              <el-radio value="center">中</el-radio>
-              <el-radio value="right">左</el-radio>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item label="字号">
-            <el-input-number v-model="shareConfig.authorFontSize" :min="1" :max="600" :step="5" :disabled="!shareConfig.showAuthor" @change="renderImage" />
-          </el-form-item>
-          <el-form-item label="字体">
-            <el-select v-model="shareConfig.authorFontType" placeholder="字体选择" :disabled="!shareConfig.showAuthor" @change="renderImage">
-              <el-option label="宋体" value="SimSun" />
-              <el-option label="黑体" value="SimHei" />
-              <el-option label="微软雅黑" value="Microsoft YaHei" />
-              <el-option label="楷体" value="KaiTi" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="颜色">
-            <el-color-picker v-model="shareConfig.authorTextColor" :predefine="predefineColors1" @change="renderImage"/>
-          </el-form-item>
-        </el-form>
+        <el-collapse v-model="activeNames" accordion="true" @change="handleChange">
+          <el-collapse-item title="作者" name="1">
+            <el-form :model="shareConfig" label-width="auto" style="max-width: 600px">
+              <el-form-item label="作者">
+                <el-switch v-model="shareConfig.showAuthor" @change="renderImage"/>
+              </el-form-item>
+              <el-form-item label="前缀">
+                <el-input v-model="shareConfig.authorPrefix" :disabled="!shareConfig.showAuthor" @change="renderImage" />
+              </el-form-item>
+              <el-form-item label="对齐">
+                <el-radio-group v-model="shareConfig.authorTextAlign" :disabled="!shareConfig.showAuthor" @change="renderImage">
+                  <el-radio value="left">右</el-radio>
+                  <el-radio value="center">中</el-radio>
+                  <el-radio value="right">左</el-radio>
+                </el-radio-group>
+              </el-form-item>
+              <el-form-item label="字号">
+                <el-input-number v-model="shareConfig.authorFontSize" :min="1" :max="600" :step="5" :disabled="!shareConfig.showAuthor" @change="renderImage" />
+              </el-form-item>
+              <el-form-item label="字体">
+                <el-select v-model="shareConfig.authorFontType" placeholder="字体选择" :disabled="!shareConfig.showAuthor" @change="renderImage">
+                  <el-option label="宋体" value="SimSun" />
+                  <el-option label="黑体" value="SimHei" />
+                  <el-option label="微软雅黑" value="Microsoft YaHei" />
+                  <el-option label="楷体" value="KaiTi" />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="颜色">
+                <el-color-picker v-model="shareConfig.authorTextColor" :predefine="predefineColors1" :disabled="!shareConfig.showAuthor" @change="renderImage"/>
+              </el-form-item>
+            </el-form>
+          </el-collapse-item>
+          <el-collapse-item title="水印" name="2">
+            <el-form :model="shareConfig" label-width="auto" style="max-width: 600px">
+              <el-form-item label="水印">
+                <el-switch v-model="shareConfig.showWaterMark" @change="renderImage"/>
+              </el-form-item>
+              <el-form-item label="内容">
+                <el-input v-model="shareConfig.watermarkText" :disabled="!shareConfig.showWaterMark" @change="renderImage" />
+              </el-form-item>
+              <el-form-item label="倾斜度">
+                <el-input-number v-model="shareConfig.watermarkRotateDegrees" :min="-180" :max="180" :step="5" :disabled="!shareConfig.showWaterMark" @change="renderImage" />
+              </el-form-item>
+              <el-form-item label="横纵数">
+                <el-input-number v-model="shareConfig.watermarkNumX" :min="0" :max="50" :step="1" :disabled="!shareConfig.showWaterMark" @change="renderImage" />
+                <el-input-number v-model="shareConfig.watermarkNumY" :min="0" :max="50" :step="1" :disabled="!shareConfig.showWaterMark" @change="renderImage" />
+              </el-form-item>
+              <el-form-item label="字号">
+                <el-input-number v-model="shareConfig.watermarkFontSize" :min="1" :max="600" :step="5" :disabled="!shareConfig.showWaterMark" @change="renderImage" />
+              </el-form-item>
+              <el-form-item label="字体">
+                <el-select v-model="shareConfig.watermarkFontType" placeholder="字体选择" :disabled="!shareConfig.showWaterMark" @change="renderImage">
+                  <el-option label="宋体" value="SimSun" />
+                  <el-option label="黑体" value="SimHei" />
+                  <el-option label="微软雅黑" value="Microsoft YaHei" />
+                  <el-option label="楷体" value="KaiTi" />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="颜色">
+                <el-color-picker v-model="shareConfig.watermarkTextColor" show-alpha :predefine="predefineColors1" :disabled="!shareConfig.showWaterMark" @change="renderImage"/>
+              </el-form-item>
+            </el-form>
+          </el-collapse-item>
+        </el-collapse>
       </el-col>
       <el-col :span="10">
         <el-form :model="shareConfig" label-width="auto" style="max-width: 600px">
@@ -201,6 +236,7 @@ const currentPage = ref(1)
 const pageSize = ref(5)
 const totalSaying = ref(0)
 const tableDataSaying = reactive([])
+const activeNames = ref(['1'])
 const shareConfig = reactive({
   template: 'color-card',
   fontType: 'SimSun',
@@ -219,6 +255,14 @@ const shareConfig = reactive({
   authorFontSize: 70,
   authorFontType: 'SimSun',
   authorTextColor: '#FFFFFF',
+  showWaterMark: true,
+  watermarkText: '智言骗语',
+  watermarkRotateDegrees: 60,
+  watermarkFontSize: 10,
+  watermarkFontType: 'SimSun',
+  watermarkTextColor: 'rgba(255, 255, 255, 0.1)',
+  watermarkNumX: 5,
+  watermarkNumY: 8,
   showSourceImg: false,
 })
 const shareConfigBackgroundColor1 = ref('#5c2223')
@@ -539,6 +583,28 @@ const renderImageOfColor = () => {
       ctxSource.value.fillStyle = shareConfig.authorTextColor
       ctxSource.value.textAlign = shareConfig.authorTextAlign
       ctxSource.value.fillText(`${shareConfig.authorPrefix}${textAuthorShare.value}`, startX, startY)
+    }
+    // 水印
+    if(shareConfig.showWaterMark) {
+      const watermarkText = shareConfig.watermarkText
+      const angle = shareConfig.watermarkRotateDegrees * (Math.PI / 180)  
+      const textWidth = ctxSource.value.measureText(watermarkText).width  
+      const textHeight = 30 // 假设字体高度是30px  
+      const xNum = shareConfig.watermarkNumX
+      const yNum = shareConfig.watermarkNumY
+      for (let i = 0; i < xNum; i++) {  
+        for (let j = 0; j < yNum; j++) {  
+          const x = i * (canvasSource.value.width / xNum) + (canvasSource.value.width / (xNum * 2)) - textWidth / 2  
+          const y = j * (canvasSource.value.height / yNum) + (canvasSource.value.height / (yNum * 2)) + textHeight / 2  
+          ctxSource.value.save()  
+          ctxSource.value.translate(x, y)  
+          ctxSource.value.rotate(angle)  
+          ctxSource.value.font = `${shareConfig.watermarkFontSize}px ${shareConfig.watermarkFontType}`  
+          ctxSource.value.fillStyle = shareConfig.watermarkTextColor  
+          ctxSource.value.fillText(watermarkText, 0, 0)  
+          ctxSource.value.restore()  
+        }  
+      }
     }
     // 缩放
     const scaleFactor = shareConfig.scale
