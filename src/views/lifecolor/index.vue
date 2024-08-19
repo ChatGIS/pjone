@@ -1,3 +1,4 @@
+<!-- eslint-disable indent -->
 <template>
   <div>
     <el-row class="main-card">
@@ -21,17 +22,24 @@
       <el-col :span="6">
       </el-col>
     </el-row>
-    <el-row class="main-card">
-      <el-col :span="12">
-        <div id="container-line-sleep-point"></div>
-      </el-col>
-      <el-col :span="6">
-        <div id="container-pie-sleep-point"></div>
-      </el-col>
-      <el-col :span="6">
-        <div id="container-pie-sleep-long"></div>
-      </el-col>
-    </el-row>
+    <el-card class="main-card">
+      <el-row>
+        <el-col :span="18">
+          <div id="container-line-sleep-point"></div>
+        </el-col>
+        <el-col :span="6">
+          <div id="container-pie-sleep-point"></div>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="18">
+          <div id="container-line-sleep-long"></div>
+        </el-col>
+        <el-col :span="6">
+          <div id="container-pie-sleep-long"></div>
+        </el-col>
+      </el-row>
+    </el-card>
     <el-Drawer v-model="lifeDrawer" title="LifeColorEdit" :direction="direction" :before-close="handleClose">
       <div id="table-container">
         <div>
@@ -151,7 +159,7 @@ const handleInitAll = () => {
   initTimeBar()
   initYTimePie()
   initYNumPie()
-  initSleepPointLine()
+  initSleepMonthChart()
   initSleepPointPie()
   initSleepLongPie()
 }
@@ -478,24 +486,33 @@ const initYNumPie = async () => {
   })
 }
 /**
- * @description: 初始化睡眠时间点折线图
+ * @description: 初始化睡眠图表
  * @return {*}
  */
-const initSleepPointLine = async () => {
+const initSleepMonthChart = async () => {
   const baseTime = '20:00:00'
-  const xData = [], yData = []
+  const xData = [], yData = [], yDataLong = []
   await lifeColorApi.getLifeColorList({
     current: 1,
-    size: 15,
+    size: 30,
     type: 'S'
   }).then(data => {
     const records = data.records
-    for (let i = 14; i >= 0; i--) {
+    for (let i = records.length - 1; i >= 0; i--) {
       const minute = calculateTimeDifference(records[i].timePoint, baseTime)
       xData.push(records[i].doDate.substring(5))
       yData.push(minute)
+      yDataLong.push(records[i].minute)
     }
   })
+  initSleepPointLine(xData, yData, baseTime)
+  initSleepLongBar(xData, yDataLong)
+}
+/**
+ * @description: 初始化睡眠时间点折线图
+ * @return {*}
+ */
+const initSleepPointLine = (xData, yData, baseTime) => {
   var chartDom = document.getElementById('container-line-sleep-point')
   chartDom.removeAttribute('_echarts_instance_')
   var myChart = echarts.init(chartDom)
@@ -541,7 +558,7 @@ const initSleepPointLine = async () => {
         markLine: {
           data: [  
             { 
-              name: '最佳睡眠时间',
+              name: 'Good',
               yAxis: 180              
             }
           ],
@@ -576,6 +593,12 @@ const initSleepPointLine = async () => {
     initTimeCalendar('S')
   })
 }
+/**
+ * @description: 计算时间差
+ * @param {*} timeStr
+ * @param {*} reference
+ * @return {*}
+ */
 const calculateTimeDifference = (timeStr, reference) => {
   const [hours, minutes, seconds] = timeStr.split(':').map(Number)
   const minites = hours * 60 + minutes + seconds / 60
@@ -587,24 +610,102 @@ const calculateTimeDifference = (timeStr, reference) => {
   }
   return diff
 }
+/**
+ * @description: 根据分钟数计算时间字符串
+ * @param {*} diff
+ * @param {*} reference
+ * @return {*}
+ */
 const calculateTimeStr = (diff, reference) => {  
-  // 将 reference 转换为分钟  
   const [rHours, rMinutes, rSeconds] = reference.split(':').map(Number)  
   const rMinutesTotal = rHours * 60 + rMinutes + rSeconds / 60  
-
-  // 计算新的时间的总分钟数  
   let newTotalMinutes = (rMinutesTotal + diff) % (24 * 60)  
-  
-  // 将总分钟数转换回小时、分钟、秒  
   const newHours = Math.floor(newTotalMinutes / 60)  
   const newMinutes = Math.floor(newTotalMinutes % 60)  
-  const newSeconds = 0 // 默认秒数为0  
-
-  // 格式化为 hh:mm:ss  
+  const newSeconds = 0 
   const timeStr = `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}:${String(newSeconds).padStart(2, '0')}`  
-  
   return timeStr  
-} 
+}
+/**
+ * @description: 加载睡眠时长柱状图
+ * @param {*} xData
+ * @param {*} yData
+ * @return {*}
+ */
+const initSleepLongBar = (xData, yData) => {
+  var chartDom = document.getElementById('container-line-sleep-long')
+  chartDom.removeAttribute('_echarts_instance_')
+  var myChart = echarts.init(chartDom)
+  var option
+
+  option = {
+    xAxis: {
+      type: 'category',
+      data: xData
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: {  
+        formatter: function(value) {  
+          return Math.floor(value / 60) + 'h' + value % 60 + 'm'   
+        }  
+      }  
+    },
+    series: [
+      {
+        data: yData,
+        type: 'bar',
+        itemStyle: {
+          color: (params) => {
+            const val = params.data
+            if (val > 480) {
+              return '#006400'
+            } else if (val >450 && val <= 480) {
+              return '#9ACD32'
+            } else if (val >420 && val <= 450) {
+              return '#FFFF00'
+            } else if (val >390 && val <= 420) {
+              return '#FFA500'
+            } else if (val >360 && val <= 390) {
+              return '#FF0000'
+            } else {
+              return '#8B0000'
+            }
+          }
+        },
+        label: {
+          show: true,
+          position: 'insideTop',
+          formatter: params => {
+            const value = params.value
+            return Math.floor(value / 60) + 'h' + value % 60 + 'm'
+          }
+        },
+        markLine: {  
+          lineStyle: {  
+            type: 'dashed',  
+            color: 'blue'  
+          },  
+          data: [  
+            { yAxis: 480, name: 'Good' }  
+          ],
+          label: {
+            show: true,
+            formatter: params => {
+              const value = params.value
+              return Math.floor(value / 60) + 'h'
+            }
+          },
+          symbol: 'none'
+        },
+      }
+    ]
+  }
+  option && myChart.setOption(option)
+  myChart.on('click', () => {
+    initTimeCalendar('S')
+  })
+}
 /**
  * @description: 初始化睡眠时间点饼图
  * @return {*}
@@ -766,7 +867,11 @@ const addLifeTime = () => {
   height: 300px;
 }
 #container-line-sleep-point {
-  width: 600px;
+  width: 100%;
+  height: 300px;
+}
+#container-line-sleep-long {
+  width: 100%;
   height: 300px;
 }
 #container-pie-sleep-point {
@@ -786,14 +891,12 @@ const addLifeTime = () => {
   width: 300px;
   height: 300px;
 }
-.el-row {
+.main-card {
+  background-color: #FFFFFF;
   padding: 10px 20px;
   border: 1px solid #00000030;
   border-radius: 10px;
   box-shadow: 8px 5px #1883c408;
   margin: 10px 0px;
-}
-.main-card {
-  background-color: #FFFFFF;
 }
 </style>
