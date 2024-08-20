@@ -33,12 +33,13 @@
       </el-row>
       <el-row>
         <el-col :span="18">
-          <div id="container-line-sleep-long"></div>
+          <div id="container-bar-sleep-long"></div>
         </el-col>
         <el-col :span="6">
           <div id="container-pie-sleep-long"></div>
         </el-col>
       </el-row>
+      <el-input-number v-model="sDays" :min="0" :max="60" :step="5" @change="initSleepMonthChart"/>
     </el-card>
     <el-Drawer v-model="lifeDrawer" title="LifeColorEdit" :direction="direction" :before-close="handleClose">
       <div id="table-container">
@@ -138,6 +139,7 @@ const optionsTime = [
     label: 'YH',
   }
 ]
+const sDays = ref(30)
 onMounted(() => {
   handleInitAll()
 }
@@ -494,7 +496,7 @@ const initSleepMonthChart = async () => {
   const xData = [], yData = [], yDataLong = []
   await lifeColorApi.getLifeColorList({
     current: 1,
-    size: 30,
+    size: sDays.value,
     type: 'S'
   }).then(data => {
     const records = data.records
@@ -633,7 +635,7 @@ const calculateTimeStr = (diff, reference) => {
  * @return {*}
  */
 const initSleepLongBar = (xData, yData) => {
-  var chartDom = document.getElementById('container-line-sleep-long')
+  var chartDom = document.getElementById('container-bar-sleep-long')
   chartDom.removeAttribute('_echarts_instance_')
   var myChart = echarts.init(chartDom)
   var option
@@ -870,7 +872,7 @@ const addLifeTime = () => {
   width: 100%;
   height: 300px;
 }
-#container-line-sleep-long {
+#container-bar-sleep-long {
   width: 100%;
   height: 300px;
 }
