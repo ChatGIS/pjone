@@ -61,9 +61,9 @@
               </el-form-item>
               <el-form-item label="对齐">
                 <el-radio-group v-model="shareConfig.authorTextAlign" :disabled="!shareConfig.showAuthor" @change="renderImage">
-                  <el-radio value="left">右</el-radio>
+                  <el-radio value="right">右</el-radio>
                   <el-radio value="center">中</el-radio>
-                  <el-radio value="right">左</el-radio>
+                  <el-radio value="left">左</el-radio>
                 </el-radio-group>
               </el-form-item>
               <el-form-item label="字号">
@@ -550,12 +550,12 @@ const renderImageOfColor = () => {
     // 文字内容
     ctxSource.value.font = `${shareConfig.fontSize}px ${shareConfig.fontType}`
     ctxSource.value.fillStyle = shareConfig.textColor
-    ctxSource.value.textAlign = 'center'
+    // ctxSource.value.textAlign = 'center'
     ctxSource.value.shadowColor = 'black'
     ctxSource.value.shadowBlur = 50
     ctxSource.value.shadowOffsetX = 2
     const maxWidth = canvasSource.value.width * shareConfig.proportionTextContainerWidth
-    const startX = canvasSource.value.width / 2 // 起始X坐标  
+    const startX = canvasSource.value.width * (1 - shareConfig.proportionTextContainerWidth) / 2 // 起始X坐标  
     let startY = canvasSource.value.height * shareConfig.proportionTextContainerHeight // 起始Y坐标  
     const linesHand = textShare.value.split('\n')
     for (let i = 0; i < linesHand.length; i++) {
@@ -575,6 +575,8 @@ const renderImageOfColor = () => {
           currentLine = testLine
         }
       }
+      console.log(startX, '最后', 'pjone-08-20 22:46:10测试打印内容m')
+      
       ctxSource.value.fillText(currentLine, startX, startY)
       startY += shareConfig.lineHeight
     }
