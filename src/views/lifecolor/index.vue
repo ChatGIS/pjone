@@ -1,14 +1,21 @@
 <!-- eslint-disable indent -->
 <template>
   <div>
-    <el-row class="main-card">
-      <el-col :span="24">
-        <el-button @click="lifeDrawer = true" text>TIME WHERE</el-button>
-        <div class="calendar-box">
-          <div id="container-calendar-time" class="container-calendar"></div>
-        </div>
-      </el-col>
-    </el-row>
+    <el-card class="main-card">
+      <el-row>
+        <el-col :span="24">
+          <el-button @click="lifeDrawer = true" text>TIME WHERE</el-button>
+          <div class="calendar-box">
+            <div id="container-calendar-time" class="container-calendar"></div>
+          </div>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="24">
+          <div id="container-line-time"></div>
+        </el-col>
+      </el-row>
+    </el-card>
     <el-row class="main-card">
       <el-col :span="6">
         <div id="container-bar-time"></div>
@@ -159,6 +166,7 @@ const handleInitAll = () => {
   initTimeList()
   initTimeCalendar('S')
   initTimeBar()
+  initTimeLine()
   initYTimePie()
   initYNumPie()
   initSleepMonthChart()
@@ -242,6 +250,122 @@ const initTimeCalendar = async (type) => {
     }
   }
   option && myChart.setOption(option)
+}
+/**
+ * @description: 初始化时间折线图
+ * @return {*}
+ */
+const initTimeLine = async () => {
+  await lifeColorApi.getLifeColorList({
+    'current': 1,
+    'size': 100
+  }).then(data => {
+    console.log(data, 'pjone-09-10 09:24:42测试打印内容m')
+    
+    const chartData = generateMultiLineChartData(data.records)
+    console.log(chartData, 'pjone-09-10 09:21:48测试打印内容m')
+    
+    delete chartData.series.S
+    const formattedSeries = {
+      B: {
+        data: chartData.series.B,
+        color: '#00c29a'
+      },
+      D: {
+        data: chartData.series.D,
+        color: '#161823'
+      },
+      R: {
+        data: chartData.series.R,
+        color:'red'
+      },
+      G: {
+        data: chartData.series.G,
+        color: 'green'
+      },
+      YH: {
+        data: chartData.series.YH,
+        color: '#fecc11'
+      }
+    }
+    chartData.series = formattedSeries
+    var chartDom = document.getElementById('container-line-time')
+    chartDom.removeAttribute('_echarts_instance_')
+    var myChart = echarts.init(chartDom)
+    let option = {  
+      tooltip: {  
+        trigger: 'axis'  
+      },  
+      legend: {  
+        data: Object.keys(chartData.series)
+      },  
+      xAxis: {  
+        type: 'category',  
+        data: chartData.xAxis // X 轴数据  
+      },  
+      yAxis: {  
+        type: 'value'  
+      },  
+      series: Object.keys(chartData.series).map(type => ({  
+        name: type,  
+        type: 'line',  
+        data: chartData.series[type].data, // Y 轴数据
+        itemStyle: {
+          normal: {
+            color: chartData.series[type].color,
+            lineStyle: {
+              color: chartData.series[type].color
+            }
+          }
+        }
+      }))  
+    }  
+
+    // 使用配置项生成图表  
+    myChart.setOption(option)
+  })
+}
+const generateMultiLineChartData = (data) => {  
+  // Step 1: Convert date strings to Date objects  
+  const parsedData = data.map(item => ({  
+    date: new Date(item.doDate), // 使用 doDate 作为日期字段  
+    type: item.type,  
+    value: item.minute // 使用 minute 作为数值字段  
+  }))  
+
+  // Step 2: Find the date range  
+  const startDate = new Date(Math.min(...parsedData.map(item => item.date)))  
+  const endDate = new Date(Math.max(...parsedData.map(item => item.date)))  
+
+  // Step 3: Generate complete date array  
+  const completeDates = []  
+  for (let d = startDate; d <= endDate; d.setDate(d.getDate() + 1)) {  
+    completeDates.push(d.toISOString().split('T')[0]) // 格式化为 YYYY-MM-DD  
+  }  
+
+  // Step 4: Create a map for the original values by type  
+  const valueMap = {}  
+  parsedData.forEach(item => {  
+    const dateString = item.date.toISOString().split('T')[0]  
+    if (!valueMap[item.type]) {  
+      valueMap[item.type] = {}  
+    }  
+    valueMap[item.type][dateString] = item.value  
+  })  
+
+  // Step 5: Prepare the final chart data  
+  const xAxisData = completeDates // X 轴数据  
+  const seriesData = {}  
+
+  Object.keys(valueMap).forEach(type => {  
+    const yValues = completeDates.map(date => valueMap[type][date] || 0)  
+    seriesData[type] = yValues // 每个类型的 Y 轴数据  
+  })  
+
+  return {  
+    xAxis: xAxisData,  
+    series: seriesData,  
+  }  
 }
 /**
  * @description: 初始化时间柱状图
@@ -863,12 +987,15 @@ const addLifeTime = () => {
   width: 100%;
   height: 200px;
 }
-
 #container-bar-time {
   width: 300px;
   height: 300px;
 }
 #container-line-sleep-point {
+  width: 100%;
+  height: 300px;
+}
+#container-line-time {
   width: 100%;
   height: 300px;
 }
