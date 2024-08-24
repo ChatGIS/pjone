@@ -50,7 +50,7 @@
     </el-card>
     <el-Drawer v-model="lifeDrawer" title="LifeColorEdit" :direction="direction" :before-close="handleClose">
       <div id="table-container">
-        <div>
+        <div id="form-container">
           <el-form :model="form" label-width="auto" style="max-width: 600px">
             <el-form-item label="日期">
               <el-date-picker v-model="formColor.doDate" type="date" placeholder="日期选择" :default-time="defaultTime"
@@ -74,7 +74,8 @@
               :default-value="new Date(0, 0, 0, 23, 0, 0)"/>
             </el-form-item>
             <el-form-item>
-              <el-button plain @click="addLifeTime">添加</el-button>
+              <el-button plain @click="addLifeTime">{{ updateId ? '更新' : '添加'  }}</el-button>
+              <el-button plain @click="clearForm">清空</el-button>
             </el-form-item>
           </el-form>
         </div>
@@ -85,6 +86,11 @@
           <el-table-column property="type" label="类型" width="60" />
           <el-table-column property="minute" label="时长" />
           <el-table-column property="timePoint" label="时间点" />
+          <el-table-column label="操作">
+            <template #default="scope">  
+              <el-button circle size="small" :icon="Edit" @click="editRow(scope.row)"></el-button>
+            </template>
+          </el-table-column>
         </el-table>
       </div>
     </el-Drawer>
@@ -96,6 +102,7 @@ import { onMounted, ref, reactive } from 'vue'
 import { lifeColorApi } from '@/api'
 import 'element-plus/es/components/message/style/css'
 import { ElMessage, formatter } from 'element-plus'
+import { Edit } from '@element-plus/icons-vue'
 import { computed } from 'vue'
 
 const defaultTime = ref < [Date, Date] > ([
@@ -104,6 +111,7 @@ const defaultTime = ref < [Date, Date] > ([
 ])
 const lifeDrawer = ref(false)
 const tableData = ref([])
+const updateId = ref()
 const sHour = ref(7)
 const sMinute = ref()
 const formColor = reactive({
@@ -161,6 +169,31 @@ const handleChangeType = (val) => {
     sHour.value = 0
     formColor.timePoint = null
   }
+}
+/**
+ * @description: 编辑
+ * @param {*} row
+ * @return {*}
+ */
+const editRow = (row) => {
+  formColor.type = row.type
+  formColor.doDate = row.doDate
+  formColor.timePoint = row.timePoint
+  sHour.value = Math.floor(row.minute / 60)
+  sMinute.value = row.minute % 60
+  updateId.value = row.id
+}
+/**
+ * @description: 清空
+ * @return {*}
+ */
+const clearForm = () => {
+  updateId.value = null
+  formColor.doDate = new Date
+  formColor.type =  ''
+  formColor.timePoint = null
+  sMinute.value = 5
+  sHour.value = 0
 }
 const handleInitAll = () => {
   initTimeList()
@@ -260,11 +293,7 @@ const initTimeLine = async () => {
     'current': 1,
     'size': 100
   }).then(data => {
-    console.log(data, 'pjone-09-10 09:24:42测试打印内容m')
-    
     const chartData = generateMultiLineChartData(data.records)
-    console.log(chartData, 'pjone-09-10 09:21:48测试打印内容m')
-    
     delete chartData.series.S
     const formattedSeries = {
       B: {
@@ -970,11 +999,21 @@ const addLifeTime = () => {
   if (!formColor || !formColor.type) {
     ElMessage.warning('日期、类型为必填项')
   } else {
-    lifeColorApi.addLifeColor(formColor).then(num => {
-      if (num == 1) {
-        handleInitAll()
-      }
-    })
+    if(!updateId.value) {
+      lifeColorApi.addLifeColor(formColor).then(num => {
+        if (num == 1) {
+          handleInitAll()
+        }
+      })
+    } else {
+      formColor.id = updateId.value
+      lifeColorApi.updateLifeColor(formColor).then(num => {
+        if (num == 1) {
+          handleInitAll()
+          delete formColor.id
+        }
+      })
+    }
   }
 }
 </script>
@@ -982,7 +1021,11 @@ const addLifeTime = () => {
 .calendar-box {
   width: 100%;
 }
-
+#form-container {
+  border: 0.5px solid #0000001c;
+  border-radius: 15px;
+  padding: 23px; 
+}
 .container-calendar {
   width: 100%;
   height: 200px;

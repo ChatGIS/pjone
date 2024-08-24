@@ -32,6 +32,13 @@ export const addLifeColor = (data: any) => {
     data
   })
 }
+export const updateLifeColor = (data: any) => {
+  return request({
+    url: base + '/updateLifeColor',
+    method: 'post',
+    data
+  })
+}
 export const getRecordsNum = (type: string) => {
   return request({
     url: `${base}/getRecordsNum?type=${type}`,
