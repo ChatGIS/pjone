@@ -2,7 +2,7 @@
   <div>
     <el-row class="main-card">
       <el-col :span="24">
-        <el-button @click="sayingDrawer = true" text>WHO SAY</el-button>
+        <el-button @click="isShowSayingDrawer = true" text>WHO SAY</el-button>
         <div class="calendar-box">
           <div id="container-saying" class="container-calendar"></div>
         </div>
@@ -184,7 +184,7 @@
         <canvas ref="canvasSource"></canvas>
       </el-col>
     </el-row>
-    <el-Drawer v-model="sayingDrawer" title="语录管理" :direction="direction" :before-close="handleClose">
+    <el-Drawer v-model="isShowSayingDrawer" title="语录管理" :direction="direction" :before-close="handleClose">
       <div id="table-container">
         <el-card>
           <el-form ref=formRef :model=formSaying label-width="70px" :rules="rules">
@@ -203,7 +203,7 @@
           </el-form>
           <span class="dialog-footer">
             <el-button @click="clearSaying">清空</el-button>
-            <el-button type="primary" @click="addSaying">确认</el-button>
+            <el-button type="primary" @click="addSaying">{{ idEdit == null ? '插入' : '更新' }}</el-button>
           </span>
         </el-card>
       </div>
@@ -220,7 +220,7 @@ import { Edit, Delete, Share } from '@element-plus/icons-vue'
 import GG from '@/assets/111.jpg'
 import { watch } from 'vue'
 
-const sayingDrawer = ref(false)
+const isShowSayingDrawer = ref(false)
 const formSaying = ref({
   name: '',
   author: '',
@@ -233,6 +233,7 @@ const formQuery = reactive({
   book: '',
   article: ''
 })
+const idEdit = ref('')
 const currentPage = ref(1)
 const pageSize = ref(5)
 const totalSaying = ref(0)
@@ -391,23 +392,45 @@ const handleShare = (index, row) => {
   textShare.value = row.name
   textAuthorShare.value = row.author
 }
+const handleEdit = (index, row) => {
+  isShowSayingDrawer.value = true
+  idEdit.value = row.id
+  formSaying.value.name = row.name
+  formSaying.value.article = row.article
+  formSaying.value.author = row.author
+  formSaying.value.book = row.book 
+}
 /**
  * @description: 添加语录
  * @return {*}
  */
 const addSaying = () => {
-  sayingApi.addSaying(formSaying.value).then(num => {
-    if (num == 1) {
-      initSayingCalendar()
-      ElMessage.success('添加语录成功')
-    }
-  })
+  if (idEdit.value) {
+    const sayingEdit = formSaying.value
+    sayingEdit.id = idEdit.value
+    sayingApi.updateSaying(sayingEdit).then(num => {
+      if (num == 1) {
+        initSayingCalendar()
+        initSayingTable()
+        ElMessage.success('更新语录成功')
+      }
+    })
+  } else {
+    sayingApi.addSaying(formSaying.value).then(num => {
+      if (num == 1) {
+        initSayingCalendar()
+        initSayingTable()
+        ElMessage.success('添加语录成功')
+      }
+    })
+  }
 }
 /**
  * @description: 清空语录表单
  * @return {*}
  */
 const clearSaying = () => {
+  idEdit.value = null
   formSaying.value.article = ''
   formSaying.value.author = ''
   formSaying.value.book = ''
@@ -575,8 +598,6 @@ const renderImageOfColor = () => {
           currentLine = testLine
         }
       }
-      console.log(startX, '最后', 'pjone-08-20 22:46:10测试打印内容m')
-      
       ctxSource.value.fillText(currentLine, startX, startY)
       startY += shareConfig.lineHeight
     }

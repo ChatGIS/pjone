@@ -19,6 +19,13 @@ export const addSaying = (data: any) => {
     data
   })
 }
+export const updateSaying = (data: any) => {
+  return request({
+    url: base + '/updateSaying',
+    method: 'post',
+    data
+  })
+}
 export const getRandomSaying = () => {
   return request({
     url: base + '/getRandomSaying',
