@@ -48,7 +48,7 @@
       </el-row>
       <el-input-number v-model="sDays" :min="0" :max="60" :step="5" @change="initSleepMonthChart"/>
     </el-card>
-    <el-Drawer v-model="lifeDrawer" title="LifeColorEdit" :direction="direction" :before-close="handleClose">
+    <el-Drawer v-model="lifeDrawer" title="LifeColorEdit" :direction="direction">
       <div id="table-container">
         <div id="form-container">
           <el-form :model="form" label-width="auto" style="max-width: 600px">

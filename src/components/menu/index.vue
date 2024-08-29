@@ -1,5 +1,5 @@
 <template>
-  <el-menu class="menu" :default-active="activeIndex" router="true" mode="horizontal" @select="handleSelect">
+  <el-menu class="menu" :default-active="activeIndex" :router=true mode="horizontal" @select="handleSelect">
     <el-menu-item index="/recommend">推荐</el-menu-item>
     <el-menu-item index="/resource">资源</el-menu-item>
     <el-sub-menu index="2">

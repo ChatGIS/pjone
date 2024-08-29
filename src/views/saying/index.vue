@@ -43,14 +43,14 @@
         </el-table-column>
       </el-table>
       <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :page-sizes="[5, 8, 10, 20, 50]"
-        :disabled="disabled" :background="background" layout="total, sizes, prev, pager, next" :total="totalSaying"
+        layout="total, sizes, prev, pager, next" :total="totalSaying"
         @current-change="handleCurrentChange" @size-change="handleSizeChange" />
     </el-row>
     <el-row class="main-card">
       <el-col :span="6">
         <el-input v-model="textShare" :rows="10" type="textarea" placeholder="分享文字"/>
         <el-input v-model="textAuthorShare"/>
-        <el-collapse v-model="activeNames" accordion="true" @change="handleChange">
+        <el-collapse v-model="activeNames" :accordion=true>
           <el-collapse-item title="作者" name="1">
             <el-form :model="shareConfig" label-width="auto" style="max-width: 600px">
               <el-form-item label="作者">
@@ -184,7 +184,7 @@
         <canvas ref="canvasSource"></canvas>
       </el-col>
     </el-row>
-    <el-Drawer v-model="isShowSayingDrawer" title="语录管理" :direction="direction" :before-close="handleClose">
+    <el-Drawer v-model="isShowSayingDrawer" title="语录管理">
       <div id="table-container">
         <el-card>
           <el-form ref=formRef :model=formSaying label-width="70px" :rules="rules">

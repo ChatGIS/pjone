@@ -1,6 +1,6 @@
 <template>
     <div class="logo-container">
-        <el-image class="logo-image" :src="imgLogo" :fit="fitVal" />
+        <el-image class="logo-image" :src="imgLogo" :fit=fitVal />
     </div>
 </template>
 
@@ -8,7 +8,7 @@
 import { ref } from 'vue'
 import imgLogo from '@/assets/images/logo.png'
 
-const fitVal = ref('fit')
+const fitVal = ref('')
 </script>
 
 <style scoped>
