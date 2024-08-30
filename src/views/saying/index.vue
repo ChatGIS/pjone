@@ -124,6 +124,16 @@
               <el-radio value="pic-text">图文呈现</el-radio>
             </el-radio-group>
           </el-form-item>
+          <el-form-item label="图片URL" v-show="shareConfig.template == 'pic-text'">
+            <el-input v-model="shareConfig.imageURL" @change="renderImage" />
+          </el-form-item>
+          <el-form-item label="图片位置" v-show="shareConfig.template == 'pic-text'">
+            <el-radio-group v-model="shareConfig.imagePosition" @change="renderImage">
+              <el-radio value="top">上</el-radio>
+              <el-radio value="center">中</el-radio>
+              <el-radio value="bottom">下</el-radio>
+            </el-radio-group>
+          </el-form-item>
           <el-form-item label="上边界">
             <el-input-number v-model="shareConfig.proportionTextContainerHeight" :min="0.1" :step="0.02" :max="1" @change="renderImage" />
           </el-form-item>
@@ -260,12 +270,14 @@ const shareConfig = reactive({
   showWaterMark: true,
   watermarkText: '智言骗语',
   watermarkRotateDegrees: 60,
-  watermarkFontSize: 10,
+  watermarkFontSize: 20,
   watermarkFontType: 'SimSun',
   watermarkTextColor: 'rgba(255, 255, 255, 0.1)',
   watermarkNumX: 5,
   watermarkNumY: 8,
   showSourceImg: false,
+  imageURL: 'https://puui.qpic.cn/vpic_cover/z0917cmilgt/z0917cmilgt_hz.jpg',
+  imagePosition: 'center'
 })
 const shareConfigBackgroundColor1 = ref('#5c2223')
 const shareConfigBackgroundColor2 = ref('#5c2223')
@@ -444,7 +456,8 @@ const renderImage = () => {
       renderImageVideoLine()
     }
   } else if (shareConfig.template == 'pic-text') {
-    img.src = GG
+    img.src = shareConfig.imageURL + '?v='+Math.random()
+    img.crossOrigin= 'anonymous'
     img.onload = () => {
       renderImagePicText()
     }
@@ -509,43 +522,35 @@ const renderImageVideoLine = () => {
 const renderImagePicText = () => {
   const image = img
   if (canvasSource.value) {
-    const lines = textShare.value.split(/\s+/)
-    const scaleFactor = canvasWidth / image.width
-    const scaledHeight = image.height * scaleFactor + 200
-    const imageLineHeight = shareConfig.lineHeight / scaleFactor
     ctxSource.value = canvasSource.value.getContext('2d')
-    canvasSource.value.width = canvasWidth
-    canvasSource.value.height = scaledHeight
-    //   ctxSource.value.clearRect(0, 0, canvasWidth, canvasSource.value.height)  
-    ctxSource.value.drawImage(image, 0, 0, canvasWidth, (canvasWidth * image.height) / image.width)
-    ctxSource.value.font = `${shareConfig.fontSize}px ${shareConfig.fontType}`
-    ctxSource.value.fillStyle = 'white'
-    ctxSource.value.textAlign = 'center'
-    ctxSource.value.shadowColor = 'black'
-    ctxSource.value.shadowBlur = 5
-    ctxSource.value.shadowOffsetX = 2
-    // ctxSource.value.fillText(textShare.value, canvasSource.value.width / 2, canvasSource.value.height - 80)
-
-    const maxWidth = canvasSource.value.width * 0.8 // 允许的最大宽度  
-    const words = textShare.value.split('') // 按空格分割单词 
-    let line = '' // 当前行的文本 
-    const startX = canvasSource.value.width / 2 // 起始X坐标  
-    let startY = canvasSource.value.height / 2 // 起始Y坐标  
-    // 遍历每个单词，决定是否换行  
-    for (let n = 0; n < words.length; n++) {
-      const testLine = line + words[n] + '' // 测试添加单词后的行  
-      const metrics = ctxSource.value.measureText(testLine)
-      const testWidth = metrics.width
-
-      if (testWidth > maxWidth && n > 0) {
-        ctxSource.value.fillText(line, startX, startY) // 绘制当前行  
-        line = words[n] + ' ' // 重新开始新行  
-        startY += shareConfig.lineHeight // 移动到下一行  
-      } else {
-        line = testLine // 更新当前行  
-      }
+    canvasSource.value.width = shareConfig.width
+    canvasSource.value.height = shareConfig.height
+    // 设置背景色
+    setBackgroundColor()
+    // 绘制图片
+    let imageY = 0
+    if (shareConfig.imagePosition == 'top') {
+      imageY = 0
+    } else if (shareConfig.imagePosition == 'center') {
+      imageY = (canvasSource.value.height - image.height) / 2
+    } else {
+      imageY = canvasSource.value.height - image.height
     }
-    ctxSource.value.fillText(line, startX, startY + 100) // 绘制最后一行  
+    ctxSource.value.drawImage(image, 0, imageY)
+    // 绘制文本
+    ctxSource.value.font = `${shareConfig.fontSize}px ${shareConfig.fontType}`
+    ctxSource.value.fillStyle = shareConfig.textColor
+    ctxSource.value.shadowColor = 'black'
+    ctxSource.value.shadowBlur = 50
+    ctxSource.value.shadowOffsetX = 2
+    const maxWidth = canvasSource.value.width * shareConfig.proportionTextContainerWidth
+    let startX = canvasSource.value.width * (1 - shareConfig.proportionTextContainerWidth) / 2 // 起始X坐标  
+    let startY = canvasSource.value.height * shareConfig.proportionTextContainerHeight // 起始Y坐标  
+    const newXY = setText(startX, startY, maxWidth)
+    startX = newXY[0]
+    startY = newXY[1]
+    setWatermark()
+    scaleCanvas()
   }
 }
 
@@ -558,18 +563,7 @@ const renderImageOfColor = () => {
     ctxSource.value = canvasSource.value.getContext('2d')
     canvasSource.value.width = shareConfig.width
     canvasSource.value.height = shareConfig.height
-    // 背景色
-    if(shareConfigBackgroundColor1.value == shareConfigBackgroundColor2.value) {
-      // 纯色
-      ctxSource.value.fillStyle = shareConfigBackgroundColor1.value
-    } else {
-      // 渐变色
-      const gradient = ctxSource.value.createLinearGradient(0, 0, canvasSource.value.width, canvasSource.value.height)
-      gradient.addColorStop(0, shareConfigBackgroundColor1.value)  
-      gradient.addColorStop(1, shareConfigBackgroundColor2.value)
-      ctxSource.value.fillStyle = gradient
-    }
-    ctxSource.value.fillRect(0, 0, canvasSource.value.width, canvasSource.value.height)
+    setBackgroundColor()
     // 文字内容
     ctxSource.value.font = `${shareConfig.fontSize}px ${shareConfig.fontType}`
     ctxSource.value.fillStyle = shareConfig.textColor
@@ -578,29 +572,11 @@ const renderImageOfColor = () => {
     ctxSource.value.shadowBlur = 50
     ctxSource.value.shadowOffsetX = 2
     const maxWidth = canvasSource.value.width * shareConfig.proportionTextContainerWidth
-    const startX = canvasSource.value.width * (1 - shareConfig.proportionTextContainerWidth) / 2 // 起始X坐标  
+    let startX = canvasSource.value.width * (1 - shareConfig.proportionTextContainerWidth) / 2 // 起始X坐标  
     let startY = canvasSource.value.height * shareConfig.proportionTextContainerHeight // 起始Y坐标  
-    const linesHand = textShare.value.split('\n')
-    for (let i = 0; i < linesHand.length; i++) {
-      const lineHand = linesHand[i]
-      const words = lineHand.split('')
-      let currentLine = ''
-      for (let n = 0; n < words.length; n++) {
-        const testLine = currentLine + words[n]  
-        const metrics = ctxSource.value.measureText(testLine)
-        const testWidth = metrics.width
-
-        if (testWidth > maxWidth && n > 0) {
-          ctxSource.value.fillText(currentLine, startX, startY) 
-          currentLine = words[n]   
-          startY += shareConfig.lineHeight 
-        } else {
-          currentLine = testLine
-        }
-      }
-      ctxSource.value.fillText(currentLine, startX, startY)
-      startY += shareConfig.lineHeight
-    }
+    const newXY = setText(startX, startY, maxWidth)
+    startX = newXY[0]
+    startY = newXY[1]
     // 文字作者
     if(shareConfig.showAuthor) {
       ctxSource.value.font = `${shareConfig.authorFontSize}px ${shareConfig.authorFontType}`
@@ -609,37 +585,98 @@ const renderImageOfColor = () => {
       ctxSource.value.fillText(`${shareConfig.authorPrefix}${textAuthorShare.value}`, startX, startY)
     }
     // 水印
-    if(shareConfig.showWaterMark) {
-      const watermarkText = shareConfig.watermarkText
-      const angle = shareConfig.watermarkRotateDegrees * (Math.PI / 180)  
-      const textWidth = ctxSource.value.measureText(watermarkText).width  
-      const textHeight = 30 // 假设字体高度是30px  
-      const xNum = shareConfig.watermarkNumX
-      const yNum = shareConfig.watermarkNumY
-      for (let i = 0; i < xNum; i++) {  
-        for (let j = 0; j < yNum; j++) {  
-          const x = i * (canvasSource.value.width / xNum) + (canvasSource.value.width / (xNum * 2)) - textWidth / 2  
-          const y = j * (canvasSource.value.height / yNum) + (canvasSource.value.height / (yNum * 2)) + textHeight / 2  
-          ctxSource.value.save()  
-          ctxSource.value.translate(x, y)  
-          ctxSource.value.rotate(angle)  
-          ctxSource.value.font = `${shareConfig.watermarkFontSize}px ${shareConfig.watermarkFontType}`  
-          ctxSource.value.fillStyle = shareConfig.watermarkTextColor  
-          ctxSource.value.fillText(watermarkText, 0, 0)  
-          ctxSource.value.restore()  
-        }  
-      }
-    }
-    // 缩放
-    const scaleFactor = shareConfig.scale
-    canvasScaled.value.width = canvasSource.value.width * scaleFactor
-    canvasScaled.value.height = canvasSource.value.height * scaleFactor
-    ctxScaled.value = canvasScaled.value.getContext('2d')
-    ctxScaled.value.drawImage(canvasSource.value, 0, 0, canvasSource.value.width, canvasSource.value.height,   
-      0, 0, canvasScaled.value.width, canvasScaled.value.height)
+    setWatermark()
+    scaleCanvas()
   }
 }
+/**
+ * @description: 设置水印
+ * @return {*}
+ */
+const setWatermark = () => {
+  if(shareConfig.showWaterMark) {
+    const watermarkText = shareConfig.watermarkText
+    const angle = shareConfig.watermarkRotateDegrees * (Math.PI / 180)  
+    const textWidth = ctxSource.value.measureText(watermarkText).width  
+    const textHeight = 30 // 假设字体高度是30px  
+    const xNum = shareConfig.watermarkNumX
+    const yNum = shareConfig.watermarkNumY
+    for (let i = 0; i < xNum; i++) {  
+      for (let j = 0; j < yNum; j++) {  
+        const x = i * (canvasSource.value.width / xNum) + (canvasSource.value.width / (xNum * 2)) - textWidth / 2  
+        const y = j * (canvasSource.value.height / yNum) + (canvasSource.value.height / (yNum * 2)) + textHeight / 2  
+        ctxSource.value.save()  
+        ctxSource.value.translate(x, y)  
+        ctxSource.value.rotate(angle)  
+        ctxSource.value.font = `${shareConfig.watermarkFontSize}px ${shareConfig.watermarkFontType}`  
+        ctxSource.value.fillStyle = shareConfig.watermarkTextColor  
+        ctxSource.value.fillText(watermarkText, 0, 0)  
+        ctxSource.value.restore()  
+      }  
+    }
+  }
+}
+/**
+ * @description: 设置背景色
+ * @return {*}
+ */
+const setBackgroundColor = () => {
+  // 背景色
+  if(shareConfigBackgroundColor1.value == shareConfigBackgroundColor2.value) {
+    // 纯色
+    ctxSource.value.fillStyle = shareConfigBackgroundColor1.value
+  } else {
+    // 渐变色
+    const gradient = ctxSource.value.createLinearGradient(0, 0, canvasSource.value.width, canvasSource.value.height)
+    gradient.addColorStop(0, shareConfigBackgroundColor1.value)  
+    gradient.addColorStop(1, shareConfigBackgroundColor2.value)
+    ctxSource.value.fillStyle = gradient
+  }
+  ctxSource.value.fillRect(0, 0, canvasSource.value.width, canvasSource.value.height)
+}
+/**
+ * @description: 绘制文字
+ * @return {*}
+ */
+const setText = (startX, startY, maxWidth) => {
+  const linesHand = textShare.value.split('\n')
+  for (let i = 0; i < linesHand.length; i++) {
+    const lineHand = linesHand[i]
+    const words = lineHand.split('')
+    let currentLine = ''
+    for (let n = 0; n < words.length; n++) {
+      const testLine = currentLine + words[n]  
+      const metrics = ctxSource.value.measureText(testLine)
+      const testWidth = metrics.width
 
+      if (testWidth > maxWidth && n > 0) {
+        ctxSource.value.fillText(currentLine, startX, startY) 
+        currentLine = words[n]   
+        startY += shareConfig.lineHeight 
+      } else {
+        currentLine = testLine
+      }
+    }
+    ctxSource.value.fillText(currentLine, startX, startY)
+    startY += shareConfig.lineHeight
+  }
+  return {
+    startX,
+    startY
+  }
+}
+/**
+ * @description: 缩放图片
+ * @return {*}
+ */
+const scaleCanvas = () => {
+  const scaleFactor = shareConfig.scale
+  canvasScaled.value.width = canvasSource.value.width * scaleFactor
+  canvasScaled.value.height = canvasSource.value.height * scaleFactor
+  ctxScaled.value = canvasScaled.value.getContext('2d')
+  ctxScaled.value.drawImage(canvasSource.value, 0, 0, canvasSource.value.width, canvasSource.value.height,   
+    0, 0, canvasScaled.value.width, canvasScaled.value.height)
+}
 /**
  * @description: 保存图片
  * @return {*}
