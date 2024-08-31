@@ -321,7 +321,7 @@ const initTimeLine = async () => {
     var chartDom = document.getElementById('container-line-time')
     chartDom.removeAttribute('_echarts_instance_')
     var myChart = echarts.init(chartDom)
-    let option = {  
+    let option = {
       tooltip: {  
         trigger: 'axis'  
       },  
@@ -349,9 +349,10 @@ const initTimeLine = async () => {
         }
       }))  
     }  
-
-    // 使用配置项生成图表  
     myChart.setOption(option)
+    myChart.on('legendselectchanged', function (params) {
+      initTimeCalendar(params.name)
+    })
   })
 }
 const generateMultiLineChartData = (data) => {  
