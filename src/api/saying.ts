@@ -26,6 +26,12 @@ export const updateSaying = (data: any) => {
     data
   })
 }
+export const deleteSayingById = (id: string) => {
+  return request({
+    url: base + '/deleteSayingById?id=' + id,
+    method: 'get',
+  })
+}
 export const getRandomSaying = () => {
   return request({
     url: base + '/getRandomSaying',

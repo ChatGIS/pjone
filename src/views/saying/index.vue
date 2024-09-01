@@ -412,6 +412,16 @@ const handleEdit = (index, row) => {
   formSaying.value.author = row.author
   formSaying.value.book = row.book 
 }
+const handleDelete = (index, row) => {
+  sayingApi.deleteSayingById(row.id).then(num => {
+    if (num == 1) {
+      initSayingCalendar()
+      initSayingTable()
+      ElMessage.success('删除语录成功')
+    }    
+  })
+  
+}
 /**
  * @description: 添加语录
  * @return {*}
