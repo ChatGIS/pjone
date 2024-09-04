@@ -1,8 +1,8 @@
 <!--
  * @Author: Dreamice dreamice13@foxmail.com
  * @Date: 2024-04-03 23:07:33
- * @LastEditors: Dreamice dreamice13@foxmail.com
- * @LastEditTime: 2024-04-20 21:36:33
+ * @LastEditors: ChatGIS ChatGIS@outlook.com
+ * @LastEditTime: 2024-10-04 23:06:39
  * @FilePath: \pjone\src\components\type\index.vue
  * @Description: 
 -->
@@ -34,8 +34,8 @@ const param = {
 }
 // 获取类型
 const getType = async () => {
-  const res = await tagApi.getTag(param)
-  dicts.push(...res.tags)
+  const res = await tagApi.getTag('w', '')
+  dicts.push(...res)
 }
 getType()
 // 标签点击
