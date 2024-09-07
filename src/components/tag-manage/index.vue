@@ -9,7 +9,9 @@
           <el-button :icon="RefreshRight" circle size="small" />
         </template>
         <el-tag v-for="item in tags" :key="item.id" :closable="isClose" :effect="tagSelect.includes(item.id) ? 'dark' : 'plain'"
-            type="success" round @close="handleDeleteTag(item)">{{ item.name }}</el-tag>
+            type="success" round 
+            @close="handleDeleteTag(item)"
+            @click="handleClickTag(item)">{{ item.name }}</el-tag>
     </el-card>
 </template>
 <script setup lang='ts'>
@@ -18,7 +20,7 @@ import { Close, Plus, RefreshRight, Search, Check } from '@element-plus/icons-vu
 import { tagApi } from '@/api'
 import { ElMessage } from 'element-plus'
 
-
+const emit = defineEmits(['emitSelectTag'])
 const tags: any[] = reactive([])
 const tagSelect: any[] = reactive([])
 const isShowInputTag = ref(false)
@@ -88,6 +90,20 @@ const handleDeleteTag = (tag: any) => {
     initTags()
   })
 }
+const handleClickTag = (tag: any) => {
+  if (tagSelect.includes(tag.id)) {
+    tagSelect.splice(tagSelect.indexOf(tag.id), 1)
+  } else {
+    tagSelect.push(tag.id)
+  }
+  emit('emitSelectTag', tagSelect)
+}
+const clearSelectTag = () => {
+  tagSelect.splice(0, tagSelect.length)
+}
+defineExpose({
+  clearSelectTag
+})
 </script>
 <style scoped>
 .el-tag {

@@ -211,7 +211,7 @@
               <el-input v-model="formSaying.article" />
             </el-form-item>
             <el-form-item label="标签" prop="createDate">
-              <Tag></Tag>
+              <Tag ref="tagRef" @emit-select-tag="handleEmitSelectTag"></Tag>
             </el-form-item>
           </el-form>
           <span class="dialog-footer">
@@ -234,6 +234,7 @@ import GG from '@/assets/111.jpg'
 import { watch } from 'vue'
 import Tag from '@/components/tag-manage/index.vue'
 
+const tagRef = ref(null)
 const isShowSayingDrawer = ref(false)
 const formSaying = ref({
   name: '',
@@ -247,6 +248,7 @@ const formQuery = reactive({
   book: '',
   article: ''
 })
+const tags = ref([])
 const idEdit = ref('')
 const currentPage = ref(1)
 const pageSize = ref(5)
@@ -434,16 +436,19 @@ const addSaying = () => {
   if (idEdit.value) {
     const sayingEdit = formSaying.value
     sayingEdit.id = idEdit.value
-    sayingApi.updateSaying(sayingEdit).then(num => {
-      if (num == 1) {
+    sayingEdit.tags = tags.value
+    sayingApi.updateSaying(sayingEdit).then(isSuccess => {
+      if (isSuccess) {
         initSayingCalendar()
         initSayingTable()
         ElMessage.success('更新语录成功')
       }
     })
   } else {
-    sayingApi.addSaying(formSaying.value).then(num => {
-      if (num == 1) {
+    const sayingAdd = formSaying.value
+    sayingAdd.tags = tags.value
+    sayingApi.addSaying(sayingAdd).then(isSuccess => {
+      if (isSuccess) {
         initSayingCalendar()
         initSayingTable()
         ElMessage.success('添加语录成功')
@@ -461,6 +466,7 @@ const clearSaying = () => {
   formSaying.value.author = ''
   formSaying.value.book = ''
   formSaying.value.name = ''
+  tagRef.value.clearSelectTag()
 }
 
 const renderImage = () => {
@@ -703,6 +709,9 @@ const saveImage = () => {
     link.click()
     ElMessage.success('图片已保存!')
   }
+}
+const handleEmitSelectTag = (val) => {
+  tags.value = val
 }
 </script>
 <style scoped>
