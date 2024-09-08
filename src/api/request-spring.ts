@@ -1,12 +1,3 @@
-/*
- * @Author: Dreamice dreamice13@foxmail.com
- * @Date: 2024-04-10 11:58:41
- * @LastEditors: Dreamice dreamice13@foxmail.com
- * @LastEditTime: 2024-04-10 15:46:50
- * @FilePath: \pjone\src\api\request-spring.ts
- * @Description: 调用SpringBoot程序后台接口
- */
-
 import axios from 'axios'
 
 const instance = axios.create({

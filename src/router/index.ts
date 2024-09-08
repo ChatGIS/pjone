@@ -5,6 +5,7 @@ import Resource from '../views/resource/index.vue'
 import LifeColor from '../views/lifecolor/index.vue'
 import Saying from '../views/saying/index.vue'
 import Producer from '../views/producer/index.vue'
+import Health from '../views/health/index.vue'
 
 // 路由
 const routes = [{
@@ -26,6 +27,7 @@ const routes = [{
     { path: '/life-color', component: LifeColor },
     { path: '/saying', component: Saying},
     { path: '/producer', component: Producer},
+    { path: '/health', component: Health},
   ]
 }]
 // 创建路由
