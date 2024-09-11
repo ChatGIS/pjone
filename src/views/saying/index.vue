@@ -34,6 +34,13 @@
         <el-table-column prop="book" label="Book" width="180" />
         <el-table-column prop="article" label="Article" width="180" />
         <el-table-column prop="createDate" label="createDate" width="180" />
+        <el-table-column prop="tagNames" label="Tag" width="180">
+          <template #default="scope">
+            <el-tag v-for="tag in splitTags(scope.row.tagNames)" :key="tag" type="success" style="margin-right: 5px;">
+              {{ tag }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column label="Operations">
           <template #default="scope">
             <el-button type="success" :icon="Share" circle @click="handleShare(scope.$index, scope.row)" />
@@ -384,7 +391,8 @@ const initSayingTable = () => {
     'name': formQuery.name,
     'author': formQuery.author,
     'book': formQuery.book,
-    'article': formQuery.article
+    'article': formQuery.article,
+    'tagIds': ''
   }).then(res => {
     tableDataSaying.length = 0
     tableDataSaying.push(...res.records)
@@ -392,6 +400,10 @@ const initSayingTable = () => {
     textShare.value = res.records[0].name
     textAuthorShare.value = res.records[0].author
   })
+}
+const splitTags = (tagNames) => {
+  if (!tagNames) return []
+  return tagNames.split(',').map(tag => tag.trim())
 }
 const clearQuery = () => {
   formQuery.name = ''
