@@ -14,22 +14,25 @@
             @click="handleClickTag(item)">{{ item.name }}</el-tag>
     </el-card>
 </template>
-<script setup lang='ts'>
-import { reactive, onMounted, ref } from 'vue'
+<script setup>
+import { reactive, onMounted, ref, watch } from 'vue'
 import { Close, Plus, RefreshRight, Search, Check } from '@element-plus/icons-vue'
 import { tagApi } from '@/api'
 import { ElMessage } from 'element-plus'
 
 const emit = defineEmits(['emitSelectTag'])
-const tags: any[] = reactive([])
-const tagSelect: any[] = reactive([])
+const tags = reactive([])
+const tagSelect = ref([])
 const isShowInputTag = ref(false)
 const inputTag = ref('')
 const tagPlaceholder = ref('Search')
 const isClose = ref(false)
 
-onMounted(() => {
-  initTags()
+const props = defineProps({
+  tagIds: {
+    type: String,
+    required: true
+  }
 })
 const initTags = () => {
   tagApi.getTag('B', inputTag.value).then((res) => {
@@ -37,6 +40,19 @@ const initTags = () => {
     tags.push(...res)
   })
 }
+watch(() => props.tagIds, (newTagIds) => {
+  tagSelect.value.splice(0, tagSelect.value.length)
+  if (newTagIds) {
+    const newTags = newTagIds.split(',').map(tag => tag.trim())
+    const numberTagIds = newTags.map(Number)
+    tagSelect.value.push(...numberTagIds)
+  }
+}, { immediate: true })
+
+onMounted(() => {
+  initTags()
+})
+
 const handleSearch = () => {
   tagPlaceholder.value = 'Search'
   if (isShowInputTag.value) {
@@ -80,7 +96,7 @@ const handleCloseShow = () => {
   initTags()
 }
 
-const handleDeleteTag = (tag: any) => {
+const handleDeleteTag = (tag) => {
   tagApi.deleteTag(tag.id).then((res) => {
     if(res == 1) {
       ElMessage.success('删除标签成功')
@@ -90,16 +106,16 @@ const handleDeleteTag = (tag: any) => {
     initTags()
   })
 }
-const handleClickTag = (tag: any) => {
-  if (tagSelect.includes(tag.id)) {
-    tagSelect.splice(tagSelect.indexOf(tag.id), 1)
+const handleClickTag = (tag) => {
+  if (tagSelect.value.includes(tag.id)) {
+    tagSelect.value.splice(tagSelect.value.indexOf(tag.id), 1)
   } else {
-    tagSelect.push(tag.id)
+    tagSelect.value.push(tag.id)
   }
-  emit('emitSelectTag', tagSelect)
+  emit('emitSelectTag', tagSelect.value)
 }
 const clearSelectTag = () => {
-  tagSelect.splice(0, tagSelect.length)
+  tagSelect.value.splice(0, tagSelect.value.length)
 }
 defineExpose({
   clearSelectTag

@@ -218,7 +218,7 @@
               <el-input v-model="formSaying.article" />
             </el-form-item>
             <el-form-item label="标签" prop="createDate">
-              <Tag ref="tagRef" @emit-select-tag="handleEmitSelectTag"></Tag>
+              <Tag ref="tagRef" :tag-ids="selectRowTag" @emit-select-tag="handleEmitSelectTag"></Tag>
             </el-form-item>
           </el-form>
           <span class="dialog-footer">
@@ -256,6 +256,7 @@ const formQuery = reactive({
   article: ''
 })
 const tags = ref([])
+const selectRowTag = ref('')
 const idEdit = ref('')
 const currentPage = ref(1)
 const pageSize = ref(5)
@@ -428,7 +429,8 @@ const handleEdit = (index, row) => {
   formSaying.value.name = row.name
   formSaying.value.article = row.article
   formSaying.value.author = row.author
-  formSaying.value.book = row.book 
+  formSaying.value.book = row.book
+  selectRowTag.value = row.tagIds
 }
 const handleDelete = (index, row) => {
   sayingApi.deleteSayingById(row.id).then(num => {
@@ -448,7 +450,7 @@ const addSaying = () => {
   if (idEdit.value) {
     const sayingEdit = formSaying.value
     sayingEdit.id = idEdit.value
-    sayingEdit.tags = tags.value
+    sayingEdit.tagIds = tags.value.join(',')
     sayingApi.updateSaying(sayingEdit).then(isSuccess => {
       if (isSuccess) {
         initSayingCalendar()
@@ -458,7 +460,8 @@ const addSaying = () => {
     })
   } else {
     const sayingAdd = formSaying.value
-    sayingAdd.tags = tags.value
+    sayingAdd.tagIds = tags.value
+    sayingAdd.tagIds = tags.value.join(',')
     sayingApi.addSaying(sayingAdd).then(isSuccess => {
       if (isSuccess) {
         initSayingCalendar()
