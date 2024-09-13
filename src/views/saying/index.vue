@@ -237,6 +237,7 @@ import { sayingApi } from '@/api'
 import 'element-plus/es/components/message/style/css'
 import { ElMessage } from 'element-plus'
 import { Edit, Delete, Share } from '@element-plus/icons-vue'
+import { ElMessageBox } from 'element-plus'
 import GG from '@/assets/111.jpg'
 import { watch } from 'vue'
 import Tag from '@/components/tag-manage/index.vue'
@@ -433,14 +434,15 @@ const handleEdit = (index, row) => {
   selectRowTag.value = row.tagIds
 }
 const handleDelete = (index, row) => {
-  sayingApi.deleteSayingById(row.id).then(num => {
-    if (num == 1) {
-      initSayingCalendar()
-      initSayingTable()
-      ElMessage.success('删除语录成功')
-    }    
+  ElMessageBox.confirm('永久删除，是否继续?', '警告', {}).then(() => {
+    sayingApi.deleteSayingById(row.id).then(num => {
+      if (num == 1) {
+        initSayingCalendar()
+        initSayingTable()
+        ElMessage.success('删除语录成功')
+      }    
+    })
   })
-  
 }
 /**
  * @description: 添加语录

@@ -5,6 +5,7 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import router from './router'
 import './assets/styles/index.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import 'element-plus/dist/index.css'
 
 // 创建pinia实例
 const pinia = createPinia()
