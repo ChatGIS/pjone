@@ -2,7 +2,7 @@
   <div>
     <el-row class="main-card">
       <el-col :span="24">
-        <el-button @click="isShowSayingDrawer = true" text>WHO SAY</el-button>
+        <el-button @click="handleDrawerShow" text>WHO SAY</el-button>
         <div class="calendar-box">
           <div id="container-saying" class="container-calendar"></div>
         </div>
@@ -726,6 +726,10 @@ const saveImage = () => {
     link.click()
     ElMessage.success('图片已保存!')
   }
+}
+const handleDrawerShow = () => {
+  isShowSayingDrawer.value = true
+  clearSaying()
 }
 const handleEmitSelectTag = (val) => {
   tags.value = val
