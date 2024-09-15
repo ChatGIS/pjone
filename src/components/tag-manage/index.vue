@@ -1,7 +1,8 @@
 <template>
     <el-card style="max-width: 480px" shadow="never">
         <template #header>
-          <el-input v-if="isShowInputTag" :placeholder="tagPlaceholder" v-model="inputTag" class="w-20" size="small" @input="handleInputTagInput"/>
+          <el-input v-if="isShowInputTag" :placeholder="tagPlaceholder" v-model="inputTag" 
+            class="w-20" size="small" clearable @input="handleInputTagInput"/>
           <el-button v-if="tagPlaceholder != 'Search'" :icon="Check" circle size="small" @click="handleAdd"/>
           <el-button :icon="Search" circle size="small" @click="handleSearch"/>
           <el-button :icon="Plus" circle size="small" @click="handleAddShow"/>
