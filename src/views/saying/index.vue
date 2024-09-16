@@ -426,6 +426,7 @@ const handleShare = (index, row) => {
 }
 const handleEdit = (index, row) => {
   isShowSayingDrawer.value = true
+  tagRef.value.clearSelectTag()
   idEdit.value = row.id
   formSaying.value.name = row.name
   formSaying.value.article = row.article
