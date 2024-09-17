@@ -93,6 +93,7 @@ const handleAdd = () => {
 const handleCloseShow = () => {
   tagPlaceholder.value = 'Delete Tag'
   isShowInputTag.value = false
+  inputTag.value = ''
   isClose.value = true
   initTags()
 }
