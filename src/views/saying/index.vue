@@ -206,7 +206,7 @@
         <el-card>
           <el-form ref=formRef :model=formSaying label-width="70px" :rules="rules">
             <el-form-item label="语录" prop="name">
-              <el-input v-model="formSaying.name" type="textarea"></el-input>
+              <el-input v-model="formSaying.name" :rows="getRow(formSaying.name)" type="textarea"></el-input>
             </el-form-item>
             <el-form-item label="作者" prop="author">
               <el-input v-model="formSaying.author"></el-input>
@@ -734,6 +734,18 @@ const handleDrawerShow = () => {
 }
 const handleEmitSelectTag = (val) => {
   tags.value = val
+}
+const getRow = (content) => {
+  let rows = 7
+  if(content.length > 0) {
+    rows = Math.ceil(content.length / 30)
+    const newlineRegex = /\r\n|\n|\r/g
+    const matches = content.match(newlineRegex)
+    if(matches) {
+      rows += matches.length
+    }
+  }
+  return rows
 }
 </script>
 <style scoped>
