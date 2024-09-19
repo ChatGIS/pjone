@@ -23,8 +23,8 @@
           <el-input v-model="formQuery.article" clearable />
         </el-form-item>
         <el-form-item>
-          <el-button @click="clearQuery">Clear</el-button>
-          <el-button @click="initSayingTable">Query</el-button>
+          <el-button type="primary" @click="initSayingTable">查询</el-button>
+          <el-button @click="clearQuery">清空</el-button>
         </el-form-item>
       </el-form>
       <el-table :data="tableDataSaying" style="width: 100%">
@@ -426,7 +426,6 @@ const handleShare = (index, row) => {
 }
 const handleEdit = (index, row) => {
   isShowSayingDrawer.value = true
-  tagRef.value.clearSelectTag()
   idEdit.value = row.id
   formSaying.value.name = row.name
   formSaying.value.article = row.article
