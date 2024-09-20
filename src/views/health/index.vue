@@ -3,6 +3,15 @@
         <el-card class="main-card">
             <el-row>
                 <el-col :span="24">
+                  <el-button type="primary" :icon="Download" @click="handleWorkStyle(1)" circle />
+                  <el-button type="success" :icon="Upload" @click="handleWorkStyle(2)" circle />
+                  <el-button type="warning" :icon="DArrowRight" @click="handleWorkStyle(3)" circle />
+                </el-col>
+            </el-row>
+        </el-card>
+        <el-card class="main-card">
+            <el-row>
+                <el-col :span="24">
                     <div id="container-line-weight"></div>
                 </el-col>
             </el-row>
@@ -11,8 +20,10 @@
 </template>
 <script setup>
 import * as echarts from 'echarts'
-import { onMounted, ref } from 'vue'
-import { lifeWeightApi } from '@/api/index'
+import { onMounted, h } from 'vue'
+import { lifeWeightApi, lifeSitApi } from '@/api/index'
+import { Upload, Download, DArrowRight } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 onMounted(() => {
   initWeight()
@@ -20,7 +31,6 @@ onMounted(() => {
 )
 const initWeight = async () => {
   const res = await lifeWeightApi.getWeight()
-  console.log('res', res, 'pjone-10-09 11:13:55测试打印内容m')
   const yData = res.map(item => item.weight)
   const xData = res.map(item => item.doDate)
   var chartDom = document.getElementById('container-line-weight')
@@ -88,7 +98,6 @@ const initWeight = async () => {
           normal: { 
             color: function(params) {
               const bmi = params.data / 2 / (1.71 * 1.71)
-              console.log('', bmi, 'pjone-10-09 11:37:51测试打印内容m')
               let color = '#000000'
               if(bmi <= 18.4) color = '#AAAAAA'
               if(bmi > 18.4 && bmi <= 23.9) color = '#006400'
@@ -108,10 +117,44 @@ const initWeight = async () => {
     initTimeCalendar('S')
   }) */
 }
+const handleWorkStyle = (type) => {
+  let content = ''
+  let color = '#e6a23c'
+  if(type === 1) {
+    content = 'sit down'
+    color = '#409eff'
+  } else if(type === 2) {
+    content ='stand up'
+    color = '#67c23a'
+  } else if(type === 3) {
+    content = 'walk'
+    color = '#e6a23c'
+  }
+  lifeSitApi.addSit(type).then(res => {
+    if(res) {
+      ElMessage({
+        message: h('p', { style: 'line-height: 1; font-size: 24px' }, [
+          h('span', { style: `color: ${color}` }, content),
+        ]),
+      })
+    } else {
+      ElMessage.error('操作失败')
+    }
+    
+  })
+}
 </script>
 <style scoped>
+.main-card {
+  background-color: #FFFFFF;
+  padding: 10px 20px;
+  border: 1px solid #00000030;
+  border-radius: 10px;
+  box-shadow: 8px 5px #1883c408;
+  margin: 10px 0px;
+}
 #container-line-weight {
-    width: 100%;
-    height: 300px;
+  width: 100%;
+  height: 300px;
 }
 </style>
