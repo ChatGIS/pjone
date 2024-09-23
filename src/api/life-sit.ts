@@ -12,3 +12,12 @@ export const addSit = (type: string) => {
     }
   })
 }
+export const getSits = (type: string) => {
+  return request({
+    url: base + '/getSits',
+    method: 'post',
+    data: {
+      type
+    }
+  })
+}
