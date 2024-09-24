@@ -3,9 +3,15 @@
         <el-card class="main-card">
             <el-row>
                 <el-col :span="24">
-                  <el-button type="primary" :icon="Download" @click="handleWorkStyle(1)" circle />
-                  <el-button type="success" :icon="Upload" @click="handleWorkStyle(2)" circle />
-                  <el-button type="warning" :icon="DArrowRight" @click="handleWorkStyle(3)" circle />
+                  <el-button type="primary" :icon="Download"
+                    :disabled="currentType === 1"
+                    @click="handleWorkStyle(1)" circle />
+                  <el-button type="success" :icon="Upload"
+                    :disabled="currentType === 2"
+                    @click="handleWorkStyle(2)" circle />
+                  <el-button type="warning" :icon="DArrowRight" 
+                    :disabled="currentType === 3"
+                    @click="handleWorkStyle(3)" circle />
                 </el-col>
                 <el-col :span="24">
                   <div class="progress-container">
@@ -47,6 +53,7 @@ import { lifeWeightApi, lifeSitApi } from '@/api/index'
 import { Upload, Download, DArrowRight } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
+const currentType = ref('')
 const timeline = ref([
   { label: '上午9点 - 上午11点', width: 15, left: 0, color: 'blue' },
   { label: '上午11点 - 下午1点', width: 25, left: 25, color: 'green' },
@@ -147,6 +154,7 @@ const initWeight = async () => {
   }) */
 }
 const handleWorkStyle = (type) => {
+  currentType.value = type
   let content = ''
   let color = '#e6a23c'
   if(type === 1) {
@@ -166,6 +174,7 @@ const handleWorkStyle = (type) => {
           h('span', { style: `color: ${color}` }, content),
         ]),
       })
+      initSit()
     } else {
       ElMessage.error('操作失败')
     }
@@ -174,11 +183,8 @@ const handleWorkStyle = (type) => {
 }
 const initSit = async () => {
   const res = await lifeSitApi.getSits('2')
-  console.log('', res, 'pjone-10-15 12:49:56测试打印内容m')
   timeline.value.splice(0, timeline.value.length)
   timeline.value.push(...convertData(res))
-  console.log('', timeline.value, 'pjone-10-15 12:51:56测试打印内容m')
-  
 }
 function convertData(data) {
   const colors = {
