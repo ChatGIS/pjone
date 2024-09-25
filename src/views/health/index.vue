@@ -53,7 +53,7 @@ import { lifeWeightApi, lifeSitApi } from '@/api/index'
 import { Upload, Download, DArrowRight } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
-const currentType = ref('')
+const currentType = ref()
 const timeline = ref([
   { label: '上午9点 - 上午11点', width: 15, left: 0, color: 'blue' },
   { label: '上午11点 - 下午1点', width: 25, left: 25, color: 'green' },
@@ -197,6 +197,7 @@ function convertData(data) {
   // 先按时间排序
   data.sort((a, b) => new Date(a.doDate) - new Date(b.doDate))
 
+  let trueColor = '#FFFFFF'
   const timeline = []
   let prevDate = null
 
@@ -218,12 +219,14 @@ function convertData(data) {
       label: label,
       width: width,
       left: left,
-      color: colors[item.type]
+      color: trueColor
     })
-    timeline[0].color = '#0000AA'
+    // timeline[0].color = '#0000AA'
     prevDate = currentDate
+    trueColor = colors[item.type]
+    
   })
-
+  currentType.value = parseInt(data[data.length - 1].type)
   return timeline
 }
 
