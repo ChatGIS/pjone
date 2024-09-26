@@ -21,14 +21,14 @@
                         :key="index" 
                         :class="['segment', segment.color]" 
                         :style="{ width: `${segment.width}%`, left: `${segment.left}%` }"
-                      ></div>
+                      >{{  segment.duration  }}</div>
                     </div>
                     <div class="timeline-labels">
                       <div 
                         v-for="(segment, index) in timeline" 
                         :key="index" 
                         class="timeline-label"
-                        :style="{ left: `${segment.left}%` }"
+                        :style="{ left: `${segment.left + segment.width}%`, top: `${segment.top}px` }"
                       >
                         {{ segment.label }}
                       </div>
@@ -48,23 +48,24 @@
 </template>
 <script setup>
 import * as echarts from 'echarts'
-import { onMounted, h, ref } from 'vue'
+import { onMounted, onUnmounted, h, ref } from 'vue'
 import { lifeWeightApi, lifeSitApi } from '@/api/index'
 import { Upload, Download, DArrowRight } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
 const currentType = ref()
-const timeline = ref([
-  { label: '上午9点 - 上午11点', width: 15, left: 0, color: 'blue' },
-  { label: '上午11点 - 下午1点', width: 25, left: 25, color: 'green' },
-  { label: '下午1点 - 下午3点', width: 25, left: 50, color: 'orange' },
-  { label: '下午3点 - 下午5点', width: 25, left: 75, color: 'red' },
-])
+const timeline = ref([])
+let timerId
+
 onMounted(() => {
   initWeight()
   initSit()
+  timerId = setInterval(initSit, 60000) // 每60000毫秒（即1分钟）调用一次updateTime
 }
 )
+onUnmounted(() => {
+  clearInterval(timerId)
+})
 const initWeight = async () => {
   const res = await lifeWeightApi.getWeight()
   const yData = res.map(item => item.weight)
@@ -193,40 +194,62 @@ function convertData(data) {
     '3': 'orange',
     '4': 'red'
   }
+  const tops = {
+    '1': '-30',
+    '2': '-15',
+    '3': '0',
+  }
 
   // 先按时间排序
   data.sort((a, b) => new Date(a.doDate) - new Date(b.doDate))
 
-  let trueColor = '#FFFFFF'
+  let trueColor = 'NoColor'
   const timeline = []
-  let prevDate = null
+  let preTimePoint = null
+  let top = 0
 
   data.forEach((item, index) => {
-    const currentDate = new Date(item.doDate)
-    const label = formatTime(currentDate)
+    const timePoint = new Date(item.doDate)
+    const label = formatTime(timePoint)
 
-    if (prevDate === null) {
+    if (preTimePoint === null) {
       // 第一个时间段从早上8点开始
-      prevDate = new Date(currentDate)
-      prevDate.setHours(8, 0, 0, 0)
+      preTimePoint = new Date(timePoint)
+      preTimePoint.setHours(8, 0, 0, 0)
     }
 
-    const duration = (currentDate - prevDate) / (1000 * 60) // 计算时间差（分钟）
-    const width = (duration / (12 * 60)) * 100 // 计算宽度百分比
+    const duration = (timePoint - preTimePoint) / (1000 * 60) // 计算时间差（分钟）
+    const width = (duration / (12 * 60)) * 100 // 按照时间条长度为12h计算宽度
     const left = index === 0 ? 0 : timeline[index - 1].left + timeline[index - 1].width
 
     timeline.push({
       label: label,
+      duration: Math.floor(duration),
       width: width,
       left: left,
-      color: trueColor
+      color: trueColor,
+      top: tops[item.type]
     })
     // timeline[0].color = '#0000AA'
-    prevDate = currentDate
+    preTimePoint = timePoint
     trueColor = colors[item.type]
     
   })
+  // 增加最后一个时间段，从最后一个时间点到当前时间点
+  const lastTimePoint = new Date()
+  const lastDuration = (lastTimePoint - preTimePoint) / (1000 * 60)
+  const lastWidth = (lastDuration / (12 * 60)) * 100
+  const lastLeft = timeline.length === 0? 0 : timeline[timeline.length - 1].left + timeline[timeline.length - 1].width
   currentType.value = parseInt(data[data.length - 1].type)
+  
+  timeline.push({
+    label: formatTime(lastTimePoint),
+    duration: Math.floor(lastDuration),
+    width: lastWidth,
+    left: lastLeft,
+    color: colors[currentType.value],
+    top: tops[currentType.value]
+  })
   return timeline
 }
 
