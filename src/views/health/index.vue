@@ -183,7 +183,7 @@ const handleWorkStyle = (type) => {
   })
 }
 const initSit = async () => {
-  const res = await lifeSitApi.getSits('2')
+  const res = await lifeSitApi.getSits()
   timeline.value.splice(0, timeline.value.length)
   timeline.value.push(...convertData(res))
 }
