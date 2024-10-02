@@ -12,6 +12,9 @@
                   <el-button type="warning" :icon="DArrowRight" 
                     :disabled="currentType === 3"
                     @click="handleWorkStyle(3)" circle />
+                  <el-button type="danger" :icon="AlarmClock" 
+                    :disabled="delayNum == 3"
+                    @click="handleDelayClock(1)" circle>{{ delayNum }}</el-button>
                 </el-col>
                 <el-col :span="24">
                   <div class="progress-container">
@@ -50,22 +53,178 @@
 import * as echarts from 'echarts'
 import { onMounted, onUnmounted, h, ref } from 'vue'
 import { lifeWeightApi, lifeSitApi } from '@/api/index'
-import { Upload, Download, DArrowRight } from '@element-plus/icons-vue'
+import { Upload, Download, DArrowRight, AlarmClock } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
 const currentType = ref()
 const timeline = ref([])
 let timerId
-
+let audioAlarmClock
+let delayNum = ref(0)
 onMounted(() => {
   initWeight()
-  initSit()
-  timerId = setInterval(initSit, 60000) // 每60000毫秒（即1分钟）调用一次updateTime
+  refreshSit()
+  timerId = setInterval(refreshSit, 5 * 1000) // 每60000毫秒（即1分钟）调用一次updateTime
+  audioAlarmClock = new Audio('http://localhost:1301/mymedia/test.mp3')
 }
 )
 onUnmounted(() => {
   clearInterval(timerId)
 })
+/**
+ * @description: 处理工作状态
+ * @param {*} type
+ * @return {*}
+ */
+const handleWorkStyle = (type) => {
+  handleDelayClock(0)
+  currentType.value = type
+  let content = ''
+  let color = '#e6a23c'
+  if(type === 1) {
+    content = 'sit down'
+    color = '#409eff'
+  } else if(type === 2) {
+    content ='stand up'
+    color = '#67c23a'
+  } else if(type === 3) {
+    content = 'walk'
+    color = '#e6a23c'
+  }
+  lifeSitApi.addSit(type).then(res => {
+    if(res) {
+      ElMessage({
+        message: h('p', { style: 'line-height: 1; font-size: 24px' }, [
+          h('span', { style: `color: ${color}` }, content),
+        ]),
+      })
+      refreshSit()
+    } else {
+      ElMessage.error('操作失败')
+    }
+    
+  })
+}
+/**
+ * @description: 刷新数据
+ * @return {*}
+ */
+const refreshSit = async () => {
+  const res = await lifeSitApi.getSits()
+  timeline.value.splice(0, timeline.value.length)
+  timeline.value.push(...convertData(res))
+  // 控制闹钟音频
+  const lastIndex = timeline.value.length - 1
+  let delayLong = 5
+  if (delayNum.value == 1) {
+    delayLong = 10
+  }
+  if(timeline.value[lastIndex].duration > 30 + delayLong * delayNum.value) {
+    audioAlarmClock.play()
+  } else {
+    audioAlarmClock.pause()
+    audioAlarmClock.currentTime = 0
+  }
+}
+/**
+ * @description: 闹钟延迟、关闭闹钟音频
+ * @param {*} num
+ * @return {*}
+ */
+const handleDelayClock = (num) => {
+  delayNum.value += num
+  if(delayNum.value > 3) {
+    delayNum.value = 0
+  }
+  audioAlarmClock.pause()
+  audioAlarmClock.currentTime = 0
+}
+/**
+ * @description: 转换数据为时间轴
+ * @param {*} data
+ * @return {*}
+ */
+const convertData = (data) => {
+  const colors = {
+    '1': 'blue',
+    '2': 'green',
+    '3': 'orange',
+    '4': 'red'
+  }
+  const tops = {
+    '1': '-30',
+    '2': '-15',
+    '3': '0',
+  }
+
+  // 先按时间排序
+  data.sort((a, b) => new Date(a.doDate) - new Date(b.doDate))
+
+  let trueColor = 'NoColor'
+  const timeline = []
+  let preTimePoint = null
+  let top = 0
+
+  data.forEach((item, index) => {
+    const timePoint = new Date(item.doDate)
+    const label = formatTime(timePoint)
+
+    if (preTimePoint === null) {
+      // 第一个时间段从早上8点开始
+      preTimePoint = new Date(timePoint)
+      preTimePoint.setHours(8, 0, 0, 0)
+    }
+
+    const duration = (timePoint - preTimePoint) / (1000 * 60) // 计算时间差（分钟）
+    const width = (duration / (12 * 60)) * 100 // 按照时间条长度为12h计算宽度
+    const left = index === 0 ? 0 : timeline[index - 1].left + timeline[index - 1].width
+
+    timeline.push({
+      label: label,
+      duration: Math.floor(duration),
+      width: width,
+      left: left,
+      color: trueColor,
+      top: tops[item.type]
+    })
+    // timeline[0].color = '#0000AA'
+    preTimePoint = timePoint
+    trueColor = colors[item.type]
+    
+  })
+  // 增加最后一个时间段，从最后一个时间点到当前时间点
+  const lastTimePoint = new Date()
+  const lastDuration = (lastTimePoint - preTimePoint) / (1000 * 60)
+  const lastWidth = (lastDuration / (12 * 60)) * 100
+  const lastLeft = timeline.length === 0? 0 : timeline[timeline.length - 1].left + timeline[timeline.length - 1].width
+  currentType.value = parseInt(data[data.length - 1].type)
+  
+  timeline.push({
+    label: formatTime(lastTimePoint),
+    duration: Math.floor(lastDuration),
+    width: lastWidth,
+    left: lastLeft,
+    color: colors[currentType.value],
+    top: tops[currentType.value]
+  })
+  return timeline
+}
+
+/**
+ * @description: 格式化时间
+ * @param {*} date
+ * @return {*}
+ */
+const formatTime = (date) => {
+  const hours = date.getHours().toString().padStart(2, '0')
+  const minutes = date.getMinutes().toString().padStart(2, '0')
+  return `${hours}:${minutes}`
+}
+
+/**
+ * @description: 初始化体重图表
+ * @return {*}
+ */
 const initWeight = async () => {
   const res = await lifeWeightApi.getWeight()
   const yData = res.map(item => item.weight)
@@ -150,113 +309,6 @@ const initWeight = async () => {
     ]
   }
   option && myChart.setOption(option)
-  /* myChart.on('click', () => {
-    initTimeCalendar('S')
-  }) */
-}
-const handleWorkStyle = (type) => {
-  currentType.value = type
-  let content = ''
-  let color = '#e6a23c'
-  if(type === 1) {
-    content = 'sit down'
-    color = '#409eff'
-  } else if(type === 2) {
-    content ='stand up'
-    color = '#67c23a'
-  } else if(type === 3) {
-    content = 'walk'
-    color = '#e6a23c'
-  }
-  lifeSitApi.addSit(type).then(res => {
-    if(res) {
-      ElMessage({
-        message: h('p', { style: 'line-height: 1; font-size: 24px' }, [
-          h('span', { style: `color: ${color}` }, content),
-        ]),
-      })
-      initSit()
-    } else {
-      ElMessage.error('操作失败')
-    }
-    
-  })
-}
-const initSit = async () => {
-  const res = await lifeSitApi.getSits()
-  timeline.value.splice(0, timeline.value.length)
-  timeline.value.push(...convertData(res))
-}
-function convertData(data) {
-  const colors = {
-    '1': 'blue',
-    '2': 'green',
-    '3': 'orange',
-    '4': 'red'
-  }
-  const tops = {
-    '1': '-30',
-    '2': '-15',
-    '3': '0',
-  }
-
-  // 先按时间排序
-  data.sort((a, b) => new Date(a.doDate) - new Date(b.doDate))
-
-  let trueColor = 'NoColor'
-  const timeline = []
-  let preTimePoint = null
-  let top = 0
-
-  data.forEach((item, index) => {
-    const timePoint = new Date(item.doDate)
-    const label = formatTime(timePoint)
-
-    if (preTimePoint === null) {
-      // 第一个时间段从早上8点开始
-      preTimePoint = new Date(timePoint)
-      preTimePoint.setHours(8, 0, 0, 0)
-    }
-
-    const duration = (timePoint - preTimePoint) / (1000 * 60) // 计算时间差（分钟）
-    const width = (duration / (12 * 60)) * 100 // 按照时间条长度为12h计算宽度
-    const left = index === 0 ? 0 : timeline[index - 1].left + timeline[index - 1].width
-
-    timeline.push({
-      label: label,
-      duration: Math.floor(duration),
-      width: width,
-      left: left,
-      color: trueColor,
-      top: tops[item.type]
-    })
-    // timeline[0].color = '#0000AA'
-    preTimePoint = timePoint
-    trueColor = colors[item.type]
-    
-  })
-  // 增加最后一个时间段，从最后一个时间点到当前时间点
-  const lastTimePoint = new Date()
-  const lastDuration = (lastTimePoint - preTimePoint) / (1000 * 60)
-  const lastWidth = (lastDuration / (12 * 60)) * 100
-  const lastLeft = timeline.length === 0? 0 : timeline[timeline.length - 1].left + timeline[timeline.length - 1].width
-  currentType.value = parseInt(data[data.length - 1].type)
-  
-  timeline.push({
-    label: formatTime(lastTimePoint),
-    duration: Math.floor(lastDuration),
-    width: lastWidth,
-    left: lastLeft,
-    color: colors[currentType.value],
-    top: tops[currentType.value]
-  })
-  return timeline
-}
-
-function formatTime(date) {
-  const hours = date.getHours().toString().padStart(2, '0')
-  const minutes = date.getMinutes().toString().padStart(2, '0')
-  return `${hours}:${minutes}`
 }
 </script>
 <style scoped>
