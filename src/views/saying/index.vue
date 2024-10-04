@@ -210,6 +210,9 @@
             <el-form-item label="文章名" prop="article">
               <el-input v-model="formSaying.article" />
             </el-form-item>
+            <el-form-item label="标签" prop="createDate">
+              <Tag></Tag>
+            </el-form-item>
           </el-form>
           <span class="dialog-footer">
             <el-button @click="clearSaying">清空</el-button>
@@ -229,6 +232,7 @@ import { ElMessage } from 'element-plus'
 import { Edit, Delete, Share } from '@element-plus/icons-vue'
 import GG from '@/assets/111.jpg'
 import { watch } from 'vue'
+import Tag from '@/components/tag-manage/index.vue'
 
 const isShowSayingDrawer = ref(false)
 const formSaying = ref({
