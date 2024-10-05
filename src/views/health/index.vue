@@ -64,7 +64,7 @@ let delayNum = ref(0)
 onMounted(() => {
   initWeight()
   refreshSit()
-  timerId = setInterval(refreshSit, 5 * 1000) // 每60000毫秒（即1分钟）调用一次updateTime
+  timerId = setInterval(refreshSit, 60 * 1000) // 每60000毫秒（即1分钟）调用一次updateTime
   audioAlarmClock = new Audio('http://localhost:1301/mymedia/test.mp3')
 }
 )
@@ -90,6 +90,7 @@ const handleWorkStyle = (type) => {
   } else if(type === 3) {
     content = 'walk'
     color = '#e6a23c'
+    delayNum.value = 3
   }
   lifeSitApi.addSit(type).then(res => {
     if(res) {
@@ -115,15 +116,19 @@ const refreshSit = async () => {
   timeline.value.push(...convertData(res))
   // 控制闹钟音频
   const lastIndex = timeline.value.length - 1
-  let delayLong = 5
+  let delayLong = 30
   if (delayNum.value == 1) {
-    delayLong = 10
+    delayLong = 40
+  } else if(delayNum.value == 2) {
+    delayLong = 45
+  } else if(delayNum.value == 3) {
+    delayLong = 50
   }
-  if(timeline.value[lastIndex].duration > 30 + delayLong * delayNum.value) {
+  if(timeline.value[lastIndex].color != 'orange' && timeline.value[lastIndex].duration == delayLong) {
     audioAlarmClock.play()
-  } else {
-    audioAlarmClock.pause()
-    audioAlarmClock.currentTime = 0
+  }
+  if(timeline.value[lastIndex].color == 'orange') {
+    delayNum.value = 3
   }
 }
 /**
@@ -194,14 +199,17 @@ const convertData = (data) => {
   })
   // 增加最后一个时间段，从最后一个时间点到当前时间点
   const lastTimePoint = new Date()
-  const lastDuration = (lastTimePoint - preTimePoint) / (1000 * 60)
+  let lastDuration = (lastTimePoint - preTimePoint) / (1000 * 60)
   const lastWidth = (lastDuration / (12 * 60)) * 100
   const lastLeft = timeline.length === 0? 0 : timeline[timeline.length - 1].left + timeline[timeline.length - 1].width
   currentType.value = parseInt(data[data.length - 1].type)
-  
+  lastDuration = Math.floor(lastDuration)
+  if(lastDuration < 0) {
+    lastDuration = 0
+  }
   timeline.push({
     label: formatTime(lastTimePoint),
-    duration: Math.floor(lastDuration),
+    duration: lastDuration,
     width: lastWidth,
     left: lastLeft,
     color: colors[currentType.value],
