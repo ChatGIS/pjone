@@ -132,6 +132,15 @@ const refreshSit = async () => {
     isShowDelay.value = true
     localStorage.setItem('isShowDelay', true)
   } else {
+    if (duration > 30 && duration < 40) {
+      delayNum.value = 1
+    } else if (duration > 40 && duration < 45) {
+      delayNum.value = 2
+    } else if (duration > 45 && duration < 50) {
+      delayNum.value = 3
+      isShowDelay.value = false
+    }
+    localStorage.setItem('delayNum', delayNum.value)
     isShowDelay.value = false
     localStorage.setItem('isShowDelay', false)
   }
