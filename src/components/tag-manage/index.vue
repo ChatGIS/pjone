@@ -5,11 +5,11 @@
           <el-button v-if="tagPlaceholder != 'Search'" :icon="Check" circle size="small" @click="handleAdd"/>
           <el-button :icon="Search" circle size="small" @click="handleSearch"/>
           <el-button :icon="Plus" circle size="small" @click="handleAddShow"/>
-          <el-button :icon="Close" circle size="small" />
+          <el-button :icon="Close" circle size="small" @click="handleCloseShow"/>
           <el-button :icon="RefreshRight" circle size="small" />
         </template>
-        <el-tag v-for="item in tags" :key="item.id" :effect="tagSelect.includes(item.id) ? 'dark' : 'plain'"
-            type="success" round>{{ item.name }}</el-tag>
+        <el-tag v-for="item in tags" :key="item.id" :closable="isClose" :effect="tagSelect.includes(item.id) ? 'dark' : 'plain'"
+            type="success" round @close="handleDeleteTag(item)">{{ item.name }}</el-tag>
     </el-card>
 </template>
 <script setup lang='ts'>
@@ -24,6 +24,7 @@ const tagSelect: any[] = reactive([])
 const isShowInputTag = ref(false)
 const inputTag = ref('')
 const tagPlaceholder = ref('Search')
+const isClose = ref(false)
 
 onMounted(() => {
   initTags()
@@ -50,19 +51,42 @@ const handleAddShow = () => {
   isShowInputTag.value = true
 }
 const handleAdd = () => {
-  if (inputTag.value) {
-    tagApi.addTag({ 
-      name: inputTag.value,
-      type: 'B'
-    }).then((res) => {
-      if(res == 1) {
-        ElMessage.success('添加标签成功')
-      } else {
-        ElMessage.error('添加标签失败')
-      }
-      initTags()
-    })
+  if (tagPlaceholder.value == 'Add Tag') {
+    if (inputTag.value) {
+      tagApi.addTag({ 
+        name: inputTag.value,
+        type: 'B'
+      }).then((res) => {
+        if(res == 1) {
+          ElMessage.success('添加标签成功')
+        } else {
+          ElMessage.error('添加标签失败')
+        }
+        initTags()
+      })
+    }
+  } else if (tagPlaceholder.value == 'Delete Tag') {
+    isClose.value = false
+    initTags()
+    tagPlaceholder.value = 'Search'
   }
+}
+const handleCloseShow = () => {
+  tagPlaceholder.value = 'Delete Tag'
+  isShowInputTag.value = false
+  isClose.value = true
+  initTags()
+}
+
+const handleDeleteTag = (tag: any) => {
+  tagApi.deleteTag(tag.id).then((res) => {
+    if(res == 1) {
+      ElMessage.success('删除标签成功')
+    } else {
+      ElMessage.error('删除标签失败')
+    }
+    initTags()
+  })
 }
 </script>
 <style scoped>

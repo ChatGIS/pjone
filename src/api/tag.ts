@@ -13,3 +13,12 @@ export const addTag = (data: any) => {
     data
   })
 }
+export const deleteTag = (id: string) => {
+  return request({
+    url: base + '/deleteTag',
+    method: 'post',
+    data: {
+      id
+    }
+  })
+}
