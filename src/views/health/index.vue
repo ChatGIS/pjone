@@ -61,9 +61,9 @@ let isShowDelay = ref(false)
 let isShowDialogInit = ref(false)
 onMounted(() => {
   initWeight()
+  audioAlarmClock = new Audio('http://localhost:1301/mymedia/test.mp3')
   refreshSit()
   timerId = setInterval(refreshSit, 60 * 1000) // 每60000毫秒（即1分钟）调用一次updateTime
-  audioAlarmClock = new Audio('http://localhost:1301/mymedia/test.mp3')
   isShowDelay.value = localStorage.getItem('isShowDelay')
   isShowDialogInit.value = true
 }
@@ -119,32 +119,27 @@ const refreshSit = async () => {
   const duration = timeline.value[lastIndex].duration
   let delayNumStorage = localStorage.getItem('delayNum')
   delayNum.value = delayNumStorage
-  let delayLong = 30
-  if (delayNumStorage == 1) {
-    delayLong = 40
-  } else if (delayNumStorage == 2) {
-    delayLong = 45
-  } else if (delayNumStorage == 3) {
-    delayLong = 50
-  }
-  if (timeline.value[lastIndex].color != 'orange' && duration == delayLong) {
-    audioAlarmClock.play()
-    isShowDelay.value = true
-    localStorage.setItem('isShowDelay', true)
-  } else {
-    if (duration > 30 && duration < 40) {
-      delayNum.value = 1
-    } else if (duration > 40 && duration < 45) {
-      delayNum.value = 2
-    } else if (duration > 45 && duration < 50) {
-      delayNum.value = 3
+  let delayLong = 30 + 10 * delayNum.value
+  if (timeline.value[lastIndex].color != 'orange') {
+    if(duration == delayLong) {
+      audioAlarmClock.play()
+      if (delayNum.value < 2) {
+        isShowDelay.value = true
+        localStorage.setItem('isShowDelay', true)
+      }
+    } else {
+      delayNum.value = Math.ceil((duration - 30) / 10)
+      delayNum.value = delayNum.value < 0 ? 0 : delayNum.value
+      localStorage.setItem('delayNum', delayNum.value)
       isShowDelay.value = false
+      localStorage.setItem('isShowDelay', false)
+      if (delayNum.value < 3) {
+        audioAlarmClock.pause()
+        audioAlarmClock.currentTime = 0
+      }
     }
-    localStorage.setItem('delayNum', delayNum.value)
-    isShowDelay.value = false
-    localStorage.setItem('isShowDelay', false)
   }
-}
+} 
 /**
  * @description: 闹钟延迟、关闭闹钟音频
  * @param {*} num
@@ -154,7 +149,7 @@ const handleDelayClock = (num) => {
   delayNum.value = parseInt(delayNum.value) + num
   if (num == 0) {
     delayNum.value = 0
-  }
+  }  
   isShowDelay.value = false
   localStorage.setItem('isShowDelay', false)
   localStorage.setItem('delayNum', delayNum.value)
