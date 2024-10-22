@@ -612,8 +612,8 @@ const renderImageOfColor = () => {
     let startX = canvasSource.value.width * (1 - shareConfig.proportionTextContainerWidth) / 2 // 起始X坐标  
     let startY = canvasSource.value.height * shareConfig.proportionTextContainerHeight // 起始Y坐标  
     const newXY = setText(startX, startY, maxWidth)
-    startX = newXY[0]
-    startY = newXY[1]
+    startX = newXY.startX
+    startY = newXY.startY
     // 文字作者
     if(shareConfig.showAuthor) {
       ctxSource.value.font = `${shareConfig.authorFontSize}px ${shareConfig.authorFontType}`
