@@ -3,7 +3,7 @@
   <div>
     <el-card class="main-card">
       <el-row>
-        <el-col :span="24">
+        <el-col :span="16">
           <el-button @click="lifeDrawer = true" text>TIME WHERE</el-button>
           <div class="calendar-box">
             <div id="container-calendar-time" class="container-calendar"></div>
@@ -243,6 +243,10 @@ const initTimeCalendar = async (type) => {
   chartDom.removeAttribute('_echarts_instance_')
   var myChart = echarts.init(chartDom)
   var option
+  const containerWidth = window.getComputedStyle(document.getElementById('container-calendar-time')).width
+  const cell = (parseInt(containerWidth) - 200) / 48
+  console.log(cell, 'pjone-11-06 15:13:50测试打印内容m')
+  
   const res = await lifeColorApi.getRecordsNum(type)
   option = {
     tooltip: {  // 鼠标悬浮提示
@@ -274,7 +278,8 @@ const initTimeCalendar = async (type) => {
       },
       monthLabel: {
         nameMap: 'ZH'
-      }
+      },
+      cellSize: [cell, cell],
     },
     series: {
       type: 'heatmap',
