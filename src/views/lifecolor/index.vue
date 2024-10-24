@@ -9,6 +9,9 @@
             <div id="container-calendar-time" class="container-calendar"></div>
           </div>
         </el-col>
+        <el-col :span="8">
+        <div id="container-bar-time"></div>
+      </el-col>
       </el-row>
       <el-row>
         <el-col :span="24">
@@ -17,9 +20,6 @@
       </el-row>
     </el-card>
     <el-row class="main-card">
-      <el-col :span="6">
-        <div id="container-bar-time"></div>
-      </el-col>
       <el-col :span="6">
         <div id="container-pie-y-time"></div>
       </el-col>
@@ -245,8 +245,6 @@ const initTimeCalendar = async (type) => {
   var option
   const containerWidth = window.getComputedStyle(document.getElementById('container-calendar-time')).width
   const cell = (parseInt(containerWidth) - 200) / 48
-  console.log(cell, 'pjone-11-06 15:13:50测试打印内容m')
-  
   const res = await lifeColorApi.getRecordsNum(type)
   option = {
     tooltip: {  // 鼠标悬浮提示
@@ -412,6 +410,7 @@ const initTimeBar = async () => {
   let valueR = 0
   let valueG = 0
   let valueY = 0
+  let valueYH = 0
   await lifeColorApi.getMinuteLastYear().then(data => {
     for (let i = 0; i < data.length; i++) {
       if (data[i].type == 'B') {
@@ -422,12 +421,14 @@ const initTimeBar = async () => {
         valueR = data[i].total_minute
       } else if (data[i].type == 'G') {
         valueG = data[i].total_minute
+      } else if (data[i].type == 'YH') {
+        valueYH = data[i].total_minute
       } else if (data[i].type.startsWith('Y')) {
         valueY += data[i].total_minute
       }
     }
   })
-  const dataX = ['B', 'D', 'R', 'G', 'Y']
+  const dataX = ['B', 'D', 'R', 'G', 'Y', 'YH']
   const dataY = [{
     value: valueB,
     itemStyle: {
@@ -452,6 +453,11 @@ const initTimeBar = async () => {
     value: valueY,
     itemStyle: {
       color: '#fecc11'
+    }
+  }, {
+    value: valueYH,
+    itemStyle: {
+      color: '#826b48'
     }
   }]
   var chartDom = document.getElementById('container-bar-time')
