@@ -120,6 +120,10 @@ const formColor = reactive({
   minute: 5,
   timePoint: null
 })
+const colorB = '#00c29a'
+const colorS = '#9336f6'
+const colorY = '#bec936'
+const colorYH = '#fecc11'
 const optionsTime = [
   {
     value: 'S',
@@ -225,9 +229,9 @@ const initTimeList = () => {
 const initTimeCalendar = async (type) => {
   let minValue = 0
   let maxValue = 60
-  let colorMain = '#fecc11'
+  let colorMain = ''
   if (type == 'B') {
-    colorMain = '#00c29a'
+    colorMain = colorB
   } else if (type == 'D') {
     colorMain = '#161823'
   } else if (type == 'G') {
@@ -235,9 +239,15 @@ const initTimeCalendar = async (type) => {
   } else if (type == 'R') {
     colorMain = 'red'
   } else if (type == 'S') {
-    colorMain = '#9336f6'
+    colorMain = colorS
     minValue = 240
     maxValue = 480
+  } else if (type == 'Y') {
+    colorMain = colorY
+    minValue = 0
+    maxValue = 30
+  } else {
+    colorMain = colorYH
   }
   var chartDom = document.getElementById('container-calendar-time')
   chartDom.removeAttribute('_echarts_instance_')
@@ -301,7 +311,7 @@ const initTimeLine = async () => {
     const formattedSeries = {
       B: {
         data: chartData.series.B,
-        color: '#00c29a'
+        color: colorB
       },
       D: {
         data: chartData.series.D,
@@ -317,7 +327,7 @@ const initTimeLine = async () => {
       },
       YH: {
         data: chartData.series.YH,
-        color: '#fecc11'
+        color: colorYH
       }
     }
     chartData.series = formattedSeries
@@ -432,7 +442,7 @@ const initTimeBar = async () => {
   const dataY = [{
     value: valueB,
     itemStyle: {
-      color: '#00c29a'
+      color: colorB
     }
   }, {
     value: valueD,
@@ -452,12 +462,12 @@ const initTimeBar = async () => {
   }, {
     value: valueY,
     itemStyle: {
-      color: '#fecc11'
+      color: colorY
     }
   }, {
     value: valueYH,
     itemStyle: {
-      color: '#826b48'
+      color: colorYH
     }
   }]
   var chartDom = document.getElementById('container-bar-time')
@@ -516,7 +526,7 @@ const initYTimePie = async () => {
       name: 'YH',
       value: timeYH,
       itemStyle: {
-        color: '#ffd640'
+        color: colorYH
       }
     },
     {
@@ -569,8 +579,12 @@ const initYTimePie = async () => {
     ]
   }
   option && myChart.setOption(option)
-  myChart.on('click', () => {
-    initTimeCalendar('Y')
+  myChart.on('click', (pieSeries) => {
+    if(pieSeries.name != 'YH') {
+      initTimeCalendar('Y')
+    } else {
+      initTimeCalendar('YH')
+    }
   })
 }
 /**
@@ -595,7 +609,7 @@ const initYNumPie = async () => {
       name: 'YH',
       value: timeYH,
       itemStyle: {
-        color: '#ffd640'
+        color: colorYH
       }
     },
     {
@@ -648,8 +662,12 @@ const initYNumPie = async () => {
     ]
   }
   option && myChart.setOption(option)
-  myChart.on('click', () => {
-    initTimeCalendar('Y')
+  myChart.on('click', (pieSeries) => {
+    if(pieSeries.name != 'YH') {
+      initTimeCalendar('Y')
+    } else {
+      initTimeCalendar('YH')
+    }
   })
 }
 /**
