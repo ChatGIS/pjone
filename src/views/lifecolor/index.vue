@@ -31,19 +31,27 @@
     </el-row>
     <el-card class="main-card">
       <el-row>
-        <el-col :span="18">
-          <div id="container-line-sleep-point"></div>
-        </el-col>
         <el-col :span="6">
           <div id="container-pie-sleep-point"></div>
         </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="18">
-          <div id="container-bar-sleep-long"></div>
-        </el-col>
         <el-col :span="6">
           <div id="container-pie-sleep-long"></div>
+        </el-col>
+<!--         <el-col :span="6">
+          <div id="container-pie-y-time"></div>
+        </el-col>
+        <el-col :span="6">
+          <div id="container-pie-y-num"></div>
+        </el-col> -->
+      </el-row>
+      <el-row>
+        <el-col :span="24">
+          <div id="container-line-sleep-point"></div>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="24">
+          <div id="container-bar-sleep-long"></div>
         </el-col>
       </el-row>
       <el-input-number v-model="sDays" :min="0" :max="60" :step="5" @change="initSleepMonthChart"/>
@@ -897,7 +905,7 @@ const initSleepLongBar = (xData, yData) => {
  */
 const initSleepPointPie = async () => {
   let dataRes
-  await lifeColorApi.getSleepPointGroupLastYear().then(data => {
+  await lifeColorApi.getSleepPointGroup(30000).then(data => {
     dataRes = data
     for (let i = 0; i < data.length; i++) {
       let pieceColor = ''
@@ -962,7 +970,7 @@ const initSleepPointPie = async () => {
  */
 const initSleepLongPie = async () => {
   let dataRes
-  await lifeColorApi.getSleepLongGroupLastYear().then(data => {
+  await lifeColorApi.getSleepLongGroup(30000).then(data => {
     dataRes = data
     for (let i = 0; i < data.length; i++) {
       let pieceColor = ''

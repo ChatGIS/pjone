@@ -44,13 +44,13 @@ export const getRecordsNum = (type: string) => {
     url: `${base}/getRecordsNum?type=${type}`,
   })
 }
-export const getSleepPointGroupLastYear = () => {
+export const getSleepPointGroup = (days: number) => {
   return request({
-    url: base + '/getSleepPointGroupLastYear',
+    url: base + '/getSleepPointGroup?num=' + days,
   })
 }
-export const getSleepLongGroupLastYear = () => {
+export const getSleepLongGroup = (days: number) => {
   return request({
-    url: base + '/getSleepLongGroupLastYear',
+    url: base + '/getSleepLongGroup?num=' + days,
   })
 }
