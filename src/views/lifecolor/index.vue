@@ -37,12 +37,12 @@
         <el-col :span="6">
           <div id="container-pie-sleep-long"></div>
         </el-col>
-<!--         <el-col :span="6">
-          <div id="container-pie-y-time"></div>
+        <el-col :span="6">
+          <div id="container-pie-sleep-point-day"></div>
         </el-col>
         <el-col :span="6">
-          <div id="container-pie-y-num"></div>
-        </el-col> -->
+          <div id="container-pie-sleep-long-day"></div>
+        </el-col>
       </el-row>
       <el-row>
         <el-col :span="24">
@@ -54,7 +54,7 @@
           <div id="container-bar-sleep-long"></div>
         </el-col>
       </el-row>
-      <el-input-number v-model="sDays" :min="0" :max="60" :step="5" @change="initSleepMonthChart"/>
+      <el-input-number v-model="sDays" :min="0" :max="60" :step="5" @change="handleChangeSDays"/>
     </el-card>
     <el-Drawer v-model="lifeDrawer" title="LifeColorEdit" :direction="direction">
       <div id="table-container">
@@ -109,7 +109,7 @@ import * as echarts from 'echarts'
 import { onMounted, ref, reactive } from 'vue'
 import { lifeColorApi } from '@/api'
 import 'element-plus/es/components/message/style/css'
-import { ElMessage, formatter } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { Edit } from '@element-plus/icons-vue'
 import { computed } from 'vue'
 
@@ -215,7 +215,9 @@ const handleInitAll = () => {
   initYTimePie()
   initYNumPie()
   initSleepMonthChart()
+  initSleepPointPie(36000)
   initSleepPointPie()
+  initSleepLongPie(36000)
   initSleepLongPie()
 }
 /**
@@ -679,6 +681,15 @@ const initYNumPie = async () => {
   })
 }
 /**
+ * @description: 处理选择天数事件
+ * @return {*}
+ */
+const handleChangeSDays = () => {
+  initSleepMonthChart()
+  initSleepPointPie()
+  initSleepLongPie()
+}
+/**
  * @description: 初始化睡眠图表
  * @return {*}
  */
@@ -903,9 +914,15 @@ const initSleepLongBar = (xData, yData) => {
  * @description: 初始化睡眠时间点饼图
  * @return {*}
  */
-const initSleepPointPie = async () => {
+const initSleepPointPie = async (days) => {
   let dataRes
-  await lifeColorApi.getSleepPointGroup(30000).then(data => {
+  let queryDays = sDays.value
+  let divId = 'container-pie-sleep-point-day'
+  if(days == 36000) {
+    queryDays = days
+    divId = 'container-pie-sleep-point'
+  }
+  await lifeColorApi.getSleepPointGroup(queryDays).then(data => {
     dataRes = data
     for (let i = 0; i < data.length; i++) {
       let pieceColor = ''
@@ -927,7 +944,7 @@ const initSleepPointPie = async () => {
       }
     }
   })
-  var chartDom = document.getElementById('container-pie-sleep-point')
+  var chartDom = document.getElementById(divId)
   chartDom.removeAttribute('_echarts_instance_')
   var myChart = echarts.init(chartDom)
   var option
@@ -968,9 +985,15 @@ const initSleepPointPie = async () => {
  * @description: 初始化睡眠时长饼图
  * @return {*}
  */
-const initSleepLongPie = async () => {
+const initSleepLongPie = async (days) => {
   let dataRes
-  await lifeColorApi.getSleepLongGroup(30000).then(data => {
+  let queryDays = sDays.value
+  let divId = 'container-pie-sleep-long-day'
+  if(days == 36000) {
+    queryDays = days
+    divId = 'container-pie-sleep-long'
+  }
+  await lifeColorApi.getSleepLongGroup(queryDays).then(data => {
     dataRes = data
     for (let i = 0; i < data.length; i++) {
       let pieceColor = ''
@@ -992,7 +1015,7 @@ const initSleepLongPie = async () => {
       }
     }
   })
-  var chartDom = document.getElementById('container-pie-sleep-long')
+  var chartDom = document.getElementById(divId)
   chartDom.removeAttribute('_echarts_instance_')
   var myChart = echarts.init(chartDom)
   var option
@@ -1074,7 +1097,7 @@ const addLifeTime = () => {
 }
 #container-line-sleep-point {
   width: 100%;
-  height: 300px;
+  height: 250px;
 }
 #container-line-time {
   width: 100%;
@@ -1082,16 +1105,25 @@ const addLifeTime = () => {
 }
 #container-bar-sleep-long {
   width: 100%;
-  height: 300px;
+  height: 250px;
 }
 #container-pie-sleep-point {
   width: 300px;
-  height: 300px;
+  height: 200px;
 }
 
 #container-pie-sleep-long {
   width: 300px;
-  height: 300px;
+  height: 200px;
+}
+#container-pie-sleep-point-day {
+  width: 300px;
+  height: 200px;
+}
+
+#container-pie-sleep-long-day {
+  width: 300px;
+  height: 200px;
 }
 #container-pie-y-time {
   width: 300px;
