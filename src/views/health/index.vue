@@ -1,53 +1,49 @@
 <template>
-    <div>
-        <el-card class="main-card">
-            <el-row>
-                <el-col :span="24">
-                  <el-button type="primary" :icon="Download"
-                    :disabled="currentType === 1"
-                    @click="handleWorkStyle(1)" circle />
-                  <el-button type="success" :icon="Upload"
-                    :disabled="currentType === 2"
-                    @click="handleWorkStyle(2)" circle />
-                  <el-button type="warning" :icon="DArrowRight" 
-                    :disabled="currentType === 3"
-                    @click="handleWorkStyle(3)" circle />
-                  <el-button type="danger" :icon="AlarmClock" 
-                    :disabled="delayNum == 3"
-                    @click="handleDelayClock(1)" circle>{{ delayNum }}</el-button>
-                </el-col>
-                <el-col :span="24">
-                  <div class="progress-container">
-                    <div class="progress-bar">
-                      <div 
-                        v-for="(segment, index) in timeline" 
-                        :key="index" 
-                        :class="['segment', segment.color]" 
-                        :style="{ width: `${segment.width}%`, left: `${segment.left}%` }"
-                      >{{  segment.duration  }}</div>
-                    </div>
-                    <div class="timeline-labels">
-                      <div 
-                        v-for="(segment, index) in timeline" 
-                        :key="index" 
-                        class="timeline-label"
-                        :style="{ left: `${segment.left + segment.width}%`, top: `${segment.top}px` }"
-                      >
-                        {{ segment.label }}
-                      </div>
-                    </div>
-                  </div>
-                </el-col>
-            </el-row>
-        </el-card>
-        <el-card class="main-card">
-            <el-row>
-                <el-col :span="24">
-                    <div id="container-line-weight"></div>
-                </el-col>
-            </el-row>
-        </el-card>
-    </div>
+  <div>
+    <el-dialog v-model="isShowDialogInit" title="提醒" width="500" align-center>
+      <span>是否进入闹钟模式</span>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="isShowDialogInit = false">
+            OK
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+    <el-card class="main-card">
+      <el-row>
+        <el-col :span="24">
+          <el-button type="primary" :icon="Download" :disabled="currentType === 1" @click="handleWorkStyle(1)" circle />
+          <el-button type="success" :icon="Upload" :disabled="currentType === 2" @click="handleWorkStyle(2)" circle />
+          <el-button type="warning" :icon="DArrowRight" :disabled="currentType === 3" @click="handleWorkStyle(3)"
+            circle />
+          <el-button type="danger" :icon="AlarmClock" :disabled="!isShowDelay" @click="handleDelayClock(1)" circle>{{
+            delayNum }}</el-button>
+        </el-col>
+        <el-col :span="24">
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div v-for="(segment, index) in timeline" :key="index" :class="['segment', segment.color]"
+                :style="{ width: `${segment.width}%`, left: `${segment.left}%` }">{{ segment.duration }}</div>
+            </div>
+            <div class="timeline-labels">
+              <div v-for="(segment, index) in timeline" :key="index" class="timeline-label"
+                :style="{ left: `${segment.left + segment.width}%`, top: `${segment.top}px` }">
+                {{ segment.label }}
+              </div>
+            </div>
+          </div>
+        </el-col>
+      </el-row>
+    </el-card>
+    <el-card class="main-card">
+      <el-row>
+        <el-col :span="24">
+          <div id="container-line-weight"></div>
+        </el-col>
+      </el-row>
+    </el-card>
+  </div>
 </template>
 <script setup>
 import * as echarts from 'echarts'
@@ -61,11 +57,15 @@ const timeline = ref([])
 let timerId
 let audioAlarmClock
 let delayNum = ref(0)
+let isShowDelay = ref(false)
+let isShowDialogInit = ref(false)
 onMounted(() => {
   initWeight()
   refreshSit()
   timerId = setInterval(refreshSit, 60 * 1000) // 每60000毫秒（即1分钟）调用一次updateTime
   audioAlarmClock = new Audio('http://localhost:1301/mymedia/test.mp3')
+  isShowDelay.value = localStorage.getItem('isShowDelay')
+  isShowDialogInit.value = true
 }
 )
 onUnmounted(() => {
@@ -81,19 +81,19 @@ const handleWorkStyle = (type) => {
   currentType.value = type
   let content = ''
   let color = '#e6a23c'
-  if(type === 1) {
+  if (type === 1) {
     content = 'sit down'
     color = '#409eff'
-  } else if(type === 2) {
-    content ='stand up'
+  } else if (type === 2) {
+    content = 'stand up'
     color = '#67c23a'
-  } else if(type === 3) {
+  } else if (type === 3) {
     content = 'walk'
     color = '#e6a23c'
     delayNum.value = 3
   }
   lifeSitApi.addSit(type).then(res => {
-    if(res) {
+    if (res) {
       ElMessage({
         message: h('p', { style: 'line-height: 1; font-size: 24px' }, [
           h('span', { style: `color: ${color}` }, content),
@@ -103,7 +103,7 @@ const handleWorkStyle = (type) => {
     } else {
       ElMessage.error('操作失败')
     }
-    
+
   })
 }
 /**
@@ -116,19 +116,24 @@ const refreshSit = async () => {
   timeline.value.push(...convertData(res))
   // 控制闹钟音频
   const lastIndex = timeline.value.length - 1
+  const duration = timeline.value[lastIndex].duration
+  let delayNumStorage = localStorage.getItem('delayNum')
+  delayNum.value = delayNumStorage
   let delayLong = 30
-  if (delayNum.value == 1) {
+  if (delayNumStorage == 1) {
     delayLong = 40
-  } else if(delayNum.value == 2) {
+  } else if (delayNumStorage == 2) {
     delayLong = 45
-  } else if(delayNum.value == 3) {
+  } else if (delayNumStorage == 3) {
     delayLong = 50
   }
-  if(timeline.value[lastIndex].color != 'orange' && timeline.value[lastIndex].duration == delayLong) {
+  if (timeline.value[lastIndex].color != 'orange' && duration == delayLong) {
     audioAlarmClock.play()
-  }
-  if(timeline.value[lastIndex].color == 'orange') {
-    delayNum.value = 3
+    isShowDelay.value = true
+    localStorage.setItem('isShowDelay', true)
+  } else {
+    isShowDelay.value = false
+    localStorage.setItem('isShowDelay', false)
   }
 }
 /**
@@ -137,10 +142,13 @@ const refreshSit = async () => {
  * @return {*}
  */
 const handleDelayClock = (num) => {
-  delayNum.value += num
-  if(delayNum.value > 3) {
+  delayNum.value = parseInt(delayNum.value) + num
+  if (num == 0) {
     delayNum.value = 0
   }
+  isShowDelay.value = false
+  localStorage.setItem('isShowDelay', false)
+  localStorage.setItem('delayNum', delayNum.value)
   audioAlarmClock.pause()
   audioAlarmClock.currentTime = 0
 }
@@ -195,16 +203,16 @@ const convertData = (data) => {
     // timeline[0].color = '#0000AA'
     preTimePoint = timePoint
     trueColor = colors[item.type]
-    
+
   })
   // 增加最后一个时间段，从最后一个时间点到当前时间点
   const lastTimePoint = new Date()
   let lastDuration = (lastTimePoint - preTimePoint) / (1000 * 60)
   const lastWidth = (lastDuration / (12 * 60)) * 100
-  const lastLeft = timeline.length === 0? 0 : timeline[timeline.length - 1].left + timeline[timeline.length - 1].width
+  const lastLeft = timeline.length === 0 ? 0 : timeline[timeline.length - 1].left + timeline[timeline.length - 1].width
   currentType.value = parseInt(data[data.length - 1].type)
   lastDuration = Math.floor(lastDuration)
-  if(lastDuration < 0) {
+  if (lastDuration < 0) {
     lastDuration = 0
   }
   timeline.push({
@@ -245,16 +253,16 @@ const initWeight = async () => {
   option = {
     tooltip: {
       trigger: 'item',
-      formatter: function (params) {  
+      formatter: function (params) {
         return `${params.name}: ${params.value}`
       }
     },
     xAxis: {
       type: 'category',
       data: xData,
-      axisLabel: {  
-        rotate: 45  
-      } 
+      axisLabel: {
+        rotate: 45
+      }
     },
     yAxis: {
       type: 'value',
@@ -279,39 +287,39 @@ const initWeight = async () => {
           show: true,
           position: 'top',
           overflow: 'none',
-          formatter: function(params) {
+          formatter: function (params) {
             return params.value + '-' + (params.value / 2 / (1.71 * 1.71)).toFixed(1)
           }
         },
         markLine: {
-          data: [  
-            { 
+          data: [
+            {
               name: 'Good',
-              yAxis: 140              
+              yAxis: 140
             }
           ],
           label: {
             show: true,
-            formatter:  data => {
+            formatter: data => {
               return data.value
             }
           },
           symbol: 'none'
         },
-        itemStyle: {  
-          normal: { 
-            color: function(params) {
+        itemStyle: {
+          normal: {
+            color: function (params) {
               const bmi = params.data / 2 / (1.71 * 1.71)
               let color = '#000000'
-              if(bmi <= 18.4) color = '#AAAAAA'
-              if(bmi > 18.4 && bmi <= 23.9) color = '#006400'
-              if(bmi > 23.9 && bmi <= 27.9) color = '#FFFF00'
-              if(bmi > 27.9 && bmi <= 32) color = '#FFA500'
-              if(bmi > 32) color = '#8B0000'
-              return color 
-            }  
-          }  
-        } 
+              if (bmi <= 18.4) color = '#AAAAAA'
+              if (bmi > 18.4 && bmi <= 23.9) color = '#006400'
+              if (bmi > 23.9 && bmi <= 27.9) color = '#FFFF00'
+              if (bmi > 27.9 && bmi <= 32) color = '#FFA500'
+              if (bmi > 32) color = '#8B0000'
+              return color
+            }
+          }
+        }
 
       }
     ]
@@ -328,10 +336,12 @@ const initWeight = async () => {
   box-shadow: 8px 5px #1883c408;
   margin: 10px 0px;
 }
+
 #container-line-weight {
   width: 100%;
   height: 300px;
 }
+
 .progress-container {
   position: relative;
   width: 100%;
