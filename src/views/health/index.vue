@@ -121,7 +121,7 @@ const refreshSit = async () => {
   delayNum.value = delayNumStorage
   let delayLong = 30 + 10 * delayNum.value
   if (timeline.value[lastIndex].color != 'orange') {
-    if(duration == delayLong) {
+    if(duration == delayLong && delayNum.value <= 2) {
       audioAlarmClock.play()
       if (delayNum.value < 2) {
         isShowDelay.value = true
@@ -133,10 +133,8 @@ const refreshSit = async () => {
       localStorage.setItem('delayNum', delayNum.value)
       isShowDelay.value = false
       localStorage.setItem('isShowDelay', false)
-      if (delayNum.value < 3) {
-        audioAlarmClock.pause()
-        audioAlarmClock.currentTime = 0
-      }
+      audioAlarmClock.pause()
+      audioAlarmClock.currentTime = 0
     }
   }
 } 
