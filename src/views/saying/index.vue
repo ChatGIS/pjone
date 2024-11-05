@@ -248,7 +248,7 @@ const formSaying = ref({
   name: '',
   author: '',
   book: '',
-  article: ''
+  article: '',
 })
 const formQuery = reactive({
   name: '',
@@ -256,7 +256,7 @@ const formQuery = reactive({
   book: '',
   article: ''
 })
-const tags = ref([])
+const arrTag = ref([])
 const selectRowTag = ref('')
 const idEdit = ref('')
 const currentPage = ref(1)
@@ -431,7 +431,8 @@ const handleEdit = (index, row) => {
   formSaying.value.article = row.article
   formSaying.value.author = row.author
   formSaying.value.book = row.book
-  selectRowTag.value = row.tagIds
+  selectRowTag.value = row.tagIds ? row.tagIds : ''
+  arrTag.value = row.tagIds.split(',')
 }
 const handleDelete = (index, row) => {
   ElMessageBox.confirm('永久删除，是否继续?', '警告', {}).then(() => {
@@ -452,7 +453,7 @@ const addSaying = () => {
   if (idEdit.value) {
     const sayingEdit = formSaying.value
     sayingEdit.id = idEdit.value
-    sayingEdit.tagIds = tags.value.join(',')
+    sayingEdit.tagIds = arrTag.value.join(',')
     sayingApi.updateSaying(sayingEdit).then(isSuccess => {
       if (isSuccess) {
         initSayingCalendar()
@@ -462,8 +463,8 @@ const addSaying = () => {
     })
   } else {
     const sayingAdd = formSaying.value
-    sayingAdd.tagIds = tags.value
-    sayingAdd.tagIds = tags.value.join(',')
+    sayingAdd.tagIds = arrTag.value
+    sayingAdd.tagIds = arrTag.value.join(',')
     sayingApi.addSaying(sayingAdd).then(isSuccess => {
       if (isSuccess) {
         initSayingCalendar()
@@ -732,7 +733,7 @@ const handleDrawerShow = () => {
   clearSaying()
 }
 const handleEmitSelectTag = (val) => {
-  tags.value = val
+  arrTag.value = val
 }
 const getRow = (content) => {
   let rows = 7
