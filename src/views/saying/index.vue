@@ -68,9 +68,9 @@
               </el-form-item>
               <el-form-item label="对齐">
                 <el-radio-group v-model="shareConfig.authorTextAlign" :disabled="!shareConfig.showAuthor" @change="renderImage">
-                  <el-radio value="right">右</el-radio>
-                  <el-radio value="center">中</el-radio>
                   <el-radio value="left">左</el-radio>
+                  <el-radio value="center">中</el-radio>
+                  <el-radio value="right">右</el-radio>
                 </el-radio-group>
               </el-form-item>
               <el-form-item label="字号">
@@ -294,8 +294,8 @@ const shareConfig = reactive({
   imageURL: 'https://puui.qpic.cn/vpic_cover/z0917cmilgt/z0917cmilgt_hz.jpg',
   imagePosition: 'center'
 })
-const shareConfigBackgroundColor1 = ref('#5c2223')
-const shareConfigBackgroundColor2 = ref('#5c2223')
+const shareConfigBackgroundColor1 = ref('#1F93FF')
+const shareConfigBackgroundColor2 = ref('#C71585')
 const predefineColors1 = ref([
   '#ff4500',
   '#ff8c00',
@@ -619,8 +619,17 @@ const renderImageOfColor = () => {
     if(shareConfig.showAuthor) {
       ctxSource.value.font = `${shareConfig.authorFontSize}px ${shareConfig.authorFontType}`
       ctxSource.value.fillStyle = shareConfig.authorTextColor
-      ctxSource.value.textAlign = shareConfig.authorTextAlign
-      ctxSource.value.fillText(`${shareConfig.authorPrefix}${textAuthorShare.value}`, startX, startY)
+      const textAuthor = `${shareConfig.authorPrefix}${textAuthorShare.value}`
+      const widthText = ctxSource.value.measureText(textAuthor).width
+      ctxSource.value.textAlign = 'left'  
+      if(shareConfig.authorTextAlign == 'left') {
+        // startX = 0
+      } else if(shareConfig.authorTextAlign == 'center') {
+        startX = (startX / 2)+ (maxWidth - widthText) / 2
+      } else {
+        startX = (startX / 2) + (maxWidth - widthText)
+      }
+      ctxSource.value.fillText(textAuthor, startX, startY)
     }
     // 水印
     setWatermark()
@@ -669,6 +678,8 @@ const setBackgroundColor = () => {
     gradient.addColorStop(0, shareConfigBackgroundColor1.value)  
     gradient.addColorStop(1, shareConfigBackgroundColor2.value)
     ctxSource.value.fillStyle = gradient
+    console.log(shareConfigBackgroundColor1.value, shareConfigBackgroundColor2.value, 'pjone-11-24 15:00:24测试打印内容m')
+    
   }
   ctxSource.value.fillRect(0, 0, canvasSource.value.width, canvasSource.value.height)
 }
