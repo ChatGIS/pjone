@@ -1059,6 +1059,8 @@ const initSleepLongPie = async (days) => {
 const addLifeTime = () => {
   if (!formColor || !formColor.type) {
     ElMessage.warning('日期、类型为必填项')
+  } else if(formColor.type == 'S' && !formColor.timePoint) {
+    ElMessage.warning('时间点为必填项')
   } else {
     if(!updateId.value) {
       lifeColorApi.addLifeColor(formColor).then(num => {
