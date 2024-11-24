@@ -364,7 +364,7 @@ const initSayingCalendar = async () => {
         var html = ''
         html += `<span style="color: ${colorMain}">${params.value[0]}：${params.value[1]}</span><br />`
         return html
-      },
+      }
     },
     visualMap: {
       show: false,
@@ -375,7 +375,15 @@ const initSayingCalendar = async () => {
       }
     },
     calendar: {
-      range: '2024',
+      range: [(new Date().getFullYear() - 1) + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate(),
+        new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate()],
+      dayLabel: {
+        firstDay: 1,
+        nameMap: 'ZH'
+      },
+      monthLabel: {
+        nameMap: 'ZH'
+      },
     },
     series: {
       type: 'heatmap',
