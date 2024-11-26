@@ -13,6 +13,7 @@ import * as tagApi from './tag'
 import * as websiteApi from './website'
 import * as lifeWeightApi from './life-weight'
 import * as lifeSitApi from './life-sit'
+import * as musicApi from './music'
 
 export {
   sayingApi,
@@ -21,5 +22,6 @@ export {
   tagApi,
   websiteApi,
   lifeWeightApi,
-  lifeSitApi
+  lifeSitApi,
+  musicApi
 }

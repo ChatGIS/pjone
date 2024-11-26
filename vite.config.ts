@@ -6,11 +6,12 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import eslint from 'vite-plugin-eslint'
 import { resolve } from 'path'
 
-const pjoneServer = 'http://127.0.0.1:13041/'
+const pjoneServer = 'http://127.0.0.1:1304/'
 const modaServer = 'http://127.0.0.1:3007/'
 export default defineConfig({
   base: '/pjone/',
   server: {
+    port: 13011,
     proxy: {
       '/pjone-server': {
         target: pjoneServer,
