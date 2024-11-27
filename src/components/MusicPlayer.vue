@@ -116,7 +116,7 @@ const handleCurrentEnd = () => {
     id: currentSong.value.id,
     num: currentSong.value.num + 1
   }).then(() => {
-    ElMessage.success('播放次数更新成功')
+    currentSong.value.num = currentSong.value.num + 1
   }).catch(() => {
     ElMessage.error('播放次数更新失败')
   })
