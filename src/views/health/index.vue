@@ -33,7 +33,7 @@
           </div>
         </el-col>
         <el-col :span="6">
-          <MusicPlayer/>
+          <MusicPlayer ref="refMusicPlayer"/>
         </el-col>
       </el-row>
     </el-card>
@@ -54,6 +54,7 @@ import { Upload, Download, DArrowRight, AlarmClock } from '@element-plus/icons-v
 import { ElMessage } from 'element-plus'
 import MusicPlayer from '@/components/MusicPlayer.vue'
 
+const refMusicPlayer = ref()
 const currentType = ref()
 const timeline = ref([])
 let timerId
@@ -93,6 +94,7 @@ const handleWorkStyle = (type) => {
     content = 'walk'
     color = '#e6a23c'
     delayNum.value = 3
+    refMusicPlayer.value.handlePause()
   }
   lifeSitApi.addSit(type).then(res => {
     if (res) {

@@ -70,7 +70,22 @@ const togglePlay = () => {
   }
   isPlaying.value = !isPlaying.value
 }
-
+/**
+ * @description: 播放
+ * @return {*}
+ */
+const handlePlay = () => {
+  audio.value.play()
+  isPlaying.value = true
+}
+/**
+ * @description: 暂停
+ * @return {*}
+ */
+const handlePause = () => {
+  audio.value.pause()
+  isPlaying.value = false
+}
 /**
  * @description: 上一首
  * @return {*}
@@ -149,6 +164,8 @@ const getFileSrc = (file) => {
   const url = `http://localhost:1301/music/${file}.mp3`
   return url
 }
+
+defineExpose({handlePlay,handlePause})
 </script>
 
 <style scoped>
