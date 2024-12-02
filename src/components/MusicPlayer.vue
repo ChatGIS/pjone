@@ -1,7 +1,7 @@
 <template>
     <div class="music-player">
         <audio ref="audio" :src="getFileSrc(currentSong.src)" @ended="handleCurrentEnd"></audio>
-        <el-progress type="circle" :percentage="progressPercentage" status="success">
+        <el-progress type="circle" :percentage="progressPercentage" status="exception">
             <div>
                 <span>{{ currentTimeFormatted }}</span>
             </div>
@@ -52,7 +52,7 @@ const formatTime = (seconds) => {
 const initMusic = async () => {
   const res = await musicApi.getMusicPageList({
     current: 1,
-    size: 10
+    size: 100
   })
   songList.value = res.records
   currentSong.value = songList.value[0]
