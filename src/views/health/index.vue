@@ -12,7 +12,7 @@
     </el-dialog>
     <el-card class="main-card">
       <el-row>
-        <el-col :span="18">
+        <el-col :span="24">
           <el-button type="primary" :icon="Download" :disabled="currentType === 1" @click="handleWorkStyle(1)" circle />
           <el-button type="success" :icon="Upload" :disabled="currentType === 2" @click="handleWorkStyle(2)" circle />
           <el-button type="warning" :icon="DArrowRight" :disabled="currentType === 3" @click="handleWorkStyle(3)"
@@ -32,8 +32,15 @@
             </div>
           </div>
         </el-col>
+      </el-row>
+    </el-card>
+    <el-card class="main-card">
+      <el-row>
         <el-col :span="6">
           <MusicPlayer ref="refMusicPlayer"/>
+        </el-col>
+        <el-col :span="6">
+          <UpCounter></UpCounter>
         </el-col>
       </el-row>
     </el-card>
@@ -53,6 +60,7 @@ import { lifeWeightApi, lifeSitApi } from '@/api/index'
 import { Upload, Download, DArrowRight, AlarmClock } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import MusicPlayer from '@/components/MusicPlayer.vue'
+import UpCounter from '@/components/UpCounter.vue'
 
 const refMusicPlayer = ref()
 const currentType = ref()

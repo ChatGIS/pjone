@@ -11,7 +11,7 @@ const modaServer = 'http://127.0.0.1:3007/'
 export default defineConfig({
   base: '/pjone/',
   server: {
-    port: 13011,
+    port: 1305,
     proxy: {
       '/pjone-server': {
         target: pjoneServer,

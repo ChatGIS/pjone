@@ -21,3 +21,15 @@ export const getSits = () => {
     }
   })
 }
+export const addUp = () => {
+  return request({
+    url: base + '/addUp',
+    method: 'post',
+  })
+}
+export const getUp = () => {
+  return request({
+    url: base + '/getUp',
+    method: 'post',
+  })
+}

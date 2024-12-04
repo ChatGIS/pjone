@@ -44,9 +44,11 @@ declare module 'vue' {
     Logo: typeof import('./src/components/logo/index.vue')['default']
     Menu: typeof import('./src/components/menu/index.vue')['default']
     MusicPlayer: typeof import('./src/components/MusicPlayer.vue')['default']
+    'MusicPlayer copy': typeof import('./src/components/MusicPlayer copy.vue')['default']
     Saying: typeof import('./src/components/saying/index.vue')['default']
     TagManage: typeof import('./src/components/tag-manage/index.vue')['default']
     Type: typeof import('./src/components/type/index.vue')['default']
+    UpCounter: typeof import('./src/components/UpCounter.vue')['default']
   }
 }
 
