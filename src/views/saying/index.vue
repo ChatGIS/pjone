@@ -29,11 +29,12 @@
       </el-form>
       <el-table :data="tableDataSaying" style="width: 100%">
         <el-table-column type="index" width="50" />
-        <el-table-column prop="name" label="Saying" />
-        <el-table-column prop="author" label="Author" width="180" />
-        <el-table-column prop="book" label="Book" width="180" />
-        <el-table-column prop="article" label="Article" width="180" />
-        <el-table-column prop="createDate" label="createDate" width="180" />
+        <el-table-column prop="name" label="Saying" width="600"/>
+        <el-table-column prop="comment" label="Comment" />
+        <el-table-column prop="author" label="Author" width="150" />
+        <el-table-column prop="book" label="Book" width="150" />
+        <el-table-column prop="article" label="Article" width="150" />
+        <el-table-column prop="createDate" label="createDate" width="150" />
         <el-table-column prop="tagNames" label="Tag" width="180">
           <template #default="scope">
             <el-tag v-for="tag in splitTags(scope.row.tagNames)" :key="tag" type="success" style="margin-right: 5px;">
@@ -217,6 +218,9 @@
             <el-form-item label="文章名" prop="article">
               <el-input v-model="formSaying.article" />
             </el-form-item>
+            <el-form-item label="点评" prop="comment">
+              <el-input v-model="formSaying.comment" :rows="getRow(formSaying.comment)" type="textarea"></el-input>
+            </el-form-item>
             <el-form-item label="标签" prop="createDate">
               <Tag ref="tagRef" :tag-ids="selectRowTag" @emit-select-tag="handleEmitSelectTag"></Tag>
             </el-form-item>
@@ -249,6 +253,7 @@ const formSaying = ref({
   author: '',
   book: '',
   article: '',
+  comment: ''
 })
 const formQuery = reactive({
   name: '',
