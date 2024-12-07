@@ -74,7 +74,6 @@
 import Type from '@/components/type/index.vue'
 import Saying from '@/components/saying/index.vue'
 import { websiteApi } from '@/api'
-import { getWebsite, clickWebsite } from '@/api/resource.js'
 import { reactive, ref } from 'vue'
 import getAssetsFile from '@/utils/sys-use'
 

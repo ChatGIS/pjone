@@ -58,7 +58,6 @@
 </template>
 
 <script lang="ts" setup>
-import { recommendWebsites, clickWebsite } from '@/api/resource.js'
 import { websiteApi } from '@/api'
 import { reactive } from 'vue'
 import Saying from '@/components/saying/index.vue'
