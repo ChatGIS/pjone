@@ -1,11 +1,3 @@
-<!--
- * @Author: Dreamice dreamice13@foxmail.com
- * @Date: 2024-04-03 23:07:33
- * @LastEditors: ChatGIS ChatGIS@outlook.com
- * @LastEditTime: 2024-10-04 23:06:39
- * @FilePath: \pjone\src\components\type\index.vue
- * @Description: 
--->
 <template>
     <el-card class="box-card" shadow="always">
         <el-tag :effect="tagSelectedArr.includes(0) ? 'dark' : 'plain'" @click="emitTypeSelected(0)" type="danger"

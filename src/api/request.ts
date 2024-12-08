@@ -1,11 +1,3 @@
-/*
- * @Author: Dreamice dreamice13@foxmail.com
- * @Date: 2024-04-03 23:07:33
- * @LastEditors: Dreamice dreamice13@foxmail.com
- * @LastEditTime: 2024-04-10 18:26:34
- * @FilePath: \pjone\src\api\request.ts
- * @Description: 
- */
 import axios from 'axios'
 
 const instance = axios.create({

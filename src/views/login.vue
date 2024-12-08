@@ -1,11 +1,3 @@
-<!--
- * @Author: Dreamice dreamice13@foxmail.com
- * @Date: 2024-04-03 23:07:33
- * @LastEditors: Dreamice dreamice13@foxmail.com
- * @LastEditTime: 2024-04-20 21:33:52
- * @FilePath: \pjone\src\views\login.vue
- * @Description: 
--->
 <script setup lang='ts'>
 import { reactive } from 'vue'
 import 'element-plus/es/components/message/style/css'

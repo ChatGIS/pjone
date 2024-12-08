@@ -1,11 +1,3 @@
-<!--
- * @Author: Dreamice dreamice13@foxmail.com
- * @Date: 2022-11-10 19:03:25
- * @LastEditors: Dreamice dreamice13@foxmail.com
- * @LastEditTime: 2024-04-23 14:19:50
- * @FilePath: \pjone\src\views\container.vue
- * @Description: 
--->
 <script setup lang='ts'>
 import { onMounted, ref } from 'vue'
 import router from '../router'

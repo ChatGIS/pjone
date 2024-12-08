@@ -1,11 +1,3 @@
-<!--
- * @Author: Dreamice dreamice13@foxmail.com
- * @Date: 2024-04-03 23:07:33
- * @LastEditors: Dreamice dreamice13@foxmail.com
- * @LastEditTime: 2024-04-03 23:30:59
- * @FilePath: \pjone\src\App.vue
- * @Description: 
--->
 <template>
     <router-view></router-view>
 </template>
