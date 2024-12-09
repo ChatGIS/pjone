@@ -444,6 +444,7 @@ const handleEdit = (index, row) => {
   formSaying.value.article = row.article
   formSaying.value.author = row.author
   formSaying.value.book = row.book
+  formSaying.value.comment = row.comment
   selectRowTag.value = row.tagIds ? row.tagIds : ''
   arrTag.value = row.tagIds.split(',')
 }
@@ -497,6 +498,7 @@ const clearSaying = () => {
   formSaying.value.author = ''
   formSaying.value.book = ''
   formSaying.value.name = ''
+  formSaying.value.comment = ''
   tagRef.value.clearSelectTag()
 }
 
