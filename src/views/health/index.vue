@@ -34,13 +34,20 @@
         </el-col>
       </el-row>
     </el-card>
+    <el-row class="main-card">
+      <el-col :span="18">
+        <div class="calendar-box">
+          <div id="container-up" class="container-calendar"></div>
+        </div>
+      </el-col>
+      <el-col :span="6">
+        <UpCounter></UpCounter>
+      </el-col>
+    </el-row>
     <el-card class="main-card">
       <el-row>
         <el-col :span="6">
           <MusicPlayer ref="refMusicPlayer"/>
-        </el-col>
-        <el-col :span="6">
-          <UpCounter></UpCounter>
         </el-col>
       </el-row>
     </el-card>
@@ -74,14 +81,19 @@ onMounted(() => {
   initWeight()
   audioAlarmClock = new Audio('http://localhost:1301/mymedia/test.mp3')
   refreshSit()
-  timerId = setInterval(refreshSit, 60 * 1000) // 每60000毫秒（即1分钟）调用一次updateTime
+  timerId = setInterval(handleRefresh, 60 * 1000) // 每60000毫秒（即1分钟）调用一次updateTime
   isShowDelay.value = localStorage.getItem('isShowDelay')
   isShowDialogInit.value = true
+  initUpCalendar()
 }
 )
 onUnmounted(() => {
   clearInterval(timerId)
 })
+const handleRefresh = () => {
+  refreshSit()
+  initUpCalendar()
+}
 /**
  * @description: 处理工作状态
  * @param {*} type
@@ -340,6 +352,51 @@ const initWeight = async () => {
   }
   option && myChart.setOption(option)
 }
+const initUpCalendar = async () => {
+  var chartDom = document.getElementById('container-up')
+  chartDom.removeAttribute('_echarts_instance_')
+  var myChart = echarts.init(chartDom)
+  const colorMain = 'green'
+  var option
+
+  const res = await lifeSitApi.getCountEveryDay()
+  option = {
+    tooltip: {  // 鼠标悬浮提示
+      position: 'top',
+      formatter: function (params) {
+        var html = ''
+        html += `<span style="color: ${colorMain}">${params.value[0]}：${params.value[1]}</span><br />`
+        return html
+      }
+    },
+    visualMap: {
+      show: false,
+      min: 0,
+      max: 50,
+      inRange: {  // 方块颜色
+        color: ['White', colorMain]
+      }
+    },
+    calendar: {
+      range: [(new Date().getFullYear() - 1) + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate(),
+        new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate()],
+      dayLabel: {
+        firstDay: 1,
+        nameMap: 'ZH'
+      },
+      monthLabel: {
+        nameMap: 'ZH'
+      },
+    },
+    series: {
+      type: 'heatmap',
+      coordinateSystem: 'calendar',
+      data: res
+    }
+  }
+
+  option && myChart.setOption(option)
+}
 </script>
 <style scoped>
 .main-card {
@@ -410,5 +467,9 @@ const initWeight = async () => {
   transform: translateX(-50%);
   font-size: 12px;
   color: #606266;
+}
+.container-calendar {
+  width: 100%;
+  height: 200px;
 }
 </style>

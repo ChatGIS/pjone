@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="progress-container">
         <el-progress type="circle" :percentage="progressPercentage" status="success">
             <div>
                 <span>{{ numGoal }}</span>
@@ -52,4 +52,7 @@ const handleUpCount = () => {
 </script>
 
 <style scoped>
+#progress-container {
+  margin-top: 43px;
+}
 </style>

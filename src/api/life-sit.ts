@@ -33,3 +33,8 @@ export const getUp = () => {
     method: 'post',
   })
 }
+export const getCountEveryDay = () => {
+  return request({
+    url: base + '/getCountEveryDayOfUp',
+  })
+}
