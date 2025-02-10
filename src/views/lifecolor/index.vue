@@ -79,7 +79,7 @@
             <el-form-item label="时间点" v-if="formColor.type == 'S'">
               <el-time-picker v-model="formColor.timePoint" 
               value-format="HH:mm:ss"
-              :default-value="new Date(0, 0, 0, 23, 0, 0)"/>
+              :default-value="new Date(0, 0, 0, 22, 30, 0)"/>
             </el-form-item>
             <el-form-item>
               <el-button plain @click="addLifeTime">{{ updateId ? '更新' : '添加'  }}</el-button>
