@@ -778,12 +778,10 @@ const initSleepPointLine = (xData, yData, baseTime) => {
           normal: {  
             color: function(params) {
               let color = '#000000'
-              if(params.data <= 120) color = '#006400'
-              if(params.data > 120 && params.data <= 180) color = '#9ACD32'
-              if(params.data > 180 && params.data <= 210) color = '#FFFF00'
-              if(params.data > 210 && params.data <= 240) color = '#FFA500'
-              if(params.data > 240 && params.data <= 300) color = '#FF0000'
-              if(params.data > 300) color = '#8B0000'
+              if(params.data <= 120) color = colorS
+              if(params.data > 120 && params.data <= 180) color = '#006400'
+              if(params.data > 180 && params.data <= 240) color = '#9ACD32'
+              if(params.data > 240) color = '#8B0000'
               return color 
             }  
           }  
@@ -831,7 +829,7 @@ const calculateTimeStr = (diff, reference) => {
   return timeStr  
 }
 /**
- * @description: 加载睡眠时长柱状图
+ * @description: 睡眠时长柱状图
  * @param {*} xData
  * @param {*} yData
  * @return {*}
@@ -862,16 +860,14 @@ const initSleepLongBar = (xData, yData) => {
         itemStyle: {
           color: (params) => {
             const val = params.data
-            if (val > 480) {
-              return '#006400'
-            } else if (val >450 && val <= 480) {
+            if (val > 540) {
+              return colorS
+            } else if (val >480 && val <= 540) {
+              return  '#006400'
+            } else if (val >420 && val <= 480) {
               return '#9ACD32'
-            } else if (val >420 && val <= 450) {
-              return '#FFFF00'
-            } else if (val >390 && val <= 420) {
+            } else if (val >360 && val <= 420) {
               return '#FFA500'
-            } else if (val >360 && val <= 390) {
-              return '#FF0000'
             } else {
               return '#8B0000'
             }
@@ -927,15 +923,11 @@ const initSleepPointPie = async (days) => {
     for (let i = 0; i < data.length; i++) {
       let pieceColor = ''
       if (data[i].name == '<10') {
-        pieceColor = '#006400'
+        pieceColor = colorS
       } else if (data[i].name == '10-11') {
+        pieceColor = '#006400'
+      } else if (data[i].name == '11-12') {
         pieceColor = '#9ACD32'
-      } else if (data[i].name == '11-11.5') {
-        pieceColor = '#FFFF00'
-      } else if (data[i].name == '11.5-12') {
-        pieceColor = '#FFA500'
-      } else if (data[i].name == '12-1') {
-        pieceColor = '#FF0000'
       } else {
         pieceColor = '#8B0000'
       }
@@ -997,16 +989,14 @@ const initSleepLongPie = async (days) => {
     dataRes = data
     for (let i = 0; i < data.length; i++) {
       let pieceColor = ''
-      if (data[i].name == '>8h') {
+      if (data[i].name == '>9h') {
+        pieceColor = colorS
+      } else if (data[i].name == '8-9h') {
         pieceColor = '#006400'
-      } else if (data[i].name == '7.5-8h') {
+      } else if (data[i].name == '7-8h') {
         pieceColor = '#9ACD32'
-      } else if (data[i].name == '7-7.5h') {
-        pieceColor = '#FFFF00'
-      } else if (data[i].name == '6.5-7h') {
+      } else if (data[i].name == '6-7h') {
         pieceColor = '#FFA500'
-      } else if (data[i].name == '6-6.5h') {
-        pieceColor = '#FF0000'
       } else {
         pieceColor = '#8B0000'
       }
