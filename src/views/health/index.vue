@@ -269,8 +269,19 @@ const formatTime = (date) => {
  */
 const initWeight = async () => {
   const res = await lifeWeightApi.getWeight()
-  const yData = res.map(item => item.weight)
-  const xData = res.map(item => item.doDate)
+  const yData1 = []
+  const yData2 = Array(19).fill(null)
+  const xData = []
+  for(let i = 0; i < res.length; i++) {
+    if (!xData.includes(res[i].doDate)) {
+      xData.push(res[i].doDate)
+    }
+    if (res[i].name == 1) {
+      yData1.push(res[i].weight)
+    } else {
+      yData2.push(res[i].weight)
+    }
+  }
   var chartDom = document.getElementById('container-line-weight')
   chartDom.removeAttribute('_echarts_instance_')
   var myChart = echarts.init(chartDom)
@@ -293,7 +304,7 @@ const initWeight = async () => {
     yAxis: {
       type: 'value',
       show: false,
-      min: 120,
+      min: 110,
       max: 160
     },
     series: [
@@ -301,7 +312,7 @@ const initWeight = async () => {
         name: 'Sleep',
         type: 'line',
         radius: '40%',
-        data: yData,
+        data: yData1,
         emphasis: {
           itemStyle: {
             shadowBlur: 10,
@@ -336,6 +347,56 @@ const initWeight = async () => {
           normal: {
             color: function (params) {
               const bmi = params.data / 2 / (1.71 * 1.71)
+              let color = '#000000'
+              if (bmi <= 18.4) color = '#AAAAAA'
+              if (bmi > 18.4 && bmi <= 23.9) color = '#006400'
+              if (bmi > 23.9 && bmi <= 27.9) color = '#FFFF00'
+              if (bmi > 27.9 && bmi <= 32) color = '#FFA500'
+              if (bmi > 32) color = '#8B0000'
+              return color
+            }
+          }
+        }
+
+      }, {
+        name: 'Sleep',
+        type: 'line',
+        radius: '40%',
+        data: yData2,
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        },
+        label: {
+          show: true,
+          position: 'top',
+          overflow: 'none',
+          formatter: function (params) {
+            return params.value + '-' + (params.value / 2 / (1.6 * 1.6)).toFixed(1)
+          }
+        },
+        markLine: {
+          data: [
+            {
+              name: 'Good',
+              yAxis: 120
+            }
+          ],
+          label: {
+            show: true,
+            formatter: data => {
+              return data.value
+            }
+          },
+          symbol: 'none'
+        },
+        itemStyle: {
+          normal: {
+            color: function (params) {
+              const bmi = params.data / 2 / (1.6 * 1.6)
               let color = '#000000'
               if (bmi <= 18.4) color = '#AAAAAA'
               if (bmi > 18.4 && bmi <= 23.9) color = '#006400'
