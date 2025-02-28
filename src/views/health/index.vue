@@ -13,20 +13,59 @@
     <el-card class="main-card">
       <el-row>
         <el-col :span="24">
-          <el-button type="primary" :icon="Download" :disabled="currentType === 1" @click="handleWorkStyle(1)" circle />
-          <el-button type="success" :icon="Upload" :disabled="currentType === 2" @click="handleWorkStyle(2)" circle />
-          <el-button type="warning" :icon="DArrowRight" :disabled="currentType === 3" @click="handleWorkStyle(3)"
-            circle />
-          <el-button type="danger" :icon="AlarmClock" :disabled="!isShowDelay" @click="handleDelayClock(1)" circle>{{
-            delayNum }}</el-button>
-                      <div class="progress-container">
+          <el-button
+            type="primary"
+            :icon="Download"
+            :disabled="currentType === 1"
+            @click="handleWorkStyle(1)"
+            circle
+          />
+          <el-button
+            type="success"
+            :icon="Upload"
+            :disabled="currentType === 2"
+            @click="handleWorkStyle(2)"
+            circle
+          />
+          <el-button
+            type="warning"
+            :icon="DArrowRight"
+            :disabled="currentType === 3"
+            @click="handleWorkStyle(3)"
+            circle
+          />
+          <el-button
+            type="danger"
+            :icon="AlarmClock"
+            :disabled="!isShowDelay"
+            @click="handleDelayClock(1)"
+            circle
+            >{{ delayNum }}</el-button
+          >
+          <div class="progress-container">
             <div class="progress-bar">
-              <div v-for="(segment, index) in timeline" :key="index" :class="['segment', segment.color]"
-                :style="{ width: `${segment.width}%`, left: `${segment.left}%` }">{{ segment.duration }}</div>
+              <div
+                v-for="(segment, index) in timeline"
+                :key="index"
+                :class="['segment', segment.color]"
+                :style="{
+                  width: `${segment.width}%`,
+                  left: `${segment.left}%`
+                }"
+              >
+                {{ segment.duration }}
+              </div>
             </div>
             <div class="timeline-labels">
-              <div v-for="(segment, index) in timeline" :key="index" class="timeline-label"
-                :style="{ left: `${segment.left + segment.width}%`, top: `${segment.top}px` }">
+              <div
+                v-for="(segment, index) in timeline"
+                :key="index"
+                class="timeline-label"
+                :style="{
+                  left: `${segment.left + segment.width}%`,
+                  top: `${segment.top}px`
+                }"
+              >
                 {{ segment.label }}
               </div>
             </div>
@@ -47,7 +86,7 @@
     <el-card class="main-card">
       <el-row>
         <el-col :span="6">
-          <MusicPlayer ref="refMusicPlayer"/>
+          <MusicPlayer ref="refMusicPlayer" />
         </el-col>
       </el-row>
     </el-card>
@@ -64,7 +103,12 @@
 import * as echarts from 'echarts'
 import { onMounted, onUnmounted, h, ref } from 'vue'
 import { lifeWeightApi, lifeSitApi } from '@/api/index'
-import { Upload, Download, DArrowRight, AlarmClock } from '@element-plus/icons-vue'
+import {
+  Upload,
+  Download,
+  DArrowRight,
+  AlarmClock
+} from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import MusicPlayer from '@/components/MusicPlayer.vue'
 import UpCounter from '@/components/UpCounter.vue'
@@ -85,8 +129,7 @@ onMounted(() => {
   isShowDelay.value = localStorage.getItem('isShowDelay')
   isShowDialogInit.value = true
   initUpCalendar()
-}
-)
+})
 onUnmounted(() => {
   clearInterval(timerId)
 })
@@ -116,18 +159,17 @@ const handleWorkStyle = (type) => {
     delayNum.value = 3
     refMusicPlayer.value.handlePause()
   }
-  lifeSitApi.addSit(type).then(res => {
+  lifeSitApi.addSit(type).then((res) => {
     if (res) {
       ElMessage({
         message: h('p', { style: 'line-height: 1; font-size: 24px' }, [
-          h('span', { style: `color: ${color}` }, content),
-        ]),
+          h('span', { style: `color: ${color}` }, content)
+        ])
       })
       refreshSit()
     } else {
       ElMessage.error('操作失败')
     }
-
   })
 }
 /**
@@ -145,7 +187,7 @@ const refreshSit = async () => {
   delayNum.value = delayNumStorage
   let delayLong = 30 + 10 * delayNum.value
   if (timeline.value[lastIndex].color != 'orange') {
-    if(duration == delayLong && delayNum.value <= 2) {
+    if (duration == delayLong && delayNum.value <= 2) {
       audioAlarmClock.play()
       if (delayNum.value < 2) {
         isShowDelay.value = true
@@ -161,7 +203,7 @@ const refreshSit = async () => {
       audioAlarmClock.currentTime = 0
     }
   }
-} 
+}
 /**
  * @description: 闹钟延迟、关闭闹钟音频
  * @param {*} num
@@ -171,7 +213,7 @@ const handleDelayClock = (num) => {
   delayNum.value = parseInt(delayNum.value) + num
   if (num == 0) {
     delayNum.value = 0
-  }  
+  }
   isShowDelay.value = false
   localStorage.setItem('isShowDelay', false)
   localStorage.setItem('delayNum', delayNum.value)
@@ -185,15 +227,15 @@ const handleDelayClock = (num) => {
  */
 const convertData = (data) => {
   const colors = {
-    '1': 'blue',
-    '2': 'green',
-    '3': 'orange',
-    '4': 'red'
+    1: 'blue',
+    2: 'green',
+    3: 'orange',
+    4: 'red'
   }
   const tops = {
-    '1': '-30',
-    '2': '-15',
-    '3': '0',
+    1: '-30',
+    2: '-15',
+    3: '0'
   }
 
   // 先按时间排序
@@ -216,7 +258,8 @@ const convertData = (data) => {
 
     const duration = (timePoint - preTimePoint) / (1000 * 60) // 计算时间差（分钟）
     const width = (duration / (12 * 60)) * 100 // 按照时间条长度为12h计算宽度
-    const left = index === 0 ? 0 : timeline[index - 1].left + timeline[index - 1].width
+    const left =
+      index === 0 ? 0 : timeline[index - 1].left + timeline[index - 1].width
 
     timeline.push({
       label: label,
@@ -229,13 +272,15 @@ const convertData = (data) => {
     // timeline[0].color = '#0000AA'
     preTimePoint = timePoint
     trueColor = colors[item.type]
-
   })
   // 增加最后一个时间段，从最后一个时间点到当前时间点
   const lastTimePoint = new Date()
   let lastDuration = (lastTimePoint - preTimePoint) / (1000 * 60)
   const lastWidth = (lastDuration / (12 * 60)) * 100
-  const lastLeft = timeline.length === 0 ? 0 : timeline[timeline.length - 1].left + timeline[timeline.length - 1].width
+  const lastLeft =
+    timeline.length === 0
+      ? 0
+      : timeline[timeline.length - 1].left + timeline[timeline.length - 1].width
   currentType.value = parseInt(data[data.length - 1].type)
   lastDuration = Math.floor(lastDuration)
   if (lastDuration < 0) {
@@ -272,7 +317,7 @@ const initWeight = async () => {
   const yData1 = []
   const yData2 = Array(19).fill(null)
   const xData = []
-  for(let i = 0; i < res.length; i++) {
+  for (let i = 0; i < res.length; i++) {
     if (!xData.includes(res[i].doDate)) {
       xData.push(res[i].doDate)
     }
@@ -325,7 +370,9 @@ const initWeight = async () => {
           position: 'top',
           overflow: 'none',
           formatter: function (params) {
-            return params.value + '-' + (params.value / 2 / (1.71 * 1.71)).toFixed(1)
+            return (
+              params.value + '-' + (params.value / 2 / (1.71 * 1.71)).toFixed(1)
+            )
           }
         },
         markLine: {
@@ -337,7 +384,7 @@ const initWeight = async () => {
           ],
           label: {
             show: true,
-            formatter: data => {
+            formatter: (data) => {
               return data.value
             }
           },
@@ -357,8 +404,8 @@ const initWeight = async () => {
             }
           }
         }
-
-      }, {
+      },
+      {
         name: 'Sleep',
         type: 'line',
         radius: '40%',
@@ -375,7 +422,9 @@ const initWeight = async () => {
           position: 'top',
           overflow: 'none',
           formatter: function (params) {
-            return params.value + '-' + (params.value / 2 / (1.6 * 1.6)).toFixed(1)
+            return (
+              params.value + '-' + (params.value / 2 / (1.6 * 1.6)).toFixed(1)
+            )
           }
         },
         markLine: {
@@ -387,7 +436,7 @@ const initWeight = async () => {
           ],
           label: {
             show: true,
-            formatter: data => {
+            formatter: (data) => {
               return data.value
             }
           },
@@ -407,7 +456,6 @@ const initWeight = async () => {
             }
           }
         }
-
       }
     ]
   }
@@ -422,7 +470,8 @@ const initUpCalendar = async () => {
 
   const res = await lifeSitApi.getCountEveryDay()
   option = {
-    tooltip: {  // 鼠标悬浮提示
+    tooltip: {
+      // 鼠标悬浮提示
       position: 'top',
       formatter: function (params) {
         var html = ''
@@ -434,20 +483,32 @@ const initUpCalendar = async () => {
       show: false,
       min: 0,
       max: 50,
-      inRange: {  // 方块颜色
+      inRange: {
+        // 方块颜色
         color: ['White', colorMain]
       }
     },
     calendar: {
-      range: [(new Date().getFullYear() - 1) + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate(),
-        new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate()],
+      range: [
+        new Date().getFullYear() -
+          1 +
+          '-' +
+          (new Date().getMonth() + 1) +
+          '-' +
+          new Date().getDate(),
+        new Date().getFullYear() +
+          '-' +
+          (new Date().getMonth() + 1) +
+          '-' +
+          new Date().getDate()
+      ],
       dayLabel: {
         firstDay: 1,
         nameMap: 'ZH'
       },
       monthLabel: {
         nameMap: 'ZH'
-      },
+      }
     },
     series: {
       type: 'heatmap',
@@ -461,7 +522,7 @@ const initUpCalendar = async () => {
 </script>
 <style scoped>
 .main-card {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   padding: 10px 20px;
   border: 1px solid #00000030;
   border-radius: 10px;
@@ -499,19 +560,19 @@ const initUpCalendar = async () => {
 }
 
 .blue {
-  background-color: #409EFF;
+  background-color: #409eff;
 }
 
 .green {
-  background-color: #67C23A;
+  background-color: #67c23a;
 }
 
 .orange {
-  background-color: #E6A23C;
+  background-color: #e6a23c;
 }
 
 .red {
-  background-color: #F56C6C;
+  background-color: #f56c6c;
 }
 
 .timeline-labels {

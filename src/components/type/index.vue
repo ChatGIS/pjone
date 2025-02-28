@@ -1,11 +1,20 @@
 <template>
-    <el-card class="box-card" shadow="always">
-        <el-tag :effect="tagSelectedArr.includes(0) ? 'dark' : 'plain'" @click="emitTypeSelected(0)" type="danger"
-            size="large">综合
-        </el-tag>
-        <el-tag v-for="item in dicts" :key="item.id" :effect="tagSelectedArr.includes(item.id) ? 'dark' : 'plain'"
-            @click="emitTypeSelected(item.id)">{{ item.name }}</el-tag>
-    </el-card>
+  <el-card class="box-card" shadow="always">
+    <el-tag
+      :effect="tagSelectedArr.includes(0) ? 'dark' : 'plain'"
+      @click="emitTypeSelected(0)"
+      type="danger"
+      size="large"
+      >综合
+    </el-tag>
+    <el-tag
+      v-for="item in dicts"
+      :key="item.id"
+      :effect="tagSelectedArr.includes(item.id) ? 'dark' : 'plain'"
+      @click="emitTypeSelected(item.id)"
+      >{{ item.name }}</el-tag
+    >
+  </el-card>
 </template>
 
 <script setup lang="ts">
@@ -22,7 +31,7 @@ let tagSelectedArr = ref([0])
 const param = {
   query: '',
   pagenum: 1,
-  pagesize: 100,
+  pagesize: 100
 }
 // 获取类型
 const getType = async () => {
@@ -59,11 +68,11 @@ const emitTypeSelected = (val: number) => {
 
 <style scoped>
 .type-container {
-    background-color: #ffffff;
+  background-color: #ffffff;
 }
 
 .el-tag {
-    margin: 0 0.1rem;
-    cursor: pointer;
+  margin: 0 0.1rem;
+  cursor: pointer;
 }
 </style>

@@ -1,15 +1,19 @@
 <template>
-    <div id="progress-container">
-        <el-progress type="circle" :percentage="progressPercentage" status="success">
-            <div>
-                <span>{{ numGoal }}</span>
-            </div>
-            <el-button @click="handleUpCount" :icon="Upload" circle></el-button>
-            <div>
-                <span>{{ numDone }}</span>
-            </div>
-        </el-progress>
-    </div>
+  <div id="progress-container">
+    <el-progress
+      type="circle"
+      :percentage="progressPercentage"
+      status="success"
+    >
+      <div>
+        <span>{{ numGoal }}</span>
+      </div>
+      <el-button @click="handleUpCount" :icon="Upload" circle></el-button>
+      <div>
+        <span>{{ numDone }}</span>
+      </div>
+    </el-progress>
+  </div>
 </template>
 
 <script setup>
@@ -28,7 +32,7 @@ onMounted(() => {
  * @return {*}
  */
 const initUpNum = () => {
-  lifeSitApi.getUp().then(res => {
+  lifeSitApi.getUp().then((res) => {
     numDone.value = res.num
   })
 }
@@ -44,7 +48,7 @@ const updateProgress = () => {
  * @return {*}
  */
 const handleUpCount = () => {
-  lifeSitApi.addUp().then(num => {
+  lifeSitApi.addUp().then((num) => {
     numDone.value = numDone.value + num
     updateProgress()
   })

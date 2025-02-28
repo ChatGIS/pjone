@@ -1,7 +1,7 @@
 <template>
-    <div class="logo-container">
-        <el-image class="logo-image" :src="imgLogo" :fit=fitVal />
-    </div>
+  <div class="logo-container">
+    <el-image class="logo-image" :src="imgLogo" :fit="fitVal" />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -13,16 +13,16 @@ const fitVal = ref('')
 
 <style scoped>
 .logo-container {
-    vertical-align: center;
+  vertical-align: center;
 }
 .logo-image {
-    display: inline-block;
-    height: 54px;
-    width: 150px;
+  display: inline-block;
+  height: 54px;
+  width: 150px;
 }
 .logo-text {
-    font-family: STHupo;
-    font-size: x-large;
-    vertical-align: super;
+  font-family: STHupo;
+  font-size: x-large;
+  vertical-align: super;
 }
 </style>

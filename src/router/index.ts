@@ -25,9 +25,9 @@ const routes = [{
       }
     },
     { path: '/life-color', component: LifeColor },
-    { path: '/saying', component: Saying},
-    { path: '/producer', component: Producer},
-    { path: '/health', component: Health},
+    { path: '/saying', component: Saying },
+    { path: '/producer', component: Producer },
+    { path: '/health', component: Health },
   ]
 }]
 // 创建路由

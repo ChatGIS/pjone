@@ -1,18 +1,20 @@
 <template>
-    <div>
-        <el-row class="main-card">
-            <el-col :span="24">
-                <el-button text>GitHub</el-button>
-                <div>
-                    <img id="github-producer-img" :src="srcVal"/>
-                </div>
-            </el-col>
-        </el-row>
-    </div>
+  <div>
+    <el-row class="main-card">
+      <el-col :span="24">
+        <el-button text>GitHub</el-button>
+        <div>
+          <img id="github-producer-img" :src="srcVal" />
+        </div>
+      </el-col>
+    </el-row>
+  </div>
 </template>
 <script setup lang="ts">
-import {ref} from 'vue'
-const srcVal = ref('https://ghchart.rshah.org/ChatGIS?v=' + new Date().getTime())
+import { ref } from 'vue'
+const srcVal = ref(
+  'https://ghchart.rshah.org/ChatGIS?v=' + new Date().getTime()
+)
 </script>
 <style scoped>
 .el-row {
@@ -23,9 +25,9 @@ const srcVal = ref('https://ghchart.rshah.org/ChatGIS?v=' + new Date().getTime()
   margin: 10px 0px;
 }
 .main-card {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 }
 #github-producer-img {
-    width: 60%;
+  width: 60%;
 }
 </style>

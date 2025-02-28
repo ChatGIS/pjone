@@ -1,23 +1,50 @@
 <template>
-    <div class="music-player">
-        <audio ref="audio" :src="getFileSrc(currentSong.src)" @ended="handleCurrentEnd"></audio>
-        <el-progress type="circle" :percentage="progressPercentage" status="exception">
-            <div>
-                <span>{{ currentTimeFormatted }}</span>
-            </div>
-            <el-button @click="changePreSong" :icon="ArrowLeft" circle size="small"></el-button>
-            <el-button @click="togglePlay" :icon="isPlaying ? VideoPause : VideoPlay" circle></el-button>
-            <el-button @click="changeNextSong" :icon="ArrowRight" circle size="small"></el-button>
-            <div>
-                <span>{{ totalTimeFormatted }}</span>
-            </div>
-        </el-progress>
-    </div>
+  <div class="music-player">
+    <audio
+      ref="audio"
+      :src="getFileSrc(currentSong.src)"
+      @ended="handleCurrentEnd"
+    ></audio>
+    <el-progress
+      type="circle"
+      :percentage="progressPercentage"
+      status="exception"
+    >
+      <div>
+        <span>{{ currentTimeFormatted }}</span>
+      </div>
+      <el-button
+        @click="changePreSong"
+        :icon="ArrowLeft"
+        circle
+        size="small"
+      ></el-button>
+      <el-button
+        @click="togglePlay"
+        :icon="isPlaying ? VideoPause : VideoPlay"
+        circle
+      ></el-button>
+      <el-button
+        @click="changeNextSong"
+        :icon="ArrowRight"
+        circle
+        size="small"
+      ></el-button>
+      <div>
+        <span>{{ totalTimeFormatted }}</span>
+      </div>
+    </el-progress>
+  </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { ArrowLeft, ArrowRight, VideoPause, VideoPlay } from '@element-plus/icons-vue'
+import {
+  ArrowLeft,
+  ArrowRight,
+  VideoPause,
+  VideoPlay
+} from '@element-plus/icons-vue'
 import { musicApi } from '@/api'
 import { ElMessage } from 'element-plus'
 
@@ -46,7 +73,9 @@ onMounted(() => {
 const formatTime = (seconds) => {
   const minutes = Math.floor(seconds / 60)
   const remainingSeconds = Math.floor(seconds % 60)
-  return `${minutes}:${remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds}`
+  return `${minutes}:${
+    remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds
+  }`
 }
 
 const initMusic = async () => {
@@ -56,7 +85,6 @@ const initMusic = async () => {
   })
   songList.value = res.records
   currentSong.value = songList.value[0]
-
 }
 /**
  * @description: 播放/暂停
@@ -127,14 +155,17 @@ const changeNextSong = () => {
  * @return {*}
  */
 const handleCurrentEnd = () => {
-  musicApi.updateMusic({
-    id: currentSong.value.id,
-    num: currentSong.value.num + 1
-  }).then(() => {
-    currentSong.value.num = currentSong.value.num + 1
-  }).catch(() => {
-    ElMessage.error('播放次数更新失败')
-  })
+  musicApi
+    .updateMusic({
+      id: currentSong.value.id,
+      num: currentSong.value.num + 1
+    })
+    .then(() => {
+      currentSong.value.num = currentSong.value.num + 1
+    })
+    .catch(() => {
+      ElMessage.error('播放次数更新失败')
+    })
   if (type.value === 'one') {
     audio.value.src = getFileSrc(currentSong.value.src)
     if (isPlaying.value) {
@@ -143,14 +174,14 @@ const handleCurrentEnd = () => {
   }
 }
 
-
 /**
  * @description: 更新进度条百分比
  * @return {*}
  */
 const updateProgressPercentage = () => {
   if (audio.value && audio.value.duration) {
-    progressPercentage.value = (audio.value.currentTime / audio.value.duration) * 100
+    progressPercentage.value =
+      (audio.value.currentTime / audio.value.duration) * 100
     currentTime.value = audio.value.currentTime
     totalTime.value = audio.value.duration
   }
@@ -165,8 +196,7 @@ const getFileSrc = (file) => {
   return url
 }
 
-defineExpose({handlePlay,handlePause})
+defineExpose({ handlePlay, handlePause })
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

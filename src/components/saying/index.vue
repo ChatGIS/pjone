@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import { sayingApi } from '@/api'
 import { ref } from 'vue'
 
@@ -68,7 +68,7 @@ initInterval()
 .tooltip {
   position: absolute;
   color: #409eff;
-  font-family: "楷体", "楷体_GB2312";
+  font-family: '楷体', '楷体_GB2312';
   background: #fff;
   border: 1px solid #ccc;
   padding: 10px;
