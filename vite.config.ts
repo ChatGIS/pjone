@@ -3,7 +3,6 @@ import vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
-import eslint from 'vite-plugin-eslint'
 import { resolve } from 'path'
 
 const pjoneServer = 'http://127.0.0.1:1304/'
@@ -32,10 +31,7 @@ export default defineConfig({
     }),
     Components({
       resolvers: [ElementPlusResolver()],
-    }),
-    eslint({
-      include: ['src/**/*.js', 'src/**/*.vue', 'src/*.js', 'src/*.vue']
-    }),
+    })
   ],
   resolve: {
     alias: {
