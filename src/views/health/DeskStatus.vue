@@ -1,6 +1,6 @@
 <template>
   <el-row>
-    <el-col :span="24">
+    <el-col :span="20">
       <el-button
         type="primary"
         :icon="Download"
@@ -30,6 +30,26 @@
         circle
         >{{ delayNum }}</el-button
       >
+    </el-col>
+    <el-col :span="4">
+      <el-select v-model="statusLast" placeholder="Select" style="width: 80px">
+        <el-option
+          v-for="item in optionsStatus"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        />
+      </el-select>
+      <el-time-picker
+        v-model="timeLast"
+        placeholder="最后记录时间"
+        @change="handleChangeTime"
+        style="width: 120px;"
+      />
+    </el-col>
+  </el-row>
+  <el-row>
+    <el-col :span="24">
       <div class="progress-container">
         <div class="progress-bar">
           <div
@@ -62,7 +82,7 @@
   </el-row>
 </template>
 <script setup>
-import { onMounted, onUnmounted, h, ref } from 'vue'
+import { onMounted, h, ref } from 'vue'
 import {
   Upload,
   Download,
@@ -70,18 +90,49 @@ import {
   AlarmClock
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { lifeSitApi } from '@/api/index'
+import { lifeSitApi, workStatusApi } from '@/api/index'
 
 const currentType = ref()
 const timeline = ref([])
 let isShowDelay = ref(false)
 let delayNum = ref(0)
 let audioAlarmClock
+const statusLast = ref()
+const timeLast = ref()
+const idLast = ref()
 onMounted(() => {
   refreshDeskStatusTimeline()
   audioAlarmClock = new Audio('http://localhost:1301/mymedia/test.mp3')
   isShowDelay.value = localStorage.getItem('isShowDelay')
 })
+const optionsStatus = [
+  {
+    value: '1',
+    label: '蓝色'
+  },
+  {
+    value: '2',
+    label: '绿色'
+  },
+  {
+    value: '3',
+    label: '橙色'
+  }
+]
+/**
+ * 改变时间
+ * @param e 
+ */
+const handleChangeTime = (e) => {
+  workStatusApi.updateStatus(idLast.value, statusLast.value, timeLast.value).then((res) => {
+    if (res) {
+      ElMessage.success('更新成功')
+      refreshDeskStatusTimeline()
+    } else {
+      ElMessage.error('更新失败')
+    }
+  })
+}
 /**
  * @description: 处理工作状态
  * @param {1 | 2 | 3} type
@@ -123,6 +174,9 @@ const handleDeskStatus = (type) => {
  */
 const refreshDeskStatusTimeline = async () => {
   const res = await lifeSitApi.getSits()
+  statusLast.value = res[res.length - 1].type
+  timeLast.value = res[res.length - 1].doDate
+  idLast.value = res[res.length - 1].id
   timeline.value.splice(0, timeline.value.length)
   timeline.value.push(...convertData(res))
   // 控制闹钟音频
@@ -154,7 +208,7 @@ const refreshDeskStatusTimeline = async () => {
  * @param {*} num
  * @return {*}
  */
- const handleDelayClock = (num) => {
+const handleDelayClock = (num) => {
   delayNum.value = parseInt(delayNum.value) + num
   if (num == 0) {
     delayNum.value = 0
@@ -170,7 +224,7 @@ const refreshDeskStatusTimeline = async () => {
  * @param {*} data
  * @return {*}
  */
- const convertData = (data) => {
+const convertData = (data) => {
   const colors = {
     1: 'blue',
     2: 'green',
@@ -246,7 +300,7 @@ const refreshDeskStatusTimeline = async () => {
  * @param {*} date
  * @return {*}
  */
- const formatTime = (date) => {
+const formatTime = (date) => {
   const hours = date.getHours().toString().padStart(2, '0')
   const minutes = date.getMinutes().toString().padStart(2, '0')
   return `${hours}:${minutes}`
@@ -257,6 +311,7 @@ defineExpose({
 </script>
 <style scoped>
 .progress-container {
+  margin-top: 6px;
   position: relative;
   width: 100%;
   height: 60px;
