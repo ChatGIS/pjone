@@ -153,7 +153,6 @@ const handleDeskStatus = (type) => {
     content = 'walk'
     color = '#e6a23c'
     delayNum.value = 3
-    refMusicPlayer.value.handlePause()
   }
   lifeSitApi.addSit(type).then((res) => {
     if (res) {
