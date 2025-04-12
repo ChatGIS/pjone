@@ -850,10 +850,10 @@ const initSleepPointLine = (xData, yData, baseTime) => {
           normal: {
             color: function (params) {
               let color = '#000000'
-              if (params.data <= 120) color = colorS
-              if (params.data > 120 && params.data <= 180) color = '#006400'
+              if (params.data <= 180) color = '#006400'
               if (params.data > 180 && params.data <= 240) color = '#9ACD32'
-              if (params.data > 240) color = '#8B0000'
+              if (params.data > 240 && params.data <= 300) color = '#FFA500'
+              if (params.data > 300) color = '#8B0000'
               return color
             }
           }
@@ -933,9 +933,7 @@ const initSleepLongBar = (xData, yData) => {
         itemStyle: {
           color: (params) => {
             const val = params.data
-            if (val > 540) {
-              return colorS
-            } else if (val > 480 && val <= 540) {
+            if (val > 480) {
               return '#006400'
             } else if (val > 420 && val <= 480) {
               return '#9ACD32'
@@ -993,12 +991,12 @@ const initSleepPointPie = async (days) => {
     dataRes = data
     for (let i = 0; i < data.length; i++) {
       let pieceColor = ''
-      if (data[i].name == '<10') {
-        pieceColor = colorS
-      } else if (data[i].name == '10-11') {
+      if (data[i].name == '12-23') {
         pieceColor = '#006400'
-      } else if (data[i].name == '11-12') {
+      } else if (data[i].name == '23-24') {
         pieceColor = '#9ACD32'
+      } else if (data[i].name == '00-01') {
+        pieceColor = '#FFA500'
       } else {
         pieceColor = '#8B0000'
       }
@@ -1059,9 +1057,7 @@ const initSleepLongPie = async (days) => {
     dataRes = data
     for (let i = 0; i < data.length; i++) {
       let pieceColor = ''
-      if (data[i].name == '>9h') {
-        pieceColor = colorS
-      } else if (data[i].name == '8-9h') {
+      if (data[i].name == '>8h') {
         pieceColor = '#006400'
       } else if (data[i].name == '7-8h') {
         pieceColor = '#9ACD32'
