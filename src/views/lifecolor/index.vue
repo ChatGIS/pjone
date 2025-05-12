@@ -29,37 +29,7 @@
       <el-col :span="6"> </el-col>
     </el-row>
     <el-card class="main-card">
-      <el-row>
-        <el-col :span="6">
-          <div id="container-pie-sleep-point"></div>
-        </el-col>
-        <el-col :span="6">
-          <div id="container-pie-sleep-long"></div>
-        </el-col>
-        <el-col :span="6">
-          <div id="container-pie-sleep-point-day"></div>
-        </el-col>
-        <el-col :span="6">
-          <div id="container-pie-sleep-long-day"></div>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="24">
-          <div id="container-line-sleep-point"></div>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="24">
-          <div id="container-bar-sleep-long"></div>
-        </el-col>
-      </el-row>
-      <el-input-number
-        v-model="sDays"
-        :min="0"
-        :max="60"
-        :step="5"
-        @change="handleChangeSDays"
-      />
+      <ColorS></ColorS>
     </el-card>
     <el-Drawer
       v-model="lifeDrawer"
@@ -143,12 +113,12 @@
 </template>
 <script setup>
 import * as echarts from 'echarts'
-import { onMounted, ref, reactive } from 'vue'
+import { onMounted, ref, reactive, computed } from 'vue'
 import { lifeColorApi } from '@/api'
 import 'element-plus/es/components/message/style/css'
 import { ElMessage } from 'element-plus'
 import { Edit } from '@element-plus/icons-vue'
-import { computed } from 'vue'
+import ColorS from './ColorS.vue'
 
 const defaultTime =
   ref <
@@ -203,7 +173,6 @@ const optionsTime = [
     label: 'YH'
   }
 ]
-const sDays = ref(30)
 onMounted(() => {
   handleInitAll()
 })
@@ -250,11 +219,6 @@ const handleInitAll = () => {
   initTimeLine()
   initYTimePie()
   initYNumPie()
-  initSleepMonthChart()
-  initSleepPointPie(36000)
-  initSleepPointPie()
-  initSleepLongPie(36000)
-  initSleepLongPie()
 }
 /**
  * @description: 初始化时间列表
@@ -749,365 +713,6 @@ const initYNumPie = async () => {
   })
 }
 /**
- * @description: 处理选择天数事件
- * @return {*}
- */
-const handleChangeSDays = () => {
-  initSleepMonthChart()
-  initSleepPointPie()
-  initSleepLongPie()
-}
-/**
- * @description: 初始化睡眠图表
- * @return {*}
- */
-const initSleepMonthChart = async () => {
-  const baseTime = '20:00:00'
-  const xData = [],
-    yData = [],
-    yDataLong = []
-  await lifeColorApi
-    .getLifeColorList({
-      current: 1,
-      size: sDays.value,
-      type: 'S'
-    })
-    .then((data) => {
-      const records = data.records
-      for (let i = records.length - 1; i >= 0; i--) {
-        const minute = calculateTimeDifference(records[i].timePoint, baseTime)
-        xData.push(records[i].doDate.substring(5))
-        yData.push(minute)
-        yDataLong.push(records[i].minute)
-      }
-    })
-  initSleepPointLine(xData, yData, baseTime)
-  initSleepLongBar(xData, yDataLong)
-}
-/**
- * @description: 初始化睡眠时间点折线图
- * @return {*}
- */
-const initSleepPointLine = (xData, yData, baseTime) => {
-  var chartDom = document.getElementById('container-line-sleep-point')
-  chartDom.removeAttribute('_echarts_instance_')
-  var myChart = echarts.init(chartDom)
-  var option
-
-  option = {
-    tooltip: {
-      trigger: 'item',
-      formatter: function (params) {
-        return `${params.name}: ${calculateTimeStr(params.value, baseTime)}`
-      }
-    },
-    xAxis: {
-      type: 'category',
-      data: xData,
-      axisLabel: {
-        rotate: 45
-      }
-    },
-    yAxis: {
-      type: 'value',
-      show: false
-    },
-    series: [
-      {
-        name: 'Sleep',
-        type: 'line',
-        radius: '40%',
-        data: yData,
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
-          }
-        },
-        label: {
-          formatter: (data) => {
-            return `${data.name}:${data.percent.toFixed(0)}%`
-          },
-          overflow: 'none'
-        },
-        markLine: {
-          data: [
-            {
-              name: 'Good',
-              yAxis: 180
-            }
-          ],
-          label: {
-            show: true,
-            formatter: (data) => {
-              return calculateTimeStr(data.value, baseTime)
-            }
-          },
-          symbol: 'none'
-        },
-        itemStyle: {
-          normal: {
-            color: function (params) {
-              let color = '#000000'
-              if (params.data <= 180) color = '#006400'
-              if (params.data > 180 && params.data <= 240) color = '#9ACD32'
-              if (params.data > 240 && params.data <= 300) color = '#FFA500'
-              if (params.data > 300) color = '#8B0000'
-              return color
-            }
-          }
-        }
-      }
-    ]
-  }
-  option && myChart.setOption(option)
-  myChart.on('click', () => {
-    initTimeCalendar('S')
-  })
-}
-/**
- * @description: 计算时间差
- * @param {*} timeStr
- * @param {*} reference
- * @return {*}
- */
-const calculateTimeDifference = (timeStr, reference) => {
-  const [hours, minutes, seconds] = timeStr.split(':').map(Number)
-  const minites = hours * 60 + minutes + seconds / 60
-  const [rHours, rMinutes, rSeconds] = reference.split(':').map(Number)
-  const rMinites = rHours * 60 + rMinutes + rSeconds / 60
-  let diff = (minites - rMinites) % 1440
-  if (diff < 0) {
-    diff += 24 * 60
-  }
-  return diff
-}
-/**
- * @description: 根据分钟数计算时间字符串
- * @param {*} diff
- * @param {*} reference
- * @return {*}
- */
-const calculateTimeStr = (diff, reference) => {
-  const [rHours, rMinutes, rSeconds] = reference.split(':').map(Number)
-  const rMinutesTotal = rHours * 60 + rMinutes + rSeconds / 60
-  let newTotalMinutes = (rMinutesTotal + diff) % (24 * 60)
-  const newHours = Math.floor(newTotalMinutes / 60)
-  const newMinutes = Math.floor(newTotalMinutes % 60)
-  const newSeconds = 0
-  const timeStr = `${String(newHours).padStart(2, '0')}:${String(
-    newMinutes
-  ).padStart(2, '0')}:${String(newSeconds).padStart(2, '0')}`
-  return timeStr
-}
-/**
- * @description: 睡眠时长柱状图
- * @param {*} xData
- * @param {*} yData
- * @return {*}
- */
-const initSleepLongBar = (xData, yData) => {
-  var chartDom = document.getElementById('container-bar-sleep-long')
-  chartDom.removeAttribute('_echarts_instance_')
-  var myChart = echarts.init(chartDom)
-  var option
-
-  option = {
-    xAxis: {
-      type: 'category',
-      data: xData
-    },
-    yAxis: {
-      type: 'value',
-      axisLabel: {
-        formatter: function (value) {
-          return Math.floor(value / 60) + 'h' + (value % 60) + 'm'
-        }
-      }
-    },
-    series: [
-      {
-        data: yData,
-        type: 'bar',
-        itemStyle: {
-          color: (params) => {
-            const val = params.data
-            if (val > 480) {
-              return '#006400'
-            } else if (val > 420 && val <= 480) {
-              return '#9ACD32'
-            } else if (val > 360 && val <= 420) {
-              return '#FFA500'
-            } else {
-              return '#8B0000'
-            }
-          }
-        },
-        label: {
-          show: true,
-          position: 'insideTop',
-          formatter: (params) => {
-            const value = params.value
-            return Math.floor(value / 60) + 'h' + (value % 60) + 'm'
-          }
-        },
-        markLine: {
-          lineStyle: {
-            type: 'dashed',
-            color: 'blue'
-          },
-          data: [{ yAxis: 480, name: 'Good' }],
-          label: {
-            show: true,
-            formatter: (params) => {
-              const value = params.value
-              return Math.floor(value / 60) + 'h'
-            }
-          },
-          symbol: 'none'
-        }
-      }
-    ]
-  }
-  option && myChart.setOption(option)
-  myChart.on('click', () => {
-    initTimeCalendar('S')
-  })
-}
-/**
- * @description: 初始化睡眠时间点饼图
- * @return {*}
- */
-const initSleepPointPie = async (days) => {
-  let dataRes
-  let queryDays = sDays.value
-  let divId = 'container-pie-sleep-point-day'
-  if (days == 36000) {
-    queryDays = days
-    divId = 'container-pie-sleep-point'
-  }
-  await lifeColorApi.getSleepPointGroup(queryDays).then((data) => {
-    dataRes = data
-    for (let i = 0; i < data.length; i++) {
-      let pieceColor = ''
-      if (data[i].name == '12-23') {
-        pieceColor = '#006400'
-      } else if (data[i].name == '23-24') {
-        pieceColor = '#9ACD32'
-      } else if (data[i].name == '00-01') {
-        pieceColor = '#FFA500'
-      } else {
-        pieceColor = '#8B0000'
-      }
-      data[i].itemStyle = {
-        color: pieceColor
-      }
-    }
-  })
-  var chartDom = document.getElementById(divId)
-  chartDom.removeAttribute('_echarts_instance_')
-  var myChart = echarts.init(chartDom)
-  var option
-
-  option = {
-    tooltip: {
-      trigger: 'item'
-    },
-    series: [
-      {
-        name: 'Sleep',
-        type: 'pie',
-        radius: '40%',
-        data: dataRes,
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
-          }
-        },
-        label: {
-          formatter: (data) => {
-            return `${data.name}:${data.percent.toFixed(0)}%`
-          },
-          overflow: 'none'
-        }
-      }
-    ]
-  }
-  option && myChart.setOption(option)
-  myChart.on('click', () => {
-    initTimeCalendar('S')
-  })
-}
-/**
- * @description: 初始化睡眠时长饼图
- * @return {*}
- */
-const initSleepLongPie = async (days) => {
-  let dataRes
-  let queryDays = sDays.value
-  let divId = 'container-pie-sleep-long-day'
-  if (days == 36000) {
-    queryDays = days
-    divId = 'container-pie-sleep-long'
-  }
-  await lifeColorApi.getSleepLongGroup(queryDays).then((data) => {
-    dataRes = data
-    for (let i = 0; i < data.length; i++) {
-      let pieceColor = ''
-      if (data[i].name == '>8h') {
-        pieceColor = '#006400'
-      } else if (data[i].name == '7-8h') {
-        pieceColor = '#9ACD32'
-      } else if (data[i].name == '6-7h') {
-        pieceColor = '#FFA500'
-      } else {
-        pieceColor = '#8B0000'
-      }
-      data[i].itemStyle = {
-        color: pieceColor
-      }
-    }
-  })
-  var chartDom = document.getElementById(divId)
-  chartDom.removeAttribute('_echarts_instance_')
-  var myChart = echarts.init(chartDom)
-  var option
-
-  option = {
-    tooltip: {
-      trigger: 'item'
-    },
-    series: [
-      {
-        name: 'Sleep',
-        type: 'pie',
-        radius: '40%',
-        data: dataRes,
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
-          }
-        },
-        label: {
-          formatter: (data) => {
-            return `${data.name}:${data.percent.toFixed(0)}%`
-          },
-          overflow: 'none'
-        }
-      }
-    ]
-  }
-  option && myChart.setOption(option)
-  myChart.on('click', () => {
-    initTimeCalendar('S')
-  })
-}
-/**
  * @description: 添加时间
  * @return {*}
  */
@@ -1152,35 +757,9 @@ const addLifeTime = () => {
   width: 300px;
   height: 300px;
 }
-#container-line-sleep-point {
-  width: 100%;
-  height: 250px;
-}
 #container-line-time {
   width: 100%;
   height: 300px;
-}
-#container-bar-sleep-long {
-  width: 100%;
-  height: 250px;
-}
-#container-pie-sleep-point {
-  width: 300px;
-  height: 200px;
-}
-
-#container-pie-sleep-long {
-  width: 300px;
-  height: 200px;
-}
-#container-pie-sleep-point-day {
-  width: 300px;
-  height: 200px;
-}
-
-#container-pie-sleep-long-day {
-  width: 300px;
-  height: 200px;
 }
 #container-pie-y-time {
   width: 300px;
