@@ -6,21 +6,21 @@
     <el-col :span="6">
       <div id="container-pie-s-long"></div>
     </el-col>
+  </el-row>
+  <el-row>
+    <el-col :span="18">
+      <div id="container-line-s-point"></div>
+    </el-col>
     <el-col :span="6">
       <div id="container-pie-s-point-day"></div>
     </el-col>
+  </el-row>
+  <el-row>
+    <el-col :span="18">
+      <div id="container-bar-s-long"></div>
+    </el-col>
     <el-col :span="6">
       <div id="container-pie-s-long-day"></div>
-    </el-col>
-  </el-row>
-  <el-row>
-    <el-col :span="24">
-      <div id="container-line-s-point"></div>
-    </el-col>
-  </el-row>
-  <el-row>
-    <el-col :span="24">
-      <div id="container-bar-s-long"></div>
     </el-col>
   </el-row>
   <el-input-number
