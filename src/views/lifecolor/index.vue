@@ -29,7 +29,7 @@
       <el-col :span="6"> </el-col>
     </el-row>
     <el-card class="main-card">
-      <ColorS></ColorS>
+      <ColorS ref="colorSRef"></ColorS>
     </el-card>
     <el-Drawer
       v-model="lifeDrawer"
@@ -173,6 +173,7 @@ const optionsTime = [
     label: 'YH'
   }
 ]
+const colorSRef = ref(null)
 onMounted(() => {
   handleInitAll()
 })
@@ -737,6 +738,7 @@ const addLifeTime = () => {
         }
       })
     }
+    colorSRef.value.handleChangeSDays()
   }
 }
 </script>

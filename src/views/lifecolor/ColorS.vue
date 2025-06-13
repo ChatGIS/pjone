@@ -405,6 +405,9 @@ const initSleepLongBar = (xData, yData) => {
     initTimeCalendar('S')
   })
 }
+defineExpose({
+  handleChangeSDays
+})
 </script>
 <style scoped>
 #container-pie-s-long {
