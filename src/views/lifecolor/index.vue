@@ -19,17 +19,11 @@
         </el-col>
       </el-row>
     </el-card>
-    <el-row class="main-card">
-      <el-col :span="6">
-        <div id="container-pie-y-time"></div>
-      </el-col>
-      <el-col :span="6">
-        <div id="container-pie-y-num"></div>
-      </el-col>
-      <el-col :span="6"> </el-col>
-    </el-row>
     <el-card class="main-card">
       <ColorS ref="colorSRef"></ColorS>
+    </el-card>
+    <el-card class="main-card">
+      <ColorY ref="colorYRef"></ColorY>
     </el-card>
     <el-Drawer
       v-model="lifeDrawer"
@@ -112,13 +106,14 @@
   </div>
 </template>
 <script setup>
-import * as echarts from 'echarts'
 import { onMounted, ref, reactive, computed } from 'vue'
+import * as echarts from 'echarts'
 import { lifeColorApi } from '@/api'
 import 'element-plus/es/components/message/style/css'
 import { ElMessage } from 'element-plus'
 import { Edit } from '@element-plus/icons-vue'
 import ColorS from './ColorS.vue'
+import ColorY from './ColorY.vue'
 
 const defaultTime =
   ref <
@@ -174,6 +169,7 @@ const optionsTime = [
   }
 ]
 const colorSRef = ref(null)
+const colorYRef = ref(null)
 onMounted(() => {
   handleInitAll()
 })
@@ -218,8 +214,6 @@ const handleInitAll = () => {
   initTimeCalendar('S')
   initTimeBar()
   initTimeLine()
-  initYTimePie()
-  initYNumPie()
 }
 /**
  * @description: 初始化时间列表
@@ -546,174 +540,6 @@ const initTimeBar = async () => {
   })
 }
 /**
- * @description: 初始化Y时长饼图
- * @return {*}
- */
-const initYTimePie = async () => {
-  let timeYH = 0,
-    timeYN = 0,
-    timeYY = 0
-  await lifeColorApi.getMinuteLastYear().then((data) => {
-    for (let i = 0; i < data.length; i++) {
-      if (data[i].type == 'YH') {
-        timeYH += data[i].total_minute
-      } else if (data[i].type == 'YN') {
-        timeYN += data[i].total_minute
-      } else if (data[i].type == 'YY') {
-        timeYY += data[i].total_minute
-      }
-    }
-  })
-  let objPieTime = [
-    {
-      name: 'YH',
-      value: timeYH,
-      itemStyle: {
-        color: colorYH
-      }
-    },
-    {
-      name: 'YN',
-      value: timeYN,
-      itemStyle: {
-        color: '#ff6340'
-      }
-    },
-    {
-      name: 'YY',
-      value: timeYY,
-      itemStyle: {
-        color: '#c1ff40'
-      }
-    }
-  ]
-  var chartDom = document.getElementById('container-pie-y-time')
-  chartDom.removeAttribute('_echarts_instance_')
-  var myChart = echarts.init(chartDom)
-  var option
-
-  option = {
-    tooltip: {
-      trigger: 'item'
-    },
-    series: [
-      {
-        name: 'Y',
-        type: 'pie',
-        radius: '40%',
-        data: objPieTime,
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
-          }
-        },
-        label: {
-          normal: {
-            formatter: (data) => {
-              return `${data.name}:${data.percent.toFixed(0)}%`
-            }
-          },
-          overflow: 'none'
-        }
-      }
-    ]
-  }
-  option && myChart.setOption(option)
-  myChart.on('click', (pieSeries) => {
-    if (pieSeries.name != 'YH') {
-      initTimeCalendar('Y')
-    } else {
-      initTimeCalendar('YH')
-    }
-  })
-}
-/**
- * @description: 初始化Y次数饼图
- * @return {*}
- */
-const initYNumPie = async () => {
-  let timeYH = 0,
-    timeYN = 0,
-    timeYY = 0
-  await lifeColorApi.getNumLastYear().then((data) => {
-    for (let i = 0; i < data.length; i++) {
-      if (data[i].type == 'YH') {
-        timeYH += data[i].total_num
-      } else if (data[i].type == 'YN') {
-        timeYN += data[i].total_num
-      } else if (data[i].type == 'YY') {
-        timeYY += data[i].total_num
-      }
-    }
-  })
-  let objPieTime = [
-    {
-      name: 'YH',
-      value: timeYH,
-      itemStyle: {
-        color: colorYH
-      }
-    },
-    {
-      name: 'YN',
-      value: timeYN,
-      itemStyle: {
-        color: '#ff6340'
-      }
-    },
-    {
-      name: 'YY',
-      value: timeYY,
-      itemStyle: {
-        color: '#c1ff40'
-      }
-    }
-  ]
-  var chartDom = document.getElementById('container-pie-y-num')
-  chartDom.removeAttribute('_echarts_instance_')
-  var myChart = echarts.init(chartDom)
-  var option
-
-  option = {
-    tooltip: {
-      trigger: 'item'
-    },
-    series: [
-      {
-        name: 'Y',
-        type: 'pie',
-        radius: '40%',
-        data: objPieTime,
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
-          }
-        },
-        label: {
-          normal: {
-            formatter: (data) => {
-              return `${data.name}:${data.percent.toFixed(0)}%`
-            }
-          },
-          overflow: 'none'
-        }
-      }
-    ]
-  }
-  option && myChart.setOption(option)
-  myChart.on('click', (pieSeries) => {
-    if (pieSeries.name != 'YH') {
-      initTimeCalendar('Y')
-    } else {
-      initTimeCalendar('YH')
-    }
-  })
-}
-/**
  * @description: 添加时间
  * @return {*}
  */
@@ -739,6 +565,7 @@ const addLifeTime = () => {
       })
     }
     colorSRef.value.handleChangeSDays()
+    colorYRef.value.handleInitAll()
   }
 }
 </script>
@@ -761,14 +588,6 @@ const addLifeTime = () => {
 }
 #container-line-time {
   width: 100%;
-  height: 300px;
-}
-#container-pie-y-time {
-  width: 300px;
-  height: 300px;
-}
-#container-pie-y-num {
-  width: 300px;
   height: 300px;
 }
 .main-card {
