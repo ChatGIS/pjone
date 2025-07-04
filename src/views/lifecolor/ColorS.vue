@@ -1,13 +1,5 @@
 <template>
   <el-row>
-    <el-col :span="6">
-      <div id="container-pie-s-point"></div>
-    </el-col>
-    <el-col :span="6">
-      <div id="container-pie-s-long"></div>
-    </el-col>
-  </el-row>
-  <el-row>
     <el-col :span="18">
       <div id="container-line-s-point"></div>
     </el-col>
@@ -30,6 +22,14 @@
     :step="5"
     @change="handleChangeSDays"
   />
+  <el-row>
+    <el-col :span="6">
+      <div id="container-pie-s-point"></div>
+    </el-col>
+    <el-col :span="6">
+      <div id="container-pie-s-long"></div>
+    </el-col>
+  </el-row>
 </template>
 <script setup>
 import * as echarts from 'echarts'
