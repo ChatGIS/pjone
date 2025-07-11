@@ -1,10 +1,13 @@
 <!-- eslint-disable indent -->
 <template>
   <div>
+    <ColorDrawer ref="colorDrawerRef" @refreshData="refreshData"></ColorDrawer>
     <el-card class="main-card">
       <el-row>
         <el-col :span="16">
-          <el-button @click="lifeDrawer = true" text>TIME WHERE</el-button>
+          <el-button @click="colorDrawerRef.openDrawer()" text
+            >TIME WHERE</el-button
+          >
           <div class="calendar-box">
             <div id="container-calendar-time" class="container-calendar"></div>
           </div>
@@ -25,209 +28,31 @@
     <el-card class="main-card">
       <ColorY ref="colorYRef"></ColorY>
     </el-card>
-    <el-Drawer
-      v-model="lifeDrawer"
-      title="LifeColorEdit"
-      :direction="direction"
-    >
-      <div id="table-container">
-        <div id="form-container">
-          <el-form :model="form" label-width="auto" style="max-width: 600px">
-            <el-form-item label="日期">
-              <el-date-picker
-                v-model="formColor.doDate"
-                type="date"
-                placeholder="日期选择"
-                :default-time="defaultTime"
-                value-format="YYYY-MM-DD"
-              />
-            </el-form-item>
-            <el-form-item label="类型">
-              <el-select
-                v-model="formColor.type"
-                placeholder="类型"
-                @change="handleChangeType"
-              >
-                <el-option
-                  v-for="item in optionsTime"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="分钟数">
-              <el-input v-model="formColor.minute" disabled />
-            </el-form-item>
-            <el-form-item label="分钟数计算">
-              <el-input-number v-model="sHour" :min="0" :mix="24" :step="1" />
-              <el-input-number v-model="sMinute" :min="0" :max="60" :step="5" />
-            </el-form-item>
-            <el-form-item label="时间点" v-if="formColor.type == 'S'">
-              <el-time-picker
-                v-model="formColor.timePoint"
-                value-format="HH:mm:ss"
-                :default-value="new Date(0, 0, 0, 22, 30, 0)"
-              />
-            </el-form-item>
-            <el-form-item>
-              <el-button plain @click="addLifeTime">{{
-                updateId ? '更新' : '添加'
-              }}</el-button>
-              <el-button plain @click="clearForm">清空</el-button>
-            </el-form-item>
-          </el-form>
-        </div>
-        <el-table
-          ref="singleTableRef"
-          :data="tableData"
-          highlight-current-row
-          style="width: 100%"
-          @current-change="handleCurrentChange"
-        >
-          <el-table-column type="index" width="40" />
-          <el-table-column property="doDate" label="日期" width="100" />
-          <el-table-column property="type" label="类型" width="60" />
-          <el-table-column property="minute" label="时长" />
-          <el-table-column property="timePoint" label="时间点" />
-          <el-table-column label="操作">
-            <template #default="scope">
-              <el-button
-                circle
-                size="small"
-                :icon="Edit"
-                @click="editRow(scope.row)"
-              ></el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-    </el-Drawer>
   </div>
 </template>
 <script setup>
-import { onMounted, ref, reactive, computed } from 'vue'
+import { onMounted, ref } from 'vue'
 import * as echarts from 'echarts'
 import { lifeColorApi } from '@/api'
 import 'element-plus/es/components/message/style/css'
-import { ElMessage } from 'element-plus'
-import { Edit } from '@element-plus/icons-vue'
 import ColorS from './ColorS.vue'
 import ColorY from './ColorY.vue'
+import ColorDrawer from './ColorDrawer.vue'
 
-const defaultTime =
-  ref <
-  [Date, Date] >
-  [new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 2, 1, 23, 59, 59)]
-const lifeDrawer = ref(false)
-const tableData = ref([])
-const updateId = ref()
-const sHour = ref(7)
-const sMinute = ref()
-const formColor = reactive({
-  doDate: new Date(),
-  type: '',
-  minute: 5,
-  timePoint: null
-})
 const colorB = '#00c29a'
 const colorS = '#9336f6'
 const colorY = '#bec936'
 const colorYH = '#fecc11'
-const optionsTime = [
-  {
-    value: 'S',
-    label: 'S'
-  },
-  {
-    value: 'B',
-    label: 'B'
-  },
-  {
-    value: 'D',
-    label: 'D'
-  },
-  {
-    value: 'R',
-    label: 'R'
-  },
-  {
-    value: 'G',
-    label: 'G'
-  },
-  {
-    value: 'YY',
-    label: 'YY'
-  },
-  {
-    value: 'YN',
-    label: 'YN'
-  },
-  {
-    value: 'YH',
-    label: 'YH'
-  }
-]
 const colorSRef = ref(null)
 const colorYRef = ref(null)
+const colorDrawerRef = ref(null)
 onMounted(() => {
   handleInitAll()
 })
-formColor.minute = computed(() => {
-  return sHour.value * 60 + sMinute.value
-})
-const handleChangeType = (val) => {
-  if (val == 'S') {
-    sHour.value = 7
-  } else {
-    sHour.value = 0
-    formColor.timePoint = null
-  }
-}
-/**
- * @description: 编辑
- * @param {*} row
- * @return {*}
- */
-const editRow = (row) => {
-  formColor.type = row.type
-  formColor.doDate = row.doDate
-  formColor.timePoint = row.timePoint
-  sHour.value = Math.floor(row.minute / 60)
-  sMinute.value = row.minute % 60
-  updateId.value = row.id
-}
-/**
- * @description: 清空
- * @return {*}
- */
-const clearForm = () => {
-  updateId.value = null
-  formColor.doDate = new Date()
-  formColor.type = ''
-  formColor.timePoint = null
-  sMinute.value = 5
-  sHour.value = 0
-}
 const handleInitAll = () => {
-  initTimeList()
   initTimeCalendar('S')
   initTimeBar()
   initTimeLine()
-}
-/**
- * @description: 初始化时间列表
- * @return {*}
- */
-const initTimeList = () => {
-  lifeColorApi
-    .getLifeColorList({
-      current: 1,
-      size: 15
-    })
-    .then((res) => {
-      tableData.value = res.records
-    })
 }
 /**
  * @description: 初始化时间日历图
@@ -539,34 +364,10 @@ const initTimeBar = async () => {
     initTimeCalendar(params.name)
   })
 }
-/**
- * @description: 添加时间
- * @return {*}
- */
-const addLifeTime = () => {
-  if (!formColor || !formColor.type) {
-    ElMessage.warning('日期、类型为必填项')
-  } else if (formColor.type == 'S' && !formColor.timePoint) {
-    ElMessage.warning('时间点为必填项')
-  } else {
-    if (!updateId.value) {
-      lifeColorApi.addLifeColor(formColor).then((num) => {
-        if (num == 1) {
-          handleInitAll()
-        }
-      })
-    } else {
-      formColor.id = updateId.value
-      lifeColorApi.updateLifeColor(formColor).then((num) => {
-        if (num == 1) {
-          handleInitAll()
-          delete formColor.id
-        }
-      })
-    }
-    colorSRef.value.handleChangeSDays()
-    colorYRef.value.handleInitAll()
-  }
+const refreshData = () => {
+  handleInitAll()
+  colorSRef.value.handleChangeSDays()
+  colorYRef.value.handleInitAll()
 }
 </script>
 <style scoped>
