@@ -26,7 +26,7 @@
       <ColorS ref="colorSRef"></ColorS>
     </el-card>
     <el-card class="main-card">
-      <ColorY ref="colorYRef"></ColorY>
+      <ColorY ref="colorYRef" @setTimeCalendar="initTimeCalendar"></ColorY>
     </el-card>
   </div>
 </template>
