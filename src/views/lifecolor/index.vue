@@ -187,6 +187,8 @@ const initTimeLine = async () => {
       var chartDom = document.getElementById('container-line-time')
       chartDom.removeAttribute('_echarts_instance_')
       var myChart = echarts.init(chartDom)
+      console.log(chartData, 'cccccccccccccccccccc');
+      
       let option = {
         tooltip: {
           trigger: 'axis'
@@ -286,7 +288,7 @@ const initTimeBar = async () => {
         valueG = data[i].total_minute
       } else if (data[i].type == 'YH') {
         valueYH = data[i].total_minute
-      } else if (data[i].type.startsWith('Y')) {
+      } else if (data[i].type.startsWith('Y') && data[i].total_minute != null) {
         valueY += data[i].total_minute
       }
     }
@@ -381,7 +383,7 @@ const refreshData = () => {
 }
 .container-calendar {
   width: 100%;
-  height: 200px;
+  height: 250px;
 }
 #container-bar-time {
   width: 300px;
