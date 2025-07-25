@@ -25,14 +25,14 @@
               />
             </el-select>
           </el-form-item>
-          <el-form-item label="分钟数">
+          <el-form-item label="分钟数" v-if="!(['YMS', 'YME'].includes(formColor.type))">
             <el-input v-model="formColor.minute" disabled />
           </el-form-item>
-          <el-form-item label="分钟数计算">
+          <el-form-item label="分钟数计算" v-if="!(['YMS', 'YME'].includes(formColor.type))">
             <el-input-number v-model="sHour" :min="0" :mix="24" :step="1" />
             <el-input-number v-model="sMinute" :min="0" :max="60" :step="5" />
           </el-form-item>
-          <el-form-item label="时间点" v-if="formColor.type == 'S'">
+          <el-form-item label="时间点" v-if="['S'].includes(formColor.type)">
             <el-time-picker
               v-model="formColor.timePoint"
               value-format="HH:mm:ss"
@@ -120,6 +120,14 @@ const optionsTime = [
   {
     value: 'YH',
     label: 'YH'
+  },
+  {
+    value: 'YMS',
+    label: 'YMS'
+  },
+  {
+    value: 'YME',
+    label: 'YME'
   }
 ]
 formColor.minute = computed(() => {
