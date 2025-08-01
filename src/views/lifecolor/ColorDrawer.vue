@@ -32,7 +32,7 @@
             <el-input-number v-model="sHour" :min="0" :mix="24" :step="1" />
             <el-input-number v-model="sMinute" :min="0" :max="60" :step="5" />
           </el-form-item>
-          <el-form-item label="时间点" v-if="['S'].includes(formColor.type)">
+          <el-form-item label="时间点" v-if="['S', 'YN'].includes(formColor.type)">
             <el-time-picker
               v-model="formColor.timePoint"
               value-format="HH:mm:ss"
