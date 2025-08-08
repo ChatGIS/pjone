@@ -7,6 +7,7 @@ import * as lifeWeightApi from './life-weight'
 import * as lifeSitApi from './life-sit'
 import * as musicApi from './music'
 import * as workStatusApi from './work-status'
+import * as sysSyncApi from './sys-sync'
 
 export {
   sayingApi,
@@ -17,5 +18,6 @@ export {
   lifeWeightApi,
   lifeSitApi,
   musicApi,
-  workStatusApi
+  workStatusApi,
+  sysSyncApi
 }

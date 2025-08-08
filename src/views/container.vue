@@ -2,12 +2,17 @@
 import { onMounted, ref } from 'vue'
 import router from '../router'
 import { useMainStore } from '../store'
+import { sysSyncApi } from '@/api'
 
 const store = useMainStore()
 let loginOrOutText = ref('')
+const syncDate = ref('')
 
 onMounted(() => {
   loginOrOutText.value = store.isLogin ? '退出登录' : '请登录'
+  sysSyncApi.getSyncTablesDate().then((res) => {
+    syncDate.value = res.doDate
+  })
 })
 
 // 登录或退出
@@ -37,7 +42,9 @@ const loginOrOut = () => {
     <el-main id="bn-main">
       <router-view></router-view>
     </el-main>
-    <el-footer id="bn-footer">备案号</el-footer>
+    <el-footer id="bn-footer">
+        <span class="backup-text">最后备份时间：{{ syncDate }}</span>
+    </el-footer>
   </el-container>
 </template>
 

@@ -37,7 +37,7 @@ const onSubmit = async () => {
 
 <template>
     <div id="login-container">
-        <h2>面包导航-登录页面</h2>
+        <h2>登录页面</h2>
         <el-form :model="form" label-width="120px">
             <el-form-item label="用户名">
                 <el-input v-model="form.username" />
