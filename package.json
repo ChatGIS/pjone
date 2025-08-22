@@ -1,7 +1,7 @@
 {
   "name": "pjone",
   "private": true,
-  "version": "1.7.1",
+  "version": "1.7.2",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
